@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Toolkit;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -12,7 +13,6 @@ import javax.swing.JPanel;
 import com.proj.civ.display.GUI;
 import com.proj.civ.input.KeyboardHandler;
 import com.proj.civ.input.MouseHandler;
-import com.proj.civ.map.generation.TerrainGeneration;
 
 @SuppressWarnings("serial")
 public class Main extends JPanel implements Runnable {
@@ -24,11 +24,11 @@ public class Main extends JPanel implements Runnable {
 	private MouseHandler m;
 	private KeyboardHandler k;
 	
-	private final String TITLE = "Civ";
+	private final String TITLE = "Civilization";
 	
-	private final int WIDTH = 1920; 
-	private final int HEIGHT = 1080;
-	private final int HEX_RADIUS = 40;
+	private int WIDTH = 1920; //Default
+	private int HEIGHT = 1080; //Default
+	private int HEX_RADIUS = 40; //Default
 	
 	private boolean running = false;
 	
@@ -37,7 +37,6 @@ public class Main extends JPanel implements Runnable {
 		m = new MouseHandler();
 		k = new KeyboardHandler();
 		p = new MapPanel();
-		gui = new GUI(WIDTH, HEIGHT, HEX_RADIUS, HEX_RADIUS, HEX_RADIUS);
 	}
 	
 	public static void main(String[] args) {
@@ -52,17 +51,29 @@ public class Main extends JPanel implements Runnable {
 		init();
 	}
 	
-	public void init() {		
+	private void init() {	
+		createAndSetupGUI();
+		
 		f.setTitle(TITLE);
-		f.getContentPane().setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.setResizable(false);
 		f.addKeyListener(k);
+		f.setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		f.add(p);
 		f.pack();
 		
 		f.setLocationRelativeTo(null);
 		f.setVisible(true);
+	}
+	
+	private void createAndSetupGUI() {
+		int w = Toolkit.getDefaultToolkit().getScreenSize().width * 3 / 4;
+		int h = Toolkit.getDefaultToolkit().getScreenSize().height * 3 / 4;
+		this.WIDTH = w;
+		this.HEIGHT = h;
+		this.HEX_RADIUS = ((w >> 4) + (h >> 4)) >> 1; // Fits ~16 hexes on the screen based on the above size
+		
+		gui = new GUI(w, h, HEX_RADIUS, HEX_RADIUS, HEX_RADIUS);
 	}
 	
 	
@@ -85,9 +96,8 @@ public class Main extends JPanel implements Runnable {
 		
 		protected void paintComponent(Graphics2D g) {
 			gui.drawHexGrid(g);
-			gui.drawSelectedHex(g);				
+			gui.drawSelectedHex(g);	
 		}
-
 	}
  	
 	public void run() {

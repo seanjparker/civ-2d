@@ -61,7 +61,7 @@ public class GUI {
 			} else {
 				//this.hSize = Math.min(this.hSize, MAX_HEX);
 			}
-			reCalculateHexSize();
+			//reCalculateHexSize();
 		}
 		MouseHandler.zoom = 0;
 		
