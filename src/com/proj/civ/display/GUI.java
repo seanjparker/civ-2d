@@ -53,7 +53,7 @@ public class GUI {
 		g.setFont(new Font("TimesRoman", Font.BOLD, 18));
 		
 		if (MouseHandler.zoom != 0) {
-			this.hSize = (MouseHandler.zoom == 1) ? this.hSize >> 1 : this.hSize << 1;
+			hSize = (MouseHandler.zoom == 1) ? hSize >> 1 : hSize << 1;
 			if (MouseHandler.zoom == 1) {
 				//this.hSize = Math.max(this.hSize, MIN_HEX);	
 			} else {
@@ -120,16 +120,16 @@ public class GUI {
 			for (Integer k : keys) {
 				switch (k) {
 				case KeyEvent.VK_UP:
-					this.scrollY += this.scrollY < 0 ? this.hSize >> 1 : 0;						
+					scrollY += scrollY < 0 ? hSize >> 1 : 0;						
 					break;
 				case KeyEvent.VK_DOWN:
-					this.scrollY -= this.scrollY << 1 > -(this.hSize * (this.hHexes + 1) * 2) ? this.hSize >> 1 : 0;
+					scrollY -= scrollY > -(getAdjustedHexHeight()) ? hSize >> 1 : 0;
 					break;
 				case KeyEvent.VK_LEFT:
-					this.scrollX += this.scrollX < this.hSize ? this.hSize >> 1 : 0;
+					scrollX += scrollX < hSize ? hSize >> 1 : 0;
 					break;
 				case KeyEvent.VK_RIGHT:
-					this.scrollX -= this.scrollX << 1 > -(this.hSize * (this.wHexes + 10) * 2) ? this.hSize >> 1 : 0;
+					scrollX -= scrollX > -(getAdjustedHexWidth()) ? hSize >> 1 : 0;
 					break;
 				}
 			}
@@ -147,7 +147,12 @@ public class GUI {
 		}
 		*/
 	}
-
+	private int getAdjustedHexWidth() {
+		return (int) ((Math.sqrt(3) * hSize * wHexes) - WIDTH);
+	}
+	private int getAdjustedHexHeight() {
+		return (int) ((hHexes * hSize * 3 / 2) - HEIGHT + hSize);
+	}
 	private void reCalculateHexSize() {
 		wHexes = WIDTH / (hSize * 2);
 		hHexes = HEIGHT / (hSize * 2);
