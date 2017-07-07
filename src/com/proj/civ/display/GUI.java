@@ -38,8 +38,6 @@ public class GUI {
 		this.HEIGHT = h;
 		this.hSize = h_s;
 		
-		//this.wHexes = this.WIDTH / (this.hSize * 2);
-		//this.hHexes = this.HEIGHT / (this.hSize * 2);
 		this.wHexes = 40;
 		this.hHexes = 25;
 		
@@ -79,8 +77,8 @@ public class GUI {
 					
 					int drawX = (int) (p.get(0).x);
 					int drawY = (int) (p.get(0).y);
-					if ((drawX + scrollX < -hSize) || (drawX + scrollX > WIDTH + hSize * 2) || (drawY + scrollY < -hSize) || (drawY + scrollY > HEIGHT + hSize * 2)) {
-						//tempCounter++;
+					if ((drawX + scrollX < 0) || (drawX + scrollX > WIDTH + hSize * 2) || (drawY + scrollY < 0) || (drawY + scrollY > HEIGHT + hSize * 2)) {
+						tempCounter++;
 						continue;
 					}
 					for (int k = 0; k < p.size(); k++) {
@@ -92,7 +90,7 @@ public class GUI {
 					g.drawPolygon(poly);
 					poly.reset();
 					
-					//g.drawString("" + tempCounter++, (int) Layout.hexToPixel(layout, h).x + scrollX, (int) Layout.hexToPixel(layout, h).y + scrollY);
+					g.drawString("" + tempCounter++, (int) Layout.hexToPixel(layout, h).x + scrollX, (int) Layout.hexToPixel(layout, h).y + scrollY);
 				}
 			}
 		}
@@ -125,13 +123,13 @@ public class GUI {
 					this.scrollY += this.scrollY < 0 ? this.hSize >> 1 : 0;						
 					break;
 				case KeyEvent.VK_DOWN:
-					this.scrollY -= this.scrollY << 1 > -(this.hSize * (this.hHexes - 1)) ? this.hSize >> 1 : 0;
+					this.scrollY -= this.scrollY << 1 > -(this.hSize * (this.hHexes + 1) * 2) ? this.hSize >> 1 : 0;
 					break;
 				case KeyEvent.VK_LEFT:
 					this.scrollX += this.scrollX < this.hSize ? this.hSize >> 1 : 0;
 					break;
 				case KeyEvent.VK_RIGHT:
-					this.scrollX -= this.scrollX << 1 > -(this.hSize * (this.wHexes + 3)) ? this.hSize >> 1 : 0;
+					this.scrollX -= this.scrollX << 1 > -(this.hSize * (this.wHexes + 10) * 2) ? this.hSize >> 1 : 0;
 					break;
 				}
 			}
