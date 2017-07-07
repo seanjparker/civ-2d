@@ -29,7 +29,7 @@ public class TerrainGeneration {
 			xOff = 0;
 			for (int xi = 0; xi < xS; xi++) {
 				int i = xi + yi * yS;
-				value[i] = n.elevationNoise(xOff, yOff, OCTAVES, PERSISTANCE, SEED_ELEVATION, PEAK_ELEVATION);
+				//value[i] = n.elevationNoise(xOff, yOff, OCTAVES, PERSISTANCE, SEED_ELEVATION, PEAK_ELEVATION);
 				xOff += INCREMENT;
 			}
 			yOff += INCREMENT;
@@ -41,7 +41,7 @@ public class TerrainGeneration {
 		yOff = 0;
 		for (int yi = 0; yi < yS; yi++) {
 			for (int xi = 0; xi < xS; xi++) {
-				value[xi + yi * yS] = n.moistureNoise(xOff, yOff, OCTAVES, PERSISTANCE, SEED_MOISTURE);
+				//value[xi + yi * yS] = n.moistureNoise(xOff, yOff, OCTAVES, PERSISTANCE, SEED_MOISTURE);
 			
 				xOff += INCREMENT;
 			}
