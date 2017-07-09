@@ -72,7 +72,6 @@ public class Main extends JPanel implements Runnable {
 		this.WIDTH = w;
 		this.HEIGHT = h;
 		this.HEX_RADIUS = ((w >> 4) + (h >> 4)) >> 1; // Fits ~16 hexes on the screen based on the above size
-		System.out.println(HEX_RADIUS);
 		gui = new GUI(w, h, HEX_RADIUS, HEX_RADIUS, HEX_RADIUS);
 	}
 	

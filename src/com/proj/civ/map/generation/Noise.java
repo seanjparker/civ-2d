@@ -5,7 +5,6 @@ public class Noise {
 	private static final double STRETCH_CONSTANT_2D = -0.211324865405187;    //(1/Math.sqrt(2+1)-1)/2;
 	private static final double SQUISH_CONSTANT_2D = 0.366025403784439;      //(Math.sqrt(2+1)-1)/2;	
 	private static final double NORM_CONSTANT_2D = 47;
-	private static final long DEFAULT_SEED = 0;
 	
 	private final double REDISTRIBUTION_FACTOR = 4.0;
 	
@@ -41,7 +40,7 @@ public class Noise {
 		}
 	}
 	
-	public double noise1(double x, double y, int octaves) {
+	public double noise1(double x, double y, int octaves, boolean isPangaea) {
 		double freq = 1.0;
 		double e = 1.0;
 		double v = 0.0;
@@ -51,7 +50,7 @@ public class Noise {
 			freq *= 2.0;
 			e = 1.0 / freq;
 		}
-		return redistribute(scale(v));
+		return isPangaea ? reshape(redistribute(scale(v)), x, y) : redistribute(scale(v));
 	}
 	
 	public double noise2(double x, double y, int octaves) {
@@ -65,6 +64,19 @@ public class Noise {
 			e = 1.0 / freq;
 		}
 		return scale(v);
+	}
+	
+	private double manhattanDistance(double nx, double ny) {
+		return 2 * Math.max(Math.abs(nx), Math.abs(ny));
+	}
+	
+	private double reshape(double e, double x, double y) {
+		//e = e + a - b * d ^ c
+		final double a = 0.46;
+		final double b = 0.54;
+		final double c = 0.40;
+		final double d = manhattanDistance(x, y); //Manhattan distance
+		return e + a - b * Math.pow(d, c);
 	}
 	
 	private double scale(double x) {

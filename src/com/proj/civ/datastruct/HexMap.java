@@ -11,6 +11,8 @@ import com.proj.civ.map.terrain.Landscape;
 public class HexMap {
 	private TerrainGeneration tg;
 	
+	private final Random rnd = new Random();
+	
 	private final int MAP_WIDTH;
 	private final int MAP_HEIGHT;
 	private Map<Integer, Cell> map = new HashMap<Integer, Cell>();
@@ -26,11 +28,10 @@ public class HexMap {
 	
 	private void populateMap() {
 		int xn = 0, yn = 0;
-		
+		/*
 		for (int r = 0; r < MAP_HEIGHT; r++) {
 			int rOff = (r + 1) >> 1;
 			for (int q = -rOff; q < MAP_WIDTH - rOff; q++) {
-				/*
 				double e = eNoise[xn + yn * MAP_HEIGHT];
 				double m = mNoise[xn + yn * MAP_HEIGHT];
 				Hex nextHex = new Hex(q, r);
@@ -42,12 +43,11 @@ public class HexMap {
 					map.put(hash(nextHex), new Cell(Landscape.GRASSLAND));
 				}
 				xn++;
-				*/
 			}
 			yn++;
 			xn = 0;
 		}
-		
+		*/
 		//for (int i = 0; i < eNoise.length; i++) {
 		//	System.out.print("" + eNoise[i] + ", ");
 		//}
@@ -55,7 +55,7 @@ public class HexMap {
 		//for (int i = 0; i < mNoise.length; i++) {
 		//	System.out.print("" + mNoise[i] + ", ");
 		//}
-		/*
+		
 		for (int r = 0; r < this.MAP_HEIGHT; r++) {
 			int rOff = (r + 1) >> 1;
 			for (int q = -rOff; q < this.MAP_WIDTH - rOff; q++) {
@@ -89,7 +89,6 @@ public class HexMap {
 				}
 			}
 		}
-		 */
 	}
 	
 	public static int hash(Hex h) {

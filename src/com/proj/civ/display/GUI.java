@@ -78,7 +78,7 @@ public class GUI {
 					int drawX = (int) (p.get(0).x);
 					int drawY = (int) (p.get(0).y);
 					if ((drawX + scrollX < 0) || (drawX + scrollX > WIDTH + hSize * 2) || (drawY + scrollY < 0) || (drawY + scrollY > HEIGHT + hSize * 2)) {
-						tempCounter++;
+						//tempCounter++;
 						continue;
 					}
 					for (int k = 0; k < p.size(); k++) {
@@ -90,7 +90,7 @@ public class GUI {
 					g.drawPolygon(poly);
 					poly.reset();
 					
-					g.drawString("" + tempCounter++, (int) Layout.hexToPixel(layout, h).x + scrollX, (int) Layout.hexToPixel(layout, h).y + scrollY);
+					//g.drawString("" + tempCounter++, (int) Layout.hexToPixel(layout, h).x + scrollX, (int) Layout.hexToPixel(layout, h).y + scrollY);
 				}
 			}
 		}
@@ -153,9 +153,9 @@ public class GUI {
 	private int getAdjustedHexHeight() {
 		return (int) ((hHexes * hSize * 3 / 2) - HEIGHT + hSize);
 	}
-	private void reCalculateHexSize() {
-		wHexes = WIDTH / (hSize * 2);
-		hHexes = HEIGHT / (hSize * 2);
-		layout = new Layout(Layout.layout, new Point(hSize, hSize), new Point(hSize, hSize));
-	}
+	//private void reCalculateHexSize() {
+	//	wHexes = WIDTH / (hSize * 2);
+	//	hHexes = HEIGHT / (hSize * 2);
+	//	layout = new Layout(Layout.layout, new Point(hSize, hSize), new Point(hSize, hSize));
+	//}
 }
