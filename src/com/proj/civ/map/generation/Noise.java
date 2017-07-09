@@ -1,15 +1,15 @@
 package com.proj.civ.map.generation;
 
+//OpenSimplex by Kurt Spencer
 public class Noise {
 	private static final double STRETCH_CONSTANT_2D = -0.211324865405187;    //(1/Math.sqrt(2+1)-1)/2;
-	private static final double SQUISH_CONSTANT_2D = 0.366025403784439;      //(Math.sqrt(2+1)-1)/2;
-
+	private static final double SQUISH_CONSTANT_2D = 0.366025403784439;      //(Math.sqrt(2+1)-1)/2;	
 	private static final double NORM_CONSTANT_2D = 47;
-	
 	private static final long DEFAULT_SEED = 0;
 	
+	private final double REDISTRIBUTION_FACTOR = 4.0;
+	
 	private short[] perm;
-	private short[] permGradIndex3D;
 	
 	//Gradients for 2D. They approximate the directions to the
 	//vertices of an octagon from the center.
@@ -20,31 +20,11 @@ public class Noise {
 		-5, -2,   -2, -5,
 	};
 	
-	//Gradients for 3D. They approximate the directions to the
-	//vertices of a rhombicuboctahedron from the center, skewed so
-	//that the triangular and square facets can be inscribed inside
-	//circles of the same radius.
-	private static byte[] gradients3D = new byte[] {
-		-11,  4,  4,     -4,  11,  4,    -4,  4,  11,
-		 11,  4,  4,      4,  11,  4,     4,  4,  11,
-		-11, -4,  4,     -4, -11,  4,    -4, -4,  11,
-		 11, -4,  4,      4, -11,  4,     4, -4,  11,
-		-11,  4, -4,     -4,  11, -4,    -4,  4, -11,
-		 11,  4, -4,      4,  11, -4,     4,  4, -11,
-		-11, -4, -4,     -4, -11, -4,    -4, -4, -11,
-		 11, -4, -4,      4, -11, -4,     4, -4, -11,
-	};
-	
-	public Noise() {
-		this(DEFAULT_SEED);
-	}
-	
 	//Initializes the class using a permutation array generated from a 64-bit seed.
 	//Generates a proper permutation (i.e. doesn't merely perform N successive pair swaps on a base array)
 	//Uses a simple 64-bit LCG.
 	public Noise(long seed) {
 		perm = new short[256];
-		permGradIndex3D = new short[256];
 		short[] source = new short[256];
 		for (short i = 0; i < 256; i++)
 			source[i] = i;
@@ -57,13 +37,50 @@ public class Noise {
 			if (r < 0)
 				r += (i + 1);
 			perm[i] = source[r];
-			permGradIndex3D[i] = (short)((perm[i] % (gradients3D.length / 3)) * 3);
 			source[r] = source[i];
 		}
 	}
 	
-	public double eval(double x, double y) {
-		
+	public double noise1(double x, double y, int octaves) {
+		double freq = 1.0;
+		double e = 1.0;
+		double v = 0.0;
+		for (int i = 0; i < octaves; i++) {
+			v += e * eval(freq * x, freq * y);
+			
+			freq *= 2.0;
+			e = 1.0 / freq;
+		}
+		return redistribute(scale(v));
+	}
+	
+	public double noise2(double x, double y, int octaves) {
+		double freq = 1.0;
+		double e = 1.0;
+		double v = 0.0;
+		for (int i = 0; i < octaves; i++) {
+			v += e * eval(freq * x, freq * y);
+			
+			freq *= 2.0;
+			e = 1.0 / freq;
+		}
+		return scale(v);
+	}
+	
+	private double scale(double x) {
+		return (x / 2.0) + 0.5;
+	}
+	
+	private double redistribute(double x) {
+		return Math.pow(x, REDISTRIBUTION_FACTOR);
+	}
+	
+	//private double fade(double x) {
+	//	return x * x * x * (x * (6 * x - 15) + 10);
+	//}
+	
+	//2D OpenSimplex Noise.
+	private double eval(double x, double y) {
 		//Place input coordinates onto grid.
 		double stretchOffset = (x + y) * STRETCH_CONSTANT_2D;
 		double xs = x + stretchOffset;
@@ -175,7 +192,7 @@ public class Noise {
 		
 		return value / NORM_CONSTANT_2D;
 	}
-	
+
 	private double extrapolate(int xsb, int ysb, double dx, double dy) {
 		int index = perm[(perm[xsb & 0xFF] + ysb) & 0xFF] & 0x0E;
 		return gradients2D[index] * dx + gradients2D[index + 1] * dy;

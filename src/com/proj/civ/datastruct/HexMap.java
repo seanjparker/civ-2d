@@ -19,19 +19,18 @@ public class HexMap {
 		this.MAP_WIDTH = MAP_WIDTH;
 		this.MAP_HEIGHT = MAP_HEIGHT;
 		
-		tg = new TerrainGeneration(MAP_WIDTH, MAP_HEIGHT);
+		//tg = new TerrainGeneration(MAP_WIDTH, MAP_HEIGHT);
 		
 		populateMap();
 	}
 	
 	private void populateMap() {
-		double[] eNoise = generateElevationNoise();
-		double[] mNoise = generateMoistureNoise();
 		int xn = 0, yn = 0;
 		
 		for (int r = 0; r < MAP_HEIGHT; r++) {
 			int rOff = (r + 1) >> 1;
 			for (int q = -rOff; q < MAP_WIDTH - rOff; q++) {
+				/*
 				double e = eNoise[xn + yn * MAP_HEIGHT];
 				double m = mNoise[xn + yn * MAP_HEIGHT];
 				Hex nextHex = new Hex(q, r);
@@ -43,6 +42,7 @@ public class HexMap {
 					map.put(hash(nextHex), new Cell(Landscape.GRASSLAND));
 				}
 				xn++;
+				*/
 			}
 			yn++;
 			xn = 0;
@@ -90,13 +90,6 @@ public class HexMap {
 			}
 		}
 		 */
-	}
-	
-	private double[] generateElevationNoise() {
-		return tg.generateElevation();
-	}
-	private double[] generateMoistureNoise() {
-		return tg.generateMoisture();
 	}
 	
 	public static int hash(Hex h) {
