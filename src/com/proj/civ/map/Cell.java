@@ -8,7 +8,7 @@ import com.proj.civ.map.terrain.Yield;
 import com.proj.civ.map.terrain.Feature;
 
 public class Cell extends Improvement {	
-	private Landscape Type;
+	private Landscape Type = null;
 	private List<Feature> Features = new ArrayList<Feature>();
 	
 	public Cell(Landscape Type) {

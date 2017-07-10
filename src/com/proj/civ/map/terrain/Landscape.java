@@ -8,14 +8,14 @@ import java.awt.Color;
  * FOOD - PRODUCTION - SCIENCE - GOLD
  */
 public enum Landscape {
-	COAST (1, 0, 0, 1, new Color(90, 123, 168), "Coast"),
-	DESERT (0, 0, 0, 0, new Color(239, 239, 155), "Desert"),
-	GRASSLAND (2, 0, 0, 0, new Color(152, 196, 64), "Grassland"),
-	LAKE (1, 0, 0, 1, new Color(131, 197, 219), "Lake"),
-	OCEAN (1, 0, 0, 0, new Color(36, 36, 127), "Ocean"),
-	PLAINS (1, 1, 0, 0, new Color(226, 217, 131), "Plains"),
-	TUNDRA (1, 0, 0, 0, new Color(128, 128, 128), "Tundra"),
-	SNOW (0, 0, 0, 0, new Color(242, 242, 234), "Snow");
+	COAST (1, 0, 0, 1, new Color(90, 123, 168), "Coast"), // Low elevation, avg temperature
+	DESERT (0, 0, 0, 0, new Color(239, 239, 155), "Desert"), // Low elevation, high temperature
+	GRASSLAND (2, 0, 0, 0, new Color(152, 196, 64), "Grassland"), // Avg elevation, low-avg temperature
+	LAKE (1, 0, 0, 1, new Color(131, 197, 219), "Lake"), //Low elevation
+	OCEAN (1, 0, 0, 0, new Color(36, 36, 127), "Ocean"), //V.Low elevation
+	PLAINS (1, 1, 0, 0, new Color(226, 217, 131), "Plains"), //Avg elevation, avg temperature
+	TUNDRA (1, 0, 0, 0, new Color(128, 128, 128), "Tundra"), //Avg elevation, avg-high temperature
+	SNOW (0, 0, 0, 0, new Color(242, 242, 234), "Snow"); //High elevation, low temperature
 	
 	private final int food;
 	private final int production;

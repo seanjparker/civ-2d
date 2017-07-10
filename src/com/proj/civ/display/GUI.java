@@ -44,7 +44,7 @@ public class GUI {
 		layout = new Layout(Layout.layout, new Point(hSize, hSize), new Point(hSize, hSize));
 		poly = new Polygon();
 		hexMap = new HexMap(this.wHexes, this.hHexes, hSize, layout);
-		
+		hexMap.populateMap();
 		this.map = hexMap.getMap();
 	}
 	
@@ -83,13 +83,12 @@ public class GUI {
 					}
 					for (int k = 0; k < p.size(); k++) {
 						poly.addPoint((int) (p.get(k).x) + scrollX, (int) (p.get(k).y) + scrollY);
-					}					
+					}				
 					g.setColor(c.getLandscape().getColour());
 					g.fillPolygon(poly);
 					g.setColor(Color.BLACK);
 					g.drawPolygon(poly);
 					poly.reset();
-					
 					//g.drawString("" + tempCounter++, (int) Layout.hexToPixel(layout, h).x + scrollX, (int) Layout.hexToPixel(layout, h).y + scrollY);
 				}
 			}

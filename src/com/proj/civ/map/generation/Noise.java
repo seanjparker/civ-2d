@@ -40,7 +40,7 @@ public class Noise {
 		}
 	}
 	
-	public double noise1(double x, double y, int octaves, boolean isPangaea) {
+	public double noise1(double x, double y, double w, double h, int octaves, boolean isPangaea) {
 		double freq = 1.0;
 		double e = 1.0;
 		double v = 0.0;
@@ -50,7 +50,8 @@ public class Noise {
 			freq *= 2.0;
 			e = 1.0 / freq;
 		}
-		return isPangaea ? reshape(redistribute(scale(v)), x, y) : redistribute(scale(v));
+		//return isPangaea ? reshape(redistribute(scale(v)), x, y, w, h) : redistribute(scale(v));
+		return redistribute(scale(v));
 	}
 	
 	public double noise2(double x, double y, int octaves) {
@@ -66,16 +67,20 @@ public class Noise {
 		return scale(v);
 	}
 	
-	private double manhattanDistance(double nx, double ny) {
+	private double manhattanDistance(double x, double y, double w, double h) {
+		double cx = w / 2;
+		double cy = h / 2;
+		double nx = x - cx;
+		double ny = cy - y;
 		return 2 * Math.max(Math.abs(nx), Math.abs(ny));
 	}
 	
-	private double reshape(double e, double x, double y) {
+	private double reshape(double e, double x, double y, double w, double h) {
 		//e = e + a - b * d ^ c
 		final double a = 0.46;
 		final double b = 0.54;
-		final double c = 0.40;
-		final double d = manhattanDistance(x, y); //Manhattan distance
+		final double c = 0.60;
+		final double d = manhattanDistance(x, y, w, h); //Manhattan distance
 		return e + a - b * Math.pow(d, c);
 	}
 	

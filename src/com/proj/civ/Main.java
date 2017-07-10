@@ -25,6 +25,7 @@ public class Main extends JPanel implements Runnable {
 	private KeyboardHandler k;
 	
 	private final String TITLE = "Civilization";
+	private final double FPS = 60.0;
 	
 	private int WIDTH = 1920; //Default
 	private int HEIGHT = 1080; //Default
@@ -103,7 +104,7 @@ public class Main extends JPanel implements Runnable {
 		long lastTime = System.nanoTime();
 		long timer = System.currentTimeMillis();
 		
-		final double ns = 1000000000.0 / 60.0;
+		final double ns = 1000000000.0 / FPS;
 		double delta = 0;
 		int frames = 0, updates = 0;
 		

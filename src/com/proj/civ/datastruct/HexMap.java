@@ -6,13 +6,11 @@ import java.util.Random;
 
 import com.proj.civ.map.Cell;
 import com.proj.civ.map.generation.TerrainGeneration;
-import com.proj.civ.map.terrain.Landscape;
 
 public class HexMap {
 	private TerrainGeneration tg;
 	
 	private final Random rnd = new Random();
-	
 	private final int MAP_WIDTH;
 	private final int MAP_HEIGHT;
 	private Map<Integer, Cell> map = new HashMap<Integer, Cell>();
@@ -21,13 +19,12 @@ public class HexMap {
 		this.MAP_WIDTH = MAP_WIDTH;
 		this.MAP_HEIGHT = MAP_HEIGHT;
 		
-		//tg = new TerrainGeneration(MAP_WIDTH, MAP_HEIGHT);
-		
-		populateMap();
+		tg = new TerrainGeneration(MAP_WIDTH, MAP_HEIGHT);
 	}
 	
-	private void populateMap() {
-		int xn = 0, yn = 0;
+	public void populateMap() {
+		map = tg.generateMap();
+		//int xn = 0, yn = 0;
 		/*
 		for (int r = 0; r < MAP_HEIGHT; r++) {
 			int rOff = (r + 1) >> 1;
@@ -55,7 +52,7 @@ public class HexMap {
 		//for (int i = 0; i < mNoise.length; i++) {
 		//	System.out.print("" + mNoise[i] + ", ");
 		//}
-		
+		/*
 		for (int r = 0; r < this.MAP_HEIGHT; r++) {
 			int rOff = (r + 1) >> 1;
 			for (int q = -rOff; q < this.MAP_WIDTH - rOff; q++) {
@@ -89,6 +86,7 @@ public class HexMap {
 				}
 			}
 		}
+		*/
 	}
 	
 	public static int hash(Hex h) {
