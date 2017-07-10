@@ -72,7 +72,7 @@ public class TerrainGeneration {
 	}
 	
 	private Cell generateCell(double e, double t) {
-		System.out.println("Elevation:" + e + ", Temperature:" + t);
+		//System.out.println("Elevation:" + e + ", Temperature:" + t);
 		Cell c = null;
 		if (e < 0.0005) { //Water
 			if (t < 0.05) { //Ice
@@ -105,7 +105,7 @@ public class TerrainGeneration {
 				} else {
 					c = new Cell(Landscape.TUNDRA);
 				}
-			} else if (e > 0.05) { //Grassland
+			} else if (e > 0.01) { //Grassland
 				c = new Cell(Landscape.GRASSLAND);
 				if (t < 0.3) { 
 					c.addFeature(Feature.MARSH); //Grassland + marsh
@@ -118,10 +118,8 @@ public class TerrainGeneration {
 				c = new Cell(Landscape.DESERT);
 			}
 		}
-		
-		//if (c == null) {
-		//	System.out.println("Cell is null");
-		//}
+		c.addFeature(Feature.CLIFFS); //Temp
+		c.addFeature(Feature.WOODS); //Temp
 		return c;
 	}
 	

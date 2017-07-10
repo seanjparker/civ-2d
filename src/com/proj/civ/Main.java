@@ -96,7 +96,8 @@ public class Main extends JPanel implements Runnable {
 		
 		protected void paintComponent(Graphics2D g) {
 			gui.drawHexGrid(g);
-			gui.drawSelectedHex(g);	
+			gui.drawSelectedHex(g);
+			gui.drawHexInspect(g);
 		}
 	}
  	

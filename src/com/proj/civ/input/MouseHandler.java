@@ -13,10 +13,13 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 	
 	public static int zoom = 0;
 	public void mousePressed(MouseEvent e) {
+		mX = e.getX();
+		mY = e.getY();
+		pressedMouse = true;
 	}
 
 	public void mouseReleased(MouseEvent e) {
-		
+		pressedMouse = false;
 	}
 
 	public void mouseDragged(MouseEvent e) {

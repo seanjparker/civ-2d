@@ -3,10 +3,12 @@ package com.proj.civ.display;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,6 +19,7 @@ import com.proj.civ.datastruct.Layout;
 import com.proj.civ.datastruct.Point;
 import com.proj.civ.input.MouseHandler;
 import com.proj.civ.map.Cell;
+import com.proj.civ.map.terrain.Feature;
 
 public class GUI {
 	private final int WIDTH;
@@ -63,7 +66,6 @@ public class GUI {
 		}
 		MouseHandler.zoom = 0;
 		
-		//Color gridColour = new Color(34, 139, 34);
 		Hex h;
 		Cell c;
 		int tempCounter = 1;
@@ -83,12 +85,16 @@ public class GUI {
 					}
 					for (int k = 0; k < p.size(); k++) {
 						poly.addPoint((int) (p.get(k).x) + scrollX, (int) (p.get(k).y) + scrollY);
-					}				
+					}			
 					g.setColor(c.getLandscape().getColour());
 					g.fillPolygon(poly);
 					g.setColor(Color.BLACK);
 					g.drawPolygon(poly);
 					poly.reset();
+					
+					//StringBuilder sb = new StringBuilder();
+					//c.getFeatures().forEach(i -> sb.append(i.getName()));
+					//g.drawString(sb.toString(), (int) Layout.hexToPixel(layout, h).x + scrollX, (int) Layout.hexToPixel(layout, h).y + scrollY);
 					//g.drawString("" + tempCounter++, (int) Layout.hexToPixel(layout, h).x + scrollX, (int) Layout.hexToPixel(layout, h).y + scrollY);
 				}
 			}
@@ -101,16 +107,55 @@ public class GUI {
 		
 		g.setStroke(new BasicStroke(3.5f));
 			
-		FractionalHex result = Layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
-		Hex selected = FractionalHex.hexRound(result);
-		if (map.get(HexMap.hash(selected)) != null) {	
-			ArrayList<Point> p = Layout.polygonCorners(layout, selected);
+		FractionalHex r = Layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
+		Hex s = FractionalHex.hexRound(r);
+		if (map.get(HexMap.hash(s)) != null) {	
+			ArrayList<Point> p = Layout.polygonCorners(layout, s);
 			for (int k = 0; k < p.size(); k++) {
 				poly.addPoint((int) (p.get(k).x) + scrollX, (int) (p.get(k).y) + scrollY);
 			}
 			g.setColor(Color.WHITE);
 			g.drawPolygon(poly);
 			poly.reset();
+		}
+	}
+	
+	public void drawHexInspect(Graphics2D g) {
+		if (MouseHandler.pressedMouse) {
+			g.setFont(new Font("SansSerif", Font.BOLD, 16));
+			int padding = 3;
+			int rectW = 200;
+			int rectH = 100;
+			int rectArcRatio = 20;
+			int mouseX = MouseHandler.mX;
+			int mouseY = MouseHandler.mY;
+			
+			FractionalHex r = Layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
+			Hex s = FractionalHex.hexRound(r);
+			Cell c = map.get(HexMap.hash(s));
+			if (c != null) { //This hex should be inspected
+				//Draw rectangle at the mouse
+				g.fillRoundRect(mouseX, mouseY, rectW, rectH, rectW / rectArcRatio, rectH / rectArcRatio);
+				
+				//Write text in the box
+				FontMetrics m = g.getFontMetrics();
+				g.setColor(Color.BLACK);
+				String landscape = "Landscape: " + c.getLandscape().getName();
+				g.drawString(landscape, mouseX + padding, mouseY + m.getHeight());
+				
+				List<Feature> features = c.getFeatures();
+				StringBuilder sb = new StringBuilder(100);
+				sb.append("Features: \n");
+				features.forEach(i -> sb.append("- " + i.getName() + "\n"));
+				drawHexInspectFeatures(g, sb, mouseX + padding, mouseY + m.getHeight(), g.getFontMetrics().getHeight());
+				//g.drawString(sb.toString(), mouseX + padding, mouseY + m.getHeight() * 2);
+			}
+		}
+	}
+	
+	private void drawHexInspectFeatures(Graphics2D g, StringBuilder s, int x, int y, int yOff) {
+		for (String l : s.toString().split("\n")) {
+			g.drawString(l, x, y += yOff);
 		}
 	}
 	
