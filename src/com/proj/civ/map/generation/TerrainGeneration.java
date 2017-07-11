@@ -118,8 +118,6 @@ public class TerrainGeneration {
 				c = new Cell(Landscape.DESERT);
 			}
 		}
-		c.addFeature(Feature.CLIFFS); //Temp
-		c.addFeature(Feature.WOODS); //Temp
 		return c;
 	}
 	

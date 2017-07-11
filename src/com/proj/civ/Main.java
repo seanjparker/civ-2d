@@ -98,6 +98,8 @@ public class Main extends JPanel implements Runnable {
 			gui.drawHexGrid(g);
 			gui.drawSelectedHex(g);
 			gui.drawHexInspect(g);
+			gui.drawPath(g);
+			gui.drawFocusHex(g);
 		}
 	}
  	
@@ -133,7 +135,7 @@ public class Main extends JPanel implements Runnable {
 	
 	public void update() {
 		if (this.k.pressedSet.size() > 0) {
-			gui.updateScroll(this.k.pressedSet);
+			gui.updateKeys(this.k.pressedSet);
 		}
 	}
 }

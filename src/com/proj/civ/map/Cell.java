@@ -5,9 +5,11 @@ import java.util.List;
 
 import com.proj.civ.map.terrain.Landscape;
 import com.proj.civ.map.terrain.Yield;
+import com.proj.civ.map.improvemnt.Improvement;
 import com.proj.civ.map.terrain.Feature;
 
-public class Cell extends Improvement {	
+public class Cell {
+	private Improvement Improve = null;
 	private Landscape Type = null;
 	private List<Feature> Features = new ArrayList<Feature>();
 	

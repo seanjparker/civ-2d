@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.proj.civ.ai.Pathfinding;
 import com.proj.civ.datastruct.FractionalHex;
 import com.proj.civ.datastruct.Hex;
 import com.proj.civ.datastruct.HexMap;
@@ -27,14 +28,18 @@ public class GUI {
 	private int hSize;
 	private int wHexes;
 	private int hHexes;
+	private int focusX = 0, focusY = 0;
 	
 	private int scrollX, scrollY;
+	private boolean ShiftPressed;
 	
 	private Map<Integer, Cell> map;
 	
 	private HexMap hexMap;
 	private Layout layout;
 	private final Polygon poly;
+	
+	private Hex focusHex = null;
 	
 	public GUI(int w, int h, int h_s, int o_x, int o_y) {
 		this.WIDTH = w;
@@ -68,7 +73,7 @@ public class GUI {
 		
 		Hex h;
 		Cell c;
-		int tempCounter = 1;
+		//int tempCounter = 1;
 		for (int r = 0; r < hHexes; r++) {
 			int rOff = (r + 1) >> 1;
 			for (int q = -rOff; q < wHexes - rOff; q++) {
@@ -121,19 +126,21 @@ public class GUI {
 	}
 	
 	public void drawHexInspect(Graphics2D g) {
-		if (MouseHandler.pressedMouse) {
+		if (ShiftPressed) {
+			ShiftPressed = false;
+			
 			g.setFont(new Font("SansSerif", Font.BOLD, 16));
 			int padding = 3;
 			int rectW = 200;
 			int rectH = 100;
 			int rectArcRatio = 20;
-			int mouseX = MouseHandler.mX;
-			int mouseY = MouseHandler.mY;
+			int mouseX = MouseHandler.movedMX;
+			int mouseY = MouseHandler.movedMY;
 			
 			FractionalHex r = Layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
 			Hex s = FractionalHex.hexRound(r);
 			Cell c = map.get(HexMap.hash(s));
-			if (c != null) { //This hex should be inspected
+			if (c != null) {
 				//Draw rectangle at the mouse
 				g.fillRoundRect(mouseX, mouseY, rectW, rectH, rectW / rectArcRatio, rectH / rectArcRatio);
 				
@@ -144,11 +151,54 @@ public class GUI {
 				g.drawString(landscape, mouseX + padding, mouseY + m.getHeight());
 				
 				List<Feature> features = c.getFeatures();
-				StringBuilder sb = new StringBuilder(100);
-				sb.append("Features: \n");
-				features.forEach(i -> sb.append("- " + i.getName() + "\n"));
-				drawHexInspectFeatures(g, sb, mouseX + padding, mouseY + m.getHeight(), g.getFontMetrics().getHeight());
-				//g.drawString(sb.toString(), mouseX + padding, mouseY + m.getHeight() * 2);
+				if (features.size() > 0) {
+					StringBuilder sb = new StringBuilder(100);
+					sb.append("Features: \n");
+					features.forEach(i -> sb.append("- " + i.getName() + "\n"));
+					drawHexInspectFeatures(g, sb, mouseX + padding, mouseY + m.getHeight(), g.getFontMetrics().getHeight());	
+				}
+			}
+		}
+	}
+	
+	public void drawPath(Graphics2D g) {
+		if (MouseHandler.pressedMouse) {
+			focusX = MouseHandler.mX;
+			focusY = MouseHandler.mY;
+			FractionalHex fromFH = Layout.pixelToHex(layout, new Point(focusX - scrollX, focusY - scrollY));
+			Hex tempFocusHex = FractionalHex.hexRound(fromFH);
+			focusHex = tempFocusHex.equals(focusHex) ? null : tempFocusHex;		
+		}
+		if (focusHex != null) {
+			int toX = MouseHandler.movedMX;
+			int toY = MouseHandler.movedMY;
+			System.out.println("FromX:" + focusX + ", FromY:" + focusY + " ::  ToX:" + toX + ", ToY:" + toY);
+			FractionalHex toFH = Layout.pixelToHex(layout, new Point(toX - scrollX, toY - scrollY));
+			Hex toH = FractionalHex.hexRound(toFH);
+			if (!focusHex.equals(toH)) {
+				Pathfinding pf = new Pathfinding();
+				List<Hex> pathToFollow = pf.findPath(map, focusHex, toH, wHexes, hHexes);
+				System.out.println(pathToFollow.size());
+				//for (Hex h : pathToFollow) {
+				//	Point hexCentre = Layout.hexToPixel(layout, h);
+				//	g.drawOval((int) (hexCentre.x - scrollX) - 10, (int) (hexCentre.y - scrollY) - 10, 20, 20);
+				//}	
+			}
+		}
+	}
+	
+	public void drawFocusHex(Graphics2D g) {
+		if (focusHex != null) {
+			g.setStroke(new BasicStroke(5.0f));
+			
+			if (map.get(HexMap.hash(focusHex)) != null) {	
+				ArrayList<Point> p = Layout.polygonCorners(layout, focusHex);
+				for (int k = 0; k < p.size(); k++) {
+					poly.addPoint((int) (p.get(k).x) + scrollX, (int) (p.get(k).y) + scrollY);
+				}
+				g.setColor(Color.WHITE);
+				g.drawPolygon(poly);
+				poly.reset();
 			}
 		}
 	}
@@ -159,7 +209,7 @@ public class GUI {
 		}
 	}
 	
-	public void updateScroll(Set<Integer> keys) {
+	public void updateKeys(Set<Integer> keys) {
 		if (keys.size() > 0) {
 			for (Integer k : keys) {
 				switch (k) {
@@ -174,6 +224,9 @@ public class GUI {
 					break;
 				case KeyEvent.VK_RIGHT:
 					scrollX -= scrollX > -(getAdjustedHexWidth()) ? hSize >> 1 : 0;
+					break;
+				case KeyEvent.VK_SHIFT:
+					ShiftPressed = true;
 					break;
 				}
 			}

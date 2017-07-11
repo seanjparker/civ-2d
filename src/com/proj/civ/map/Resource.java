@@ -1,5 +1,5 @@
 package com.proj.civ.map;
 
-public class Resource<T> {
+public class Resource {
 	
 }

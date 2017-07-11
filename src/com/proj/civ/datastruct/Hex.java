@@ -19,6 +19,10 @@ public class Hex {
 		this.s = -q - r;
 	}
 	
+	public boolean equals(Hex b) {
+		return (b != null) && (this.q == b.q) && (this.r == b.r);
+	}
+	
     public static Hex add(Hex a, Hex b) {
         return new Hex(a.q + b.q, a.r + b.r, a.s + b.s);
     }
