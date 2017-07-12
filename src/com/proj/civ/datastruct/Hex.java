@@ -1,53 +1,131 @@
 package com.proj.civ.datastruct;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class Hex {
-	private final static ArrayList<Hex> directions = new ArrayList<Hex>(){{add(new Hex(1, 0, -1)); add(new Hex(1, -1, 0)); add(new Hex(0, -1, 1)); add(new Hex(-1, 0, 1)); add(new Hex(-1, 1, 0)); add(new Hex(0, 1, -1));}};
-	private final static ArrayList<Hex> diagonals = new ArrayList<Hex>(){{add(new Hex(2, -1, -1)); add(new Hex(1, -2, 1)); add(new Hex(-1, -1, 2)); add(new Hex(-2, 1, 1)); add(new Hex(-1, 2, -1)); add(new Hex(1, 1, -2));}};
-	public final int q, r, s;
+import com.proj.civ.map.improvemnt.Improvement;
+import com.proj.civ.map.terrain.Feature;
+import com.proj.civ.map.terrain.Landscape;
+import com.proj.civ.map.terrain.Yield;
+
+public class Hex extends HexCoordinate {
+	public final List<HexCoordinate> directions = new ArrayList<HexCoordinate>() {{
+	add(new HexCoordinate(1, 0, -1));
+	add(new HexCoordinate(1, -1, 0));
+	add(new HexCoordinate(0, -1, 1));
+	add(new HexCoordinate(-1, 0, 1));
+	add(new HexCoordinate(-1, 1, 0));
+	add(new HexCoordinate(0, 1, -1));
+	}};
+	
+	public final List<HexCoordinate> diagonals = new ArrayList<HexCoordinate>() {{
+	add(new HexCoordinate(2, -1, -1));
+	add(new HexCoordinate(1, -2, 1));
+	add(new HexCoordinate(-1, -1, 2));
+	add(new HexCoordinate(-2, 1, 1));
+	add(new HexCoordinate(-1, 2, -1));
+	add(new HexCoordinate(1, 1, -2));
+	}};
+	
+    private Improvement Improve = null;
+	private Landscape Type = null;
+	private List<Feature> Features = new ArrayList<Feature>();
 	
 	public Hex(int q, int r, int s) {
-		this.q = q;
-		this.r = r;
-		this.s = s;
+		super(q, r, s);
 	}
 	
-	public Hex(int q, int r) {
-		this.q = q;
-		this.r = r;
-		this.s = -q - r;
+	public Hex(Landscape Type, int q, int r, int s) {
+		super(q, r, s);
+		this.Type = Type;
 	}
 	
 	public boolean equals(Hex b) {
-		return (b != null) && (this.q == b.q) && (this.r == b.r);
+		return (b != null) && (this.q == b.q) && (this.r == b.r) && (this.s == b.s);
 	}
 	
-    public static Hex add(Hex a, Hex b) {
-        return new Hex(a.q + b.q, a.r + b.r, a.s + b.s);
+    public Hex add(HexCoordinate b) {
+        return new Hex(q + b.q, r + b.r, s + b.s);
     }
-    public static Hex subtract(Hex a, Hex b) {
-        return new Hex(a.q - b.q, a.r - b.r, a.s - b.s);
+    public Hex subtract(HexCoordinate b) {
+        return new Hex(q - b.q, r - b.r, s - b.s);
     }
-    public static Hex scale(Hex a, int k) {
-        return new Hex(a.q * k, a.r * k, a.s * k);
+    public Hex scale(int k) {
+        return new Hex(q * k, r * k, s * k);
     }
-    public static int length(Hex hex) {
+    public int length(Hex hex) {
         return (int)((Math.abs(hex.q) + Math.abs(hex.r) + Math.abs(hex.s)) / 2);
     }
-    public static int distance(Hex a, Hex b){
-        return Hex.length(Hex.subtract(a, b));
+    public int distance(Hex b){
+        return length(subtract(b));
     }
 
-    public static Hex direction(int direction) {
-        return Hex.directions.get(direction);
+    public HexCoordinate direction(int direction) {
+      return directions.get(direction);
     }
 
-    public static Hex neighbor(Hex hex, int direction) {
-        return Hex.add(hex, Hex.direction(direction));
+    public Hex neighbor(int direction) {
+        return add(direction(direction));
     }
 
-    public static Hex diagonalNeighbor(Hex hex, int direction) {
-        return Hex.add(hex, Hex.diagonals.get(direction));
+    public Hex diagonalNeighbor(int direction) {
+        return add(diagonals.get(direction));
     }
+	
+	public boolean validFeature(Landscape T, Feature F) {
+		switch (T) {
+			case COAST:
+				return (F == Feature.ICE) || (F == Feature.CLIFFS);
+			case DESERT:
+				return (F == Feature.OASIS) || (F == Feature.FLOODPLAINS);
+		}
+		return false;
+	}
+	
+	public List<Landscape> getValidFeatures() {
+		return null;
+	}
+	
+	public Landscape getLandscape() {
+		return Type;
+	}
+	public List<Feature> getFeatures() {
+		return Features;
+	}
+	public void setLandscape(Landscape Type) {
+		this.Type = Type;
+	}
+	public void setAllFeatures(List<Feature> Feature) {
+		this.Features.addAll(Feature);
+	}
+	public void addFeature(Feature Feature) {
+		this.Features.add(Feature);
+	}
+	public void removeFeature(Feature Feature) {
+		if (this.Features.contains(Feature)) {
+			this.Features.remove(Feature);			
+		} else {
+			System.out.println("Cannot remove feature, does not exist");
+		}
+	}
+	
+	public int getYieldTotal(Yield YeildType) {
+		switch (YeildType) {
+			case FOOD:
+				return this.Type.getFoodYield() + this.Features.stream().mapToInt(i -> i.getFoodMod()).sum();
+			case PRODUCTION:
+				return this.Type.getProductionYield() + this.Features.stream().mapToInt(i -> i.getProductionMod()).sum();
+			case SCIENCE:
+				return this.Type.getScienceYield() + this.Features.stream().mapToInt(i -> i.getScienceMod()).sum();
+			case GOLD:
+				return this.Type.getGoldYield() + this.Features.stream().mapToInt(i -> i.getGoldMod()).sum();
+			default:
+				return 0;
+		}
+	}
+	
+	public double getMovementTotal() {
+		return 0D;
+	}
+	
 }

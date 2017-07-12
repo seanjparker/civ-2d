@@ -119,6 +119,7 @@ public class Main extends JPanel implements Runnable {
 				update(); //Update logic
 				updates++;
 				delta--;
+				
 				f.repaint(); //Render to the screen
 				frames++;
 			}
