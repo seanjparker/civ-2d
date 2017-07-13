@@ -169,13 +169,11 @@ public class GUI {
 		if (focusHex != null) {
 			int toX = MouseHandler.movedMX;
 			int toY = MouseHandler.movedMY;
-			//System.out.println("FromX:" + focusX + ", FromY:" + focusY + " ::  ToX:" + toX + ", ToY:" + toY);
 			FractionalHex toFH = Layout.pixelToHex(layout, new Point(toX - scrollX, toY - scrollY));
 			Hex toH = FractionalHex.hexRound(toFH);
 			if (!focusHex.equals(toH)) {
 				Pathfinding pf = new Pathfinding();
 				List<Hex> pathToFollow = pf.findPath(map, focusHex, toH);
-				//System.out.println(pathToFollow.size());
 				for (Hex h : pathToFollow) {
 					if (!h.equals(focusHex)) {
 						Point hexCentre = Layout.hexToPixel(layout, h);

@@ -86,8 +86,11 @@ public class AStar {
 	}
 	
 	private int heuristicCost(Hex start, Hex end) {
-		int n = 1;
-		return start.distance(end) * n; //Where n is the movement cost per hex
+		return (int) (start.distance(end) * getMovementCostForHex(start));
+	}
+	
+	private double getMovementCostForHex(Hex h) {
+		return h.getMovementTotal();
 	}
 	
 	private List<Hex> rebuildPath(Map<Hex, Hex> cameFrom, Hex current) {
