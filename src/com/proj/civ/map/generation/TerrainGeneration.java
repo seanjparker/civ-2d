@@ -33,13 +33,15 @@ public class TerrainGeneration {
 	}
 	
 	public Map<Integer, Hex> generateMap() {
+		//TODO: Fix an issue where on larger maps some hexes are generated as voids
+		
 		Map<Integer, Hex> map = new HashMap<Integer, Hex>();
 		double[][] eHMap = new double[hexWidth][hexHeight];
 		double[][] eTMap = new double[hexWidth][hexHeight];
 		double[] e = generateElevation();
 		double[] t = generateTemperature();
-		double eT = 0;
-		double tT = 0;
+		//double eT = 0;
+		//double tT = 0;
 		for (int i = 0; i < e.length; i++) { //Calculate an avergae noise value for a section of the map
 			//eT = e[i];
 			//tT = t[i];

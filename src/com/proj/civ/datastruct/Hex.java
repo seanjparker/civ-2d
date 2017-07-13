@@ -125,7 +125,7 @@ public class Hex extends HexCoordinate {
 	}
 	
 	public double getMovementTotal() {
-		return 0D;
+		return this.getFeatures().stream().mapToDouble(i -> i.getMovement()).sum();
 	}
 	
 }
