@@ -9,7 +9,7 @@ import java.awt.event.MouseWheelListener;
 public class MouseHandler implements MouseListener, MouseMotionListener, MouseWheelListener {
 	public static int mX, mY, rMX, rMY, dMX, dMY, movedMX, movedMY;
 	public static int button;
-	public static boolean pressedMouse = false, releasedMouse = false, draggedMouse = false;
+	public static boolean pressedMouse = false, releasedMouse = false, draggedMouse = false, lostFocus = false;
 	
 	public static int zoom = 0;
 	public void mousePressed(MouseEvent e) {
@@ -44,10 +44,12 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
 
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
+		lostFocus = false;
 	}
 
 	@Override
 	public void mouseExited(MouseEvent arg0) {
+		lostFocus = true;
 	}
 
 }

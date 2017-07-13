@@ -19,7 +19,6 @@ import com.proj.civ.datastruct.HexMap;
 import com.proj.civ.datastruct.Layout;
 import com.proj.civ.datastruct.Point;
 import com.proj.civ.input.MouseHandler;
-import com.proj.civ.map.Cell;
 import com.proj.civ.map.terrain.Feature;
 
 public class GUI {
@@ -33,7 +32,7 @@ public class GUI {
 	private int scrollX, scrollY;
 	private boolean ShiftPressed;
 	
-	private Map<Integer, Cell> map;
+	private Map<Integer, Hex> map;
 	
 	private HexMap hexMap;
 	private Layout layout;
@@ -70,17 +69,15 @@ public class GUI {
 			//reCalculateHexSize();
 		}
 		MouseHandler.zoom = 0;
-		
-		Hex h;
-		Cell c;
+		Hex hex;
 		//int tempCounter = 1;
 		for (int r = 0; r < hHexes; r++) {
 			int rOff = (r + 1) >> 1;
 			for (int q = -rOff; q < wHexes - rOff; q++) {
-				h = new Hex(q, r);
-				c = map.get(HexMap.hash(h));
-				if (c != null) {
-					ArrayList<Point> p = Layout.polygonCorners(layout, h);
+				Hex h1 = new Hex(q, r, -q - r);
+				hex = map.get(HexMap.hash(h1));
+				if (hex != null) {
+					ArrayList<Point> p = Layout.polygonCorners(layout, hex);
 					
 					int drawX = (int) (p.get(0).x);
 					int drawY = (int) (p.get(0).y);
@@ -91,7 +88,7 @@ public class GUI {
 					for (int k = 0; k < p.size(); k++) {
 						poly.addPoint((int) (p.get(k).x) + scrollX, (int) (p.get(k).y) + scrollY);
 					}			
-					g.setColor(c.getLandscape().getColour());
+					g.setColor(hex.getLandscape().getColour());
 					g.fillPolygon(poly);
 					g.setColor(Color.BLACK);
 					g.drawPolygon(poly);
@@ -138,19 +135,19 @@ public class GUI {
 			int mouseY = MouseHandler.movedMY;
 			
 			FractionalHex r = Layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
-			Hex s = FractionalHex.hexRound(r);
-			Cell c = map.get(HexMap.hash(s));
-			if (c != null) {
+			Hex h = FractionalHex.hexRound(r);
+			Hex h1 = map.get(HexMap.hash(h));
+			if (h1 != null) {
 				//Draw rectangle at the mouse
 				g.fillRoundRect(mouseX, mouseY, rectW, rectH, rectW / rectArcRatio, rectH / rectArcRatio);
 				
 				//Write text in the box
 				FontMetrics m = g.getFontMetrics();
 				g.setColor(Color.BLACK);
-				String landscape = "Landscape: " + c.getLandscape().getName();
+				String landscape = "Landscape: " + h1.getLandscape().getName();
 				g.drawString(landscape, mouseX + padding, mouseY + m.getHeight());
 				
-				List<Feature> features = c.getFeatures();
+				List<Feature> features = h1.getFeatures();
 				if (features.size() > 0) {
 					StringBuilder sb = new StringBuilder(100);
 					sb.append("Features: \n");
@@ -172,17 +169,19 @@ public class GUI {
 		if (focusHex != null) {
 			int toX = MouseHandler.movedMX;
 			int toY = MouseHandler.movedMY;
-			System.out.println("FromX:" + focusX + ", FromY:" + focusY + " ::  ToX:" + toX + ", ToY:" + toY);
+			//System.out.println("FromX:" + focusX + ", FromY:" + focusY + " ::  ToX:" + toX + ", ToY:" + toY);
 			FractionalHex toFH = Layout.pixelToHex(layout, new Point(toX - scrollX, toY - scrollY));
 			Hex toH = FractionalHex.hexRound(toFH);
 			if (!focusHex.equals(toH)) {
 				Pathfinding pf = new Pathfinding();
-				List<Hex> pathToFollow = pf.findPath(map, focusHex, toH, wHexes, hHexes);
-				System.out.println(pathToFollow.size());
-				//for (Hex h : pathToFollow) {
-				//	Point hexCentre = Layout.hexToPixel(layout, h);
-				//	g.drawOval((int) (hexCentre.x - scrollX) - 10, (int) (hexCentre.y - scrollY) - 10, 20, 20);
-				//}	
+				List<Hex> pathToFollow = pf.findPath(map, focusHex, toH);
+				//System.out.println(pathToFollow.size());
+				for (Hex h : pathToFollow) {
+					if (!h.equals(focusHex)) {
+						Point hexCentre = Layout.hexToPixel(layout, h);
+						g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20, 20);
+					}
+				}	
 			}
 		}
 	}

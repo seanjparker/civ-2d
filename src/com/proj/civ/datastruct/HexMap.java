@@ -4,26 +4,30 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import com.proj.civ.map.Cell;
 import com.proj.civ.map.generation.TerrainGeneration;
 
 public class HexMap {
+	
 	private TerrainGeneration tg;
 	
 	private final Random rnd = new Random();
 	private final int MAP_WIDTH;
 	private final int MAP_HEIGHT;
-	private Map<Integer, Cell> map = new HashMap<Integer, Cell>();
+	private Map<Integer, Hex> map;
 	
 	public HexMap(int MAP_WIDTH, int MAP_HEIGHT, int CELL_SIZE, Layout l) {
 		this.MAP_WIDTH = MAP_WIDTH;
 		this.MAP_HEIGHT = MAP_HEIGHT;
+		
+		map = new HashMap<Integer, Hex>(MAP_WIDTH * MAP_HEIGHT);
 		
 		tg = new TerrainGeneration(MAP_WIDTH, MAP_HEIGHT);
 	}
 	
 	public void populateMap() {
 		map = tg.generateMap();
+		
+		
 		//int xn = 0, yn = 0;
 		/*
 		for (int r = 0; r < MAP_HEIGHT; r++) {
@@ -56,32 +60,32 @@ public class HexMap {
 		for (int r = 0; r < this.MAP_HEIGHT; r++) {
 			int rOff = (r + 1) >> 1;
 			for (int q = -rOff; q < this.MAP_WIDTH - rOff; q++) {
-				Hex nextHex = new Hex(q, r);
-				
+				Hex nextHex = new Hex(q, r, -q - r);
+
 				switch (rnd.nextInt(7)) {
 				case 0:
-					map.put(hash(nextHex), new Cell(Landscape.COAST));
+					map.put(hash(nextHex), new Hex(Landscape.COAST, nextHex.q, nextHex.r, nextHex.s));
 					break;
 				case 1:
-					map.put(hash(nextHex), new Cell(Landscape.DESERT));
+					map.put(hash(nextHex), new Hex(Landscape.DESERT, nextHex.q, nextHex.r, nextHex.s));
 					break;
 				case 2:
-					map.put(hash(nextHex), new Cell(Landscape.GRASSLAND));
+					map.put(hash(nextHex), new Hex(Landscape.GRASSLAND, nextHex.q, nextHex.r, nextHex.s));
 					break;
 				case 3:
-					map.put(hash(nextHex), new Cell(Landscape.LAKE));
+					map.put(hash(nextHex), new Hex(Landscape.LAKE, nextHex.q, nextHex.r, nextHex.s));
 					break;
 				case 4:
-					map.put(hash(nextHex), new Cell(Landscape.OCEAN));
+					map.put(hash(nextHex), new Hex(Landscape.OCEAN, nextHex.q, nextHex.r, nextHex.s));
 					break;
 				case 5:
-					map.put(hash(nextHex), new Cell(Landscape.PLAINS));
+					map.put(hash(nextHex), new Hex(Landscape.PLAINS, nextHex.q, nextHex.r, nextHex.s));
 					break;
 				case 6:
-					map.put(hash(nextHex), new Cell(Landscape.TUNDRA));
+					map.put(hash(nextHex), new Hex(Landscape.TUNDRA, nextHex.q, nextHex.r, nextHex.s));
 					break;
 				case 7:
-					map.put(hash(nextHex), new Cell(Landscape.SNOW));
+					map.put(hash(nextHex), new Hex(Landscape.SNOW, nextHex.q, nextHex.r, nextHex.s));
 					break;
 				}
 			}
@@ -95,11 +99,11 @@ public class HexMap {
 		return hq ^ (hr + 0x9e3779b9 + (hq << 6) + (hq >> 2));
 	}
 	
-	public void setCell(Hex h, Cell newC) {
-		map.replace(hash(h), newC);
+	public void setCell(Hex h, Hex newH) {
+		map.replace(hash(h), newH);
 	}
 	
-	public Map<Integer, Cell> getMap() {
+	public Map<Integer, Hex> getMap() {
 		return map;
 	}
 	

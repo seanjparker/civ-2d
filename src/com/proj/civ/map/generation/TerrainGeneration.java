@@ -6,7 +6,6 @@ import java.util.Random;
 
 import com.proj.civ.datastruct.Hex;
 import com.proj.civ.datastruct.HexMap;
-import com.proj.civ.map.Cell;
 import com.proj.civ.map.terrain.Feature;
 import com.proj.civ.map.terrain.Landscape;
 
@@ -33,8 +32,8 @@ public class TerrainGeneration {
 		temperature = new Noise(rnd.nextLong());
 	}
 	
-	public Map<Integer, Cell> generateMap() {
-		Map<Integer, Cell> map = new HashMap<Integer, Cell>();
+	public Map<Integer, Hex> generateMap() {
+		Map<Integer, Hex> map = new HashMap<Integer, Hex>();
 		double[][] eHMap = new double[hexWidth][hexHeight];
 		double[][] eTMap = new double[hexWidth][hexHeight];
 		double[] e = generateElevation();
@@ -62,63 +61,62 @@ public class TerrainGeneration {
 		for (int r = 0, y = 0; r < this.hexHeight; r++, y++) { //y
 			int rOff = (r + 1) >> 1;
 			for (int q = -rOff, x = 0; q < this.hexWidth - rOff; q++, x++) { //x
-				Hex nextHex = new Hex(q, r);
-				Cell nextCell = generateCell(eHMap[x][y], eTMap[x][y]);
-				int hexHash = HexMap.hash(nextHex);
-				map.put(hexHash, nextCell);
+				Hex n = new Hex(q, r, -q - r);
+				Hex nextHex = generateHexTerrain(eHMap[x][y], eTMap[x][y], q, r, -q - r);
+				map.put(HexMap.hash(n), nextHex);
 			}
 		}
 		return map;
 	}
 	
-	private Cell generateCell(double e, double t) {
+	private Hex generateHexTerrain(double e, double t, int q, int r, int s) {
 		//System.out.println("Elevation:" + e + ", Temperature:" + t);
-		Cell c = null;
+		Hex h = null;
 		if (e < 0.0005) { //Water
 			if (t < 0.05) { //Ice
-				c = new Cell(Landscape.LAKE);
-				c.addFeature(Feature.ICE);
+				h = new Hex(Landscape.LAKE, q, r, s);
+				h.addFeature(Feature.ICE);
 			} else { //Lake
-				c = new Cell(Landscape.LAKE);
+				h = new Hex(Landscape.LAKE, q, r, s);
 			}
 		} else if (e < 0.001) { //Coast
-			c = new Cell(Landscape.COAST);
+			h = new Hex(Landscape.COAST, q, r, s);
 		} else { //Land
 			if (e > 0.80) {
 				if (t < 0.8) { //Tundra
-					c = new Cell(Landscape.TUNDRA);
+					h = new Hex(Landscape.TUNDRA, q, r, s);
 				} else if (t < 0.5) { //Snow + Mountain
-					c = new Cell(Landscape.SNOW);
-					c.addFeature(Feature.MOUNTAINS);
+					h = new Hex(Landscape.SNOW, q, r, s);
+					h.addFeature(Feature.MOUNTAINS);
 				} else { //Snow
-					c = new Cell(Landscape.SNOW);
+					h = new Hex(Landscape.SNOW, q, r, s);
 				}
 			} else if (e > 0.50) {
 				if (t < 0.3) { //Plains
-					c = new Cell(Landscape.PLAINS);
+					h = new Hex(Landscape.PLAINS, q, r, s);
 				} else if (t < 0.6) { //Woods + grassland
-					c = new Cell(Landscape.GRASSLAND);
-					c.addFeature(Feature.WOODS);
+					h = new Hex(Landscape.GRASSLAND, q, r, s);
+					h.addFeature(Feature.WOODS);
 				} else if (t < 0.8) { //Rainforest + grassland
-					c = new Cell(Landscape.GRASSLAND);
-					c.addFeature(Feature.RAINFOREST);
+					h = new Hex(Landscape.GRASSLAND, q, r, s);
+					h.addFeature(Feature.RAINFOREST);
 				} else {
-					c = new Cell(Landscape.TUNDRA);
+					h = new Hex(Landscape.TUNDRA, q, r, s);
 				}
 			} else if (e > 0.01) { //Grassland
-				c = new Cell(Landscape.GRASSLAND);
+				h = new Hex(Landscape.GRASSLAND, q, r, s);
 				if (t < 0.3) { 
-					c.addFeature(Feature.MARSH); //Grassland + marsh
+					h.addFeature(Feature.MARSH); //Grassland + marsh
 				} else if (t < 0.5) { //Grassland + woods
-					c.addFeature(Feature.WOODS);
+					h.addFeature(Feature.WOODS);
 				} else { //Grassland + rainforest
-					c.addFeature(Feature.RAINFOREST);
+					h.addFeature(Feature.RAINFOREST);
 				}
 			} else { // Desert
-				c = new Cell(Landscape.DESERT);
+				h = new Hex(Landscape.DESERT, q, r, s);
 			}
 		}
-		return c;
+		return h;
 	}
 	
 	private double[] generateElevation() {

@@ -21,7 +21,7 @@ public class FractionalHex {
 		} else if (r_diff > s_diff) {
 			r = -q -s;
 		}
-		return new Hex(q, r);
+		return new Hex(q, r, -q - r);
 	}
 	
 }

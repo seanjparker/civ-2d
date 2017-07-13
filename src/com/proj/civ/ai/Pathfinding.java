@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.proj.civ.datastruct.Hex;
-import com.proj.civ.map.Cell;
 
 /**
  * Neighbors. The sample code I provide in the pathfinding tutorial calls graph.neighbors to get the neighbors of a location. 
@@ -22,7 +21,7 @@ public class Pathfinding {
 		ap = new AStar();
 	}
 	
-	public List<Hex> findPath(Map<Integer, Cell> map, Hex from, Hex to, int widthHex, int heightHex) {
-		return ap.aStar(map, from, to, widthHex, heightHex);	
+	public List<Hex> findPath(Map<Integer, Hex> map, Hex from, Hex to) {
+		return ap.aStar(map, from, to);	
 	}
 }
