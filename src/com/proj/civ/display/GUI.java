@@ -174,12 +174,14 @@ public class GUI {
 			Hex toH = FractionalHex.hexRound(toFH);
 			if (!focusHex.equals(toH)) {
 				Pathfinding pf = new Pathfinding();
-				List<Hex> pathToFollow = pf.findPath(map, focusHex, toH, wHexes, hHexes);
-				System.out.println(pathToFollow.size());
-				//for (Hex h : pathToFollow) {
-				//	Point hexCentre = Layout.hexToPixel(layout, h);
-				//	g.drawOval((int) (hexCentre.x - scrollX) - 10, (int) (hexCentre.y - scrollY) - 10, 20, 20);
-				//}	
+				List<Hex> pathToFollow = pf.findPath(map, focusHex, toH);
+				//System.out.println(pathToFollow.size());
+				for (Hex h : pathToFollow) {
+					if (!h.equals(focusHex)) {
+						Point hexCentre = Layout.hexToPixel(layout, h);
+						g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20, 20);
+					}
+				}	
 			}
 		}
 	}

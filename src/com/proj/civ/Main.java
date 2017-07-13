@@ -116,6 +116,7 @@ public class Main extends JPanel implements Runnable {
 			delta += (now - lastTime) / ns;
 			lastTime = now;
 			while (delta >= 1) {
+				
 				update(); //Update logic
 				updates++;
 				delta--;

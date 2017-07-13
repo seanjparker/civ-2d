@@ -21,7 +21,7 @@ public class Pathfinding {
 		ap = new AStar();
 	}
 	
-	public List<Hex> findPath(Map<Integer, Hex> map, Hex from, Hex to, int widthHex, int heightHex) {
-		return ap.aStar(map, from, to, widthHex, heightHex);	
+	public List<Hex> findPath(Map<Integer, Hex> map, Hex from, Hex to) {
+		return ap.aStar(map, from, to);	
 	}
 }
