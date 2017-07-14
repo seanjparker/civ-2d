@@ -166,7 +166,7 @@ public class GUI {
 					StringBuilder sb = new StringBuilder(100);
 					sb.append("Features: \n");
 					features.forEach(i -> sb.append("- " + i.getName() + "\n"));
-					drawHexInspectFeatures(g, sb, mouseX + padding, mouseY + m.getHeight() + (yOff += g.getFontMetrics().getHeight()), g.getFontMetrics().getHeight());	
+					drawHexInspectFeatures(g, sb, mouseX + padding, mouseY + m.getHeight() + yOff, g.getFontMetrics().getHeight());	
 				}
 			}
 		}

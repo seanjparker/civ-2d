@@ -3,19 +3,24 @@ package com.proj.civ.map.improvemnt;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.proj.civ.map.terrain.Feature;
 import com.proj.civ.map.terrain.Landscape;
 
-public class Farm extends Improvement {
+public class TradingPost extends Improvement {
+	private List<Feature> validFeatures = new ArrayList<Feature>();
 	private List<Landscape> validLandscapes = new ArrayList<Landscape>();
 	
-	public Farm() { //Must super with yield amounts
-		super(1, 0, 0, 0); //Default yields for a farm
+	public TradingPost() {
+		super(0, 0, 0, 1);
 		
 		validLandscapes.add(Landscape.PLAINS);
 		validLandscapes.add(Landscape.GRASSLAND);
 		validLandscapes.add(Landscape.DESERT);
 		validLandscapes.add(Landscape.TUNDRA);
 		super.addAllValidLandscapes(validLandscapes);
+		
+		validFeatures.add(Feature.HILLS);
+		super.addAllValidFeatures(validFeatures);
 	}
 
 }

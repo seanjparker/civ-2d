@@ -6,7 +6,6 @@ import java.util.List;
 import com.proj.civ.map.improvemnt.Improvement;
 import com.proj.civ.map.terrain.Feature;
 import com.proj.civ.map.terrain.Landscape;
-import com.proj.civ.map.terrain.Yield;
 import com.proj.civ.map.terrain.YieldType;
 
 public class Hex extends HexCoordinate {
