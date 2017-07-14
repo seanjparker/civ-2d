@@ -1,7 +1,6 @@
 package com.proj.civ.ai;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -11,8 +10,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.proj.civ.datastruct.Hex;
+import com.proj.civ.datastruct.HexCoordinate;
 import com.proj.civ.datastruct.HexMap;
-import com.proj.civ.map.terrain.Feature;
 
 public class AStar {
 	
@@ -51,9 +50,9 @@ public class AStar {
 
 			openSet.remove(0);
 			closedSet.add(current);
-			for (int i = 0; i < 6; i++) { //Iterate through all the neighbours of the current hex
+			for (int i = 0; i < HexCoordinate.NEIGHBOURS; i++) { //Iterate through all the neighbours of the current hex
 				final Hex neighbour = map.get(HexMap.hash(current.neighbor(i)));
-				if (map.containsValue(neighbour)) { //Does the list contain the neighbour
+				if (map.containsValue(neighbour) && neighbour.getFeatures().stream().allMatch(x -> x.getPassable())) { //Does the list contain the neighbour
 					
 					if (closedSet.contains(neighbour)) {
 						continue;

@@ -20,25 +20,31 @@ import com.proj.civ.datastruct.Layout;
 import com.proj.civ.datastruct.Point;
 import com.proj.civ.input.MouseHandler;
 import com.proj.civ.map.terrain.Feature;
+import com.proj.civ.map.terrain.YieldType;
 
 public class GUI {
 	private final int WIDTH;
 	private final int HEIGHT;
+	
 	private int hSize;
 	private int wHexes;
 	private int hHexes;
 	private int focusX = 0, focusY = 0;
 	
 	private int scrollX, scrollY;
+	
 	private boolean ShiftPressed;
 	
 	private Map<Integer, Hex> map;
+	private List<Hex> pathToFollow;
 	
-	private HexMap hexMap;
-	private Layout layout;
+	private final HexMap hexMap;
+	private final Layout layout;
 	private final Polygon poly;
+	private final Pathfinding pf;
 	
 	private Hex focusHex = null;
+	private Hex pathToHex = null;
 	
 	public GUI(int w, int h, int h_s, int o_x, int o_y) {
 		this.WIDTH = w;
@@ -48,9 +54,12 @@ public class GUI {
 		this.wHexes = 40;
 		this.hHexes = 25;
 		
+		pf = new Pathfinding();
 		layout = new Layout(Layout.layout, new Point(hSize, hSize), new Point(hSize, hSize));
 		poly = new Polygon();
 		hexMap = new HexMap(this.wHexes, this.hHexes, hSize, layout);
+		pathToFollow = new ArrayList<Hex>();
+		
 		hexMap.populateMap();
 		this.map = hexMap.getMap();
 	}
@@ -126,35 +135,60 @@ public class GUI {
 		if (ShiftPressed) {
 			ShiftPressed = false;
 			
-			g.setFont(new Font("SansSerif", Font.BOLD, 16));
-			int padding = 3;
-			int rectW = 200;
-			int rectH = 100;
-			int rectArcRatio = 20;
 			int mouseX = MouseHandler.movedMX;
 			int mouseY = MouseHandler.movedMY;
 			
 			FractionalHex r = Layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
 			Hex h = FractionalHex.hexRound(r);
 			Hex h1 = map.get(HexMap.hash(h));
+			
+			g.setFont(new Font("SansSerif", Font.BOLD, 16));
+			
 			if (h1 != null) {
+				FontMetrics m = g.getFontMetrics();
+				int xOff = g.getFont().getSize();
+				int padding = 3;
+				int rectW = 200;
+				int rectH = 100;
+				int rectArcRatio = 20;
+				int yOff = 0;
+				
 				//Draw rectangle at the mouse
 				g.fillRoundRect(mouseX, mouseY, rectW, rectH, rectW / rectArcRatio, rectH / rectArcRatio);
 				
-				//Write text in the box
-				FontMetrics m = g.getFontMetrics();
+				//Write text in the box about hex yeild
+				drawYieldAmount(g, YieldType.FOOD, Color.GREEN, h1, m, mouseX + padding, mouseY, 0);
+				drawYieldAmount(g, YieldType.PRODUCTION, new Color(150, 75, 5), h1, m, mouseX + padding, mouseY, xOff);
+				drawYieldAmount(g, YieldType.SCIENCE, Color.BLUE, h1, m, mouseX + padding, mouseY, xOff * 2);
+				drawYieldAmount(g, YieldType.GOLD, new Color(244, 244, 34), h1, m, mouseX + padding, mouseY, xOff * 3);
+			
+				//Write text in the box (about landscape type)
 				g.setColor(Color.BLACK);
 				String landscape = "Landscape: " + h1.getLandscape().getName();
-				g.drawString(landscape, mouseX + padding, mouseY + m.getHeight());
+				g.drawString(landscape, mouseX + padding, mouseY + m.getHeight() + (yOff += g.getFontMetrics().getHeight()));
 				
+				//Write text in the box (about landscape features)
 				List<Feature> features = h1.getFeatures();
 				if (features.size() > 0) {
 					StringBuilder sb = new StringBuilder(100);
 					sb.append("Features: \n");
 					features.forEach(i -> sb.append("- " + i.getName() + "\n"));
-					drawHexInspectFeatures(g, sb, mouseX + padding, mouseY + m.getHeight(), g.getFontMetrics().getHeight());	
+					drawHexInspectFeatures(g, sb, mouseX + padding, mouseY + m.getHeight() + (yOff += g.getFontMetrics().getHeight()), g.getFontMetrics().getHeight());	
 				}
 			}
+		}
+	}
+	
+	private void drawYieldAmount(Graphics2D g, YieldType yield, Color c, Hex h, FontMetrics m, int x, int y, int xOff) {
+		String amount = Integer.toString(h.getYieldTotal(yield));
+		int widthX = m.stringWidth(amount);
+		g.setColor(c);
+		g.drawString(amount, x + widthX + xOff, y + m.getHeight());
+	}
+	
+	private void drawHexInspectFeatures(Graphics2D g, StringBuilder s, int x, int y, int yOff) {
+		for (String l : s.toString().split("\n")) {
+			g.drawString(l, x, y += yOff);
 		}
 	}
 	
@@ -167,28 +201,38 @@ public class GUI {
 			focusHex = tempFocusHex.equals(focusHex) ? null : tempFocusHex;		
 		}
 		if (focusHex != null) {
+			g.setColor(Color.WHITE);
+			
 			int toX = MouseHandler.movedMX;
 			int toY = MouseHandler.movedMY;
 			FractionalHex toFH = Layout.pixelToHex(layout, new Point(toX - scrollX, toY - scrollY));
-			Hex toH = FractionalHex.hexRound(toFH);
-			if (!focusHex.equals(toH)) {
-				Pathfinding pf = new Pathfinding();
-				List<Hex> pathToFollow = pf.findPath(map, focusHex, toH);
-				for (Hex h : pathToFollow) {
-					if (!h.equals(focusHex)) {
-						Point hexCentre = Layout.hexToPixel(layout, h);
-						g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20, 20);
-					}
-				}	
+			Hex endHex = FractionalHex.hexRound(toFH);
+			if (!focusHex.equals(endHex) && !endHex.equals(pathToHex)) { //Ensure if the path is already found, dont recalculate path
+				pathToHex = endHex;
+				pathToFollow = pf.findPath(map, focusHex, pathToHex);
+				drawPathOnGrid(g);
+			} else {
+				drawPathOnGrid(g);
 			}
+		}
+	}
+	
+	private void drawPathOnGrid(Graphics2D g) {
+		if (pathToFollow != null) {
+			for (Hex h : pathToFollow) {
+				if (!h.equals(focusHex)) {
+					Point hexCentre = Layout.hexToPixel(layout, h);
+					g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20, 20);
+				}
+			}	
 		}
 	}
 	
 	public void drawFocusHex(Graphics2D g) {
 		if (focusHex != null) {
-			g.setStroke(new BasicStroke(5.0f));
-			
 			if (map.get(HexMap.hash(focusHex)) != null) {	
+				g.setStroke(new BasicStroke(5.0f));
+				
 				ArrayList<Point> p = Layout.polygonCorners(layout, focusHex);
 				for (int k = 0; k < p.size(); k++) {
 					poly.addPoint((int) (p.get(k).x) + scrollX, (int) (p.get(k).y) + scrollY);
@@ -197,12 +241,6 @@ public class GUI {
 				g.drawPolygon(poly);
 				poly.reset();
 			}
-		}
-	}
-	
-	private void drawHexInspectFeatures(Graphics2D g, StringBuilder s, int x, int y, int yOff) {
-		for (String l : s.toString().split("\n")) {
-			g.drawString(l, x, y += yOff);
 		}
 	}
 	

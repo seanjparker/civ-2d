@@ -1,9 +1,8 @@
 package com.proj.civ.datastruct;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class HexCoordinate {
+	public static final int NEIGHBOURS = 6;
+	
 	public final int q, r, s;
 	
 	public HexCoordinate(int q, int r, int s) {

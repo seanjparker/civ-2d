@@ -1,18 +1,28 @@
 package com.proj.civ.map.terrain;
 
-public enum Yield {	
-	FOOD (0),
-	PRODUCTION (1),
-	SCIENCE (2),
-	GOLD (3);
+public class Yield {	
+	private int food;
+	private int production;
+	private int science;
+	private int gold;
 	
-	private final int index;
-	
-	Yield(int index) {
-		this.index = index;
+	public Yield(int food, int production, int science, int gold) {
+		this.food = food;
+		this.production = production;
+		this.science = science;
+		this.gold = gold;
 	}
 	
-	public int getIndex() {
-		return this.index;
+	public int getFood() {
+		return this.food;
+	}
+	public int getProduction() {
+		return this.production;		
+	}
+	public int getScience() {
+		return this.science;		
+	}
+	public int getGold() {
+		return this.gold;		
 	}
 }

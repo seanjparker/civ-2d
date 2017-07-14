@@ -6,7 +6,7 @@ import java.util.List;
 import com.proj.civ.map.terrain.Landscape;
 
 public class Improvement {
-	public List<Landscape> validLandscapes = new ArrayList<Landscape>();
+	private List<Landscape> validLandscapes = new ArrayList<Landscape>();
 	
 	public Improvement() {
 	}

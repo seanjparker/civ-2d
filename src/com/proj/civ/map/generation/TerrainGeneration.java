@@ -60,6 +60,8 @@ public class TerrainGeneration {
 			//}
 		}
 		
+		
+		//Decide the terrain type + features for the hex
 		for (int r = 0, y = 0; r < this.hexHeight; r++, y++) { //y
 			int rOff = (r + 1) >> 1;
 			for (int q = -rOff, x = 0; q < this.hexWidth - rOff; q++, x++) { //x

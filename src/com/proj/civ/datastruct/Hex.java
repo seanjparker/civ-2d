@@ -7,9 +7,10 @@ import com.proj.civ.map.improvemnt.Improvement;
 import com.proj.civ.map.terrain.Feature;
 import com.proj.civ.map.terrain.Landscape;
 import com.proj.civ.map.terrain.Yield;
+import com.proj.civ.map.terrain.YieldType;
 
 public class Hex extends HexCoordinate {
-	public final List<HexCoordinate> directions = new ArrayList<HexCoordinate>() {{
+	private final List<HexCoordinate> directions = new ArrayList<HexCoordinate>() {{
 	add(new HexCoordinate(1, 0, -1));
 	add(new HexCoordinate(1, -1, 0));
 	add(new HexCoordinate(0, -1, 1));
@@ -18,7 +19,7 @@ public class Hex extends HexCoordinate {
 	add(new HexCoordinate(0, 1, -1));
 	}};
 	
-	public final List<HexCoordinate> diagonals = new ArrayList<HexCoordinate>() {{
+	private final List<HexCoordinate> diagonals = new ArrayList<HexCoordinate>() {{
 	add(new HexCoordinate(2, -1, -1));
 	add(new HexCoordinate(1, -2, 1));
 	add(new HexCoordinate(-1, -1, 2));
@@ -44,10 +45,10 @@ public class Hex extends HexCoordinate {
 		return (b != null) && (this.q == b.q) && (this.r == b.r) && (this.s == b.s);
 	}
 	
-    public Hex add(HexCoordinate b) {
+    private Hex add(HexCoordinate b) {
         return new Hex(q + b.q, r + b.r, s + b.s);
     }
-    public Hex subtract(HexCoordinate b) {
+    private Hex subtract(HexCoordinate b) {
         return new Hex(q - b.q, r - b.r, s - b.s);
     }
     public Hex scale(int k) {
@@ -95,6 +96,10 @@ public class Hex extends HexCoordinate {
 	public void setLandscape(Landscape Type) {
 		this.Type = Type;
 	}
+	//public Hex setAndGetLandscape(Landscape Type) {
+	//	this.Type = Type;
+	//	return this;
+	//}
 	public void setAllFeatures(List<Feature> Feature) {
 		this.Features.addAll(Feature);
 	}
@@ -109,8 +114,8 @@ public class Hex extends HexCoordinate {
 		}
 	}
 	
-	public int getYieldTotal(Yield YeildType) {
-		switch (YeildType) {
+	public int getYieldTotal(YieldType yt) {
+		switch (yt) {
 			case FOOD:
 				return this.Type.getFoodYield() + this.Features.stream().mapToInt(i -> i.getFoodMod()).sum();
 			case PRODUCTION:
