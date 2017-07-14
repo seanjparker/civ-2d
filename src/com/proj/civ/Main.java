@@ -116,11 +116,11 @@ public class Main extends JPanel implements Runnable {
 			delta += (now - lastTime) / ns;
 			lastTime = now;
 			while (delta >= 1) {
-				update(); //Update logic
+				update();
 				updates++;
 				delta--;
 				
-				render(); //Render to the screen
+				render();
 				frames++;
 			}
 			
@@ -141,6 +141,7 @@ public class Main extends JPanel implements Runnable {
 	private void update() {
 		if (this.k.pressedSet.size() > 0) {
 			gui.updateKeys(this.k.pressedSet);
+			//gui.addFarm();
 		}
 	}
 }

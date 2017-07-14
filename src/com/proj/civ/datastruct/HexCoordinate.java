@@ -15,4 +15,8 @@ public class HexCoordinate {
 		this.r = r;
 		this.s = -q - r;
 	}
+	
+	public boolean isEqual(HexCoordinate b) {
+		return (b != null) && (this.q == b.q) && (this.r == b.r) && (this.s == b.s);
+	}
 }

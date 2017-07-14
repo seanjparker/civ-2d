@@ -3,12 +3,14 @@ package com.proj.civ.datastruct;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.proj.civ.map.improvemnt.Improvement;
+import com.proj.civ.map.improvement.Farm;
+import com.proj.civ.map.improvement.Improvement;
 import com.proj.civ.map.terrain.Feature;
 import com.proj.civ.map.terrain.Landscape;
 import com.proj.civ.map.terrain.YieldType;
 
 public class Hex extends HexCoordinate {
+	
 	private final List<HexCoordinate> directions = new ArrayList<HexCoordinate>() {{
 	add(new HexCoordinate(1, 0, -1));
 	add(new HexCoordinate(1, -1, 0));
@@ -27,7 +29,7 @@ public class Hex extends HexCoordinate {
 	add(new HexCoordinate(1, 1, -2));
 	}};
 	
-    private Improvement Improve = null;
+    private Improvement TileImprovement = null;
 	private Landscape Type = null;
 	private List<Feature> Features = new ArrayList<Feature>();
 	
@@ -72,12 +74,12 @@ public class Hex extends HexCoordinate {
         return add(diagonals.get(direction));
     }
 	
-	public boolean validFeature(Landscape T, Feature F) {
-		switch (T) {
+	public boolean validFeature(Landscape l, Feature f) {
+		switch (l) {
 			case COAST:
-				return (F == Feature.ICE) || (F == Feature.CLIFFS);
+				return (f == Feature.ICE) || (f == Feature.CLIFFS);
 			case DESERT:
-				return (F == Feature.OASIS) || (F == Feature.FLOODPLAINS);
+				return (f == Feature.OASIS) || (f == Feature.FLOODPLAINS);
 		}
 		return false;
 	}
@@ -94,6 +96,9 @@ public class Hex extends HexCoordinate {
 	}
 	public void setLandscape(Landscape Type) {
 		this.Type = Type;
+	}
+	public Improvement getImprovement() {
+		return this.TileImprovement;
 	}
 	//public Hex setAndGetLandscape(Landscape Type) {
 	//	this.Type = Type;
@@ -113,23 +118,29 @@ public class Hex extends HexCoordinate {
 		}
 	}
 	
+	public Hex setImprovement(Improvement i) {
+		TileImprovement = i;
+		//System.out.println(TileImprovement.toString());
+		return this;
+	}
+	
 	public int getYieldTotal(YieldType yt) {
 		switch (yt) {
 			case FOOD:
-				return this.Type.getFoodYield() + this.Features.stream().mapToInt(i -> i.getFoodMod()).sum();
+				return this.Type.getFoodYield() + this.Features.stream().mapToInt(x -> x.getFoodMod()).sum();
 			case PRODUCTION:
-				return this.Type.getProductionYield() + this.Features.stream().mapToInt(i -> i.getProductionMod()).sum();
+				return this.Type.getProductionYield() + this.Features.stream().mapToInt(x -> x.getProductionMod()).sum();
 			case SCIENCE:
-				return this.Type.getScienceYield() + this.Features.stream().mapToInt(i -> i.getScienceMod()).sum();
+				return this.Type.getScienceYield() + this.Features.stream().mapToInt(x -> x.getScienceMod()).sum();
 			case GOLD:
-				return this.Type.getGoldYield() + this.Features.stream().mapToInt(i -> i.getGoldMod()).sum();
+				return this.Type.getGoldYield() + this.Features.stream().mapToInt(x -> x.getGoldMod()).sum();
 			default:
 				return 0;
 		}
 	}
 	
 	public double getMovementTotal() {
-		return this.getFeatures().stream().mapToDouble(i -> i.getMovement()).sum();
+		return this.getFeatures().stream().mapToDouble(x -> x.getMovement()).sum();
 	}
 	
 }

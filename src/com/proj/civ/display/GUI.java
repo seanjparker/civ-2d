@@ -19,6 +19,8 @@ import com.proj.civ.datastruct.HexMap;
 import com.proj.civ.datastruct.Layout;
 import com.proj.civ.datastruct.Point;
 import com.proj.civ.input.MouseHandler;
+import com.proj.civ.map.improvement.Farm;
+import com.proj.civ.map.improvement.Improvement;
 import com.proj.civ.map.terrain.Feature;
 import com.proj.civ.map.terrain.YieldType;
 
@@ -34,6 +36,7 @@ public class GUI {
 	private int scrollX, scrollY;
 	
 	private boolean ShiftPressed;
+	//private boolean farmToAdd;
 	
 	private Map<Integer, Hex> map;
 	private List<Hex> pathToFollow;
@@ -68,16 +71,16 @@ public class GUI {
 		g.setStroke(new BasicStroke(1.0f));
 		g.setFont(new Font("TimesRoman", Font.BOLD, 18));
 		
-		if (MouseHandler.zoom != 0) {
-			hSize = (MouseHandler.zoom == 1) ? hSize >> 1 : hSize << 1;
-			if (MouseHandler.zoom == 1) {
+		//if (MouseHandler.zoom != 0) {
+		//	hSize = (MouseHandler.zoom == 1) ? hSize >> 1 : hSize << 1;
+		//	if (MouseHandler.zoom == 1) {
 				//this.hSize = Math.max(this.hSize, MIN_HEX);	
-			} else {
+		//	} else {
 				//this.hSize = Math.min(this.hSize, MAX_HEX);
-			}
+		//	}
 			//reCalculateHexSize();
-		}
-		MouseHandler.zoom = 0;
+		//}
+		//MouseHandler.zoom = 0;
 		Hex hex;
 		for (int r = 0; r < hHexes; r++) {
 			int rOff = (r + 1) >> 1;
@@ -139,15 +142,18 @@ public class GUI {
 			
 			if (h1 != null) {
 				FontMetrics m = g.getFontMetrics();
+				List<Feature> features = h1.getFeatures();
+				
 				int xOff = g.getFont().getSize();
 				int padding = 3;
 				int rectW = 200;
 				int rectH = 100;
 				int rectArcRatio = 20;
 				int yOff = 0;
+				int yOff1 = g.getFontMetrics().getHeight();
 				
 				//Draw rectangle at the mouse
-				g.fillRoundRect(mouseX, mouseY, rectW, rectH, rectW / rectArcRatio, rectH / rectArcRatio);
+				g.fillRoundRect(mouseX, mouseY, rectW, rectH + (features.size() * yOff1), rectW / rectArcRatio, rectH / rectArcRatio);
 				
 				//Write text in the box about hex yeild
 				drawYieldAmount(g, YieldType.FOOD, Color.GREEN, h1, m, mouseX + padding, mouseY, 0);
@@ -158,15 +164,21 @@ public class GUI {
 				//Write text in the box (about landscape type)
 				g.setColor(Color.BLACK);
 				String landscape = "Landscape: " + h1.getLandscape().getName();
-				g.drawString(landscape, mouseX + padding, mouseY + m.getHeight() + (yOff += g.getFontMetrics().getHeight()));
+				g.drawString(landscape, mouseX + padding, mouseY + m.getHeight() + (yOff += yOff1));
 				
 				//Write text in the box (about landscape features)
-				List<Feature> features = h1.getFeatures();
 				if (features.size() > 0) {
 					StringBuilder sb = new StringBuilder(100);
 					sb.append("Features: \n");
 					features.forEach(i -> sb.append("- " + i.getName() + "\n"));
-					drawHexInspectFeatures(g, sb, mouseX + padding, mouseY + m.getHeight() + yOff, g.getFontMetrics().getHeight());	
+					drawHexInspectFeatures(g, sb, mouseX + padding, mouseY + m.getHeight() + yOff1, yOff1);	
+				}
+				
+				yOff += (features.size() * yOff1) + (yOff1 * (features.size() > 0 ? 2 : 1)); //Determine text y-offset
+				//Write text in the box (about improvements)
+				if (h1.getImprovement() != null) {
+					String improvement = "Improvement: " + h1.getImprovement().getName();
+					g.drawString(improvement, mouseX + padding, mouseY + m.getHeight() + yOff);
 				}
 			}
 		}
@@ -200,11 +212,11 @@ public class GUI {
 			int toY = MouseHandler.movedMY;
 			FractionalHex toFH = Layout.pixelToHex(layout, new Point(toX - scrollX, toY - scrollY));
 			Hex endHex = FractionalHex.hexRound(toFH);
-			if (!focusHex.equals(endHex) && !endHex.equals(pathToHex)) { //Ensure if the path is already found, dont recalculate path
+			if (!endHex.equals(pathToHex)) {
 				pathToHex = endHex;
 				pathToFollow = pf.findPath(map, focusHex, pathToHex);
 				drawPathOnGrid(g);
-			} else {
+			} else if (!focusHex.equals(endHex)){
 				drawPathOnGrid(g);
 			}
 		}
@@ -256,10 +268,31 @@ public class GUI {
 				case KeyEvent.VK_SHIFT:
 					ShiftPressed = true;
 					break;
+				//case KeyEvent.VK_F:
+				//	farmToAdd = true;
+				//	break;
 				}
 			}
 		}
 	}
+	
+	/*
+	public void addFarm() {
+		if (farmToAdd) {
+			farmToAdd = false;
+			int mX = MouseHandler.movedMX;
+			int mY = MouseHandler.movedMY;
+			FractionalHex fh = Layout.pixelToHex(layout, new Point(mX - scrollX, mY - scrollY));
+			Hex h = FractionalHex.hexRound(fh);
+			int hexKey = HexMap.hash(h);
+			Improvement i = new Farm();
+			Hex mapHex = map.get(hexKey);
+			mapHex.setImprovement(i);
+			map.put(hexKey, mapHex);
+		}
+	}
+	*/
+	
 	private int getAdjustedHexWidth() {
 		return (int) ((Math.sqrt(3) * hSize * wHexes) - WIDTH);
 	}
