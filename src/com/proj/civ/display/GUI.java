@@ -79,7 +79,6 @@ public class GUI {
 		}
 		MouseHandler.zoom = 0;
 		Hex hex;
-		//int tempCounter = 1;
 		for (int r = 0; r < hHexes; r++) {
 			int rOff = (r + 1) >> 1;
 			for (int q = -rOff; q < wHexes - rOff; q++) {
@@ -91,7 +90,6 @@ public class GUI {
 					int drawX = (int) (p.get(0).x);
 					int drawY = (int) (p.get(0).y);
 					if ((drawX + scrollX < 0) || (drawX + scrollX > WIDTH + hSize * 2) || (drawY + scrollY < 0) || (drawY + scrollY > HEIGHT + hSize * 2)) {
-						//tempCounter++;
 						continue;
 					}
 					for (int k = 0; k < p.size(); k++) {
@@ -102,11 +100,6 @@ public class GUI {
 					g.setColor(Color.BLACK);
 					g.drawPolygon(poly);
 					poly.reset();
-					
-					//StringBuilder sb = new StringBuilder();
-					//c.getFeatures().forEach(i -> sb.append(i.getName()));
-					//g.drawString(sb.toString(), (int) Layout.hexToPixel(layout, h).x + scrollX, (int) Layout.hexToPixel(layout, h).y + scrollY);
-					//g.drawString("" + tempCounter++, (int) Layout.hexToPixel(layout, h).x + scrollX, (int) Layout.hexToPixel(layout, h).y + scrollY);
 				}
 			}
 		}
@@ -266,18 +259,6 @@ public class GUI {
 				}
 			}
 		}
-		//System.out.println("Scroll X: " + scrollX + ", Y: " + scrollY);
-		/*
-		if (MouseHandler.releasedMouse) {
-			int deltaX = -(MouseHandler.rMX - MouseHandler.dMX);
-			int deltaY = -(MouseHandler.rMY - MouseHandler.dMY);
-			this.scrollX = deltaX;
-			this.scrollY = deltaY;
-		} else {			
-			this.scrollX = MouseHandler.dMX;
-			this.scrollY = MouseHandler.dMY;
-		}
-		*/
 	}
 	private int getAdjustedHexWidth() {
 		return (int) ((Math.sqrt(3) * hSize * wHexes) - WIDTH);
@@ -285,9 +266,4 @@ public class GUI {
 	private int getAdjustedHexHeight() {
 		return (int) ((hHexes * hSize * 3 / 2) - HEIGHT + hSize);
 	}
-	//private void reCalculateHexSize() {
-	//	wHexes = WIDTH / (hSize * 2);
-	//	hHexes = HEIGHT / (hSize * 2);
-	//	layout = new Layout(Layout.layout, new Point(hSize, hSize), new Point(hSize, hSize));
-	//}
 }
