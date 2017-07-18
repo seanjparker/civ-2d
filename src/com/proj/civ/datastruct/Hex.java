@@ -11,7 +11,7 @@ import com.proj.civ.map.terrain.YieldType;
 
 public class Hex extends HexCoordinate {
 	
-	private final List<HexCoordinate> directions = new ArrayList<HexCoordinate>() {{
+	public static final List<HexCoordinate> directions = new ArrayList<HexCoordinate>() {{
 	add(new HexCoordinate(1, 0, -1));
 	add(new HexCoordinate(1, -1, 0));
 	add(new HexCoordinate(0, -1, 1));
@@ -46,7 +46,7 @@ public class Hex extends HexCoordinate {
 		return (b != null) && (this.q == b.q) && (this.r == b.r) && (this.s == b.s);
 	}
 	
-    private Hex add(HexCoordinate b) {
+    public Hex add(HexCoordinate b) {
         return new Hex(q + b.q, r + b.r, s + b.s);
     }
     private Hex subtract(HexCoordinate b) {

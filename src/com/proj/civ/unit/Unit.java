@@ -1,35 +1,41 @@
 package com.proj.civ.unit;
 
 import com.proj.civ.datastruct.HexCoordinate;
+import com.proj.civ.datastruct.HexMap;
+import com.proj.civ.map.civilization.Civilization;
 
 public class Unit {
 	private double movementPotential;
 	
-	private int strength;
-	private int defence;
+	private int strength = 0;
+	private int productionCost = 0;
 	
 	private boolean isSpawned = false;
 	private boolean isMilitary = false;
 	
 	private HexCoordinate curPos;
 	
- 	public Unit(HexCoordinate curPos, double movementPotential) {
-		this.curPos = curPos;
+	private Civilization civOwner;
+	
+	private String name;
+	
+ 	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, int productionCost) {
+		this.name = name;
+ 		this.curPos = curPos;
 		this.movementPotential = movementPotential;
+		this.productionCost = productionCost;
 	}
-	public Unit(HexCoordinate curPos, double movementPotential, boolean isSpawned) {
-		this(curPos, movementPotential);
+	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, boolean isSpawned, int productionCost) {
+		this(name, civOwner, curPos, movementPotential, productionCost);
 		this.isSpawned = isSpawned;
 	}
-	public Unit(HexCoordinate curPos, double movementPotential, int strength, int defence) {
-		this(curPos, movementPotential);
+	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, int strength, int productionCost) {
+		this(name, civOwner, curPos, movementPotential, productionCost);
 		this.strength = strength;
-		this.defence = defence;
 	}
-	public Unit(HexCoordinate curPos, double movementPotential, int strength, int defence, boolean isMilitary) {
-		this(curPos, movementPotential);
+	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, int strength, boolean isMilitary, int productionCost) {
+		this(name, civOwner, curPos, movementPotential, productionCost);
 		this.strength = strength;
-		this.defence = defence;
 		this.isMilitary = isMilitary;
 	}
 	
@@ -42,6 +48,12 @@ public class Unit {
 	}
 	public boolean isMilitary() {
 		return isMilitary;
+	}
+	public int getStrength() {
+		return strength;
+	}
+	public String getName() {
+		return name;
 	}
 	
 	public boolean ableToMove(double hexCost) {
@@ -58,12 +70,25 @@ public class Unit {
 	}
 	
 	public boolean isInZOC(HexCoordinate h) {
-		if (curPos != null) {
-		}
-		return false;
+		return curPos != null ? HexMap.rangesIntersect(h, curPos, 1) : false;
 	}
 	
 	public void setIsSpawned() {
 		isSpawned = true;
+	}
+	
+	public Civilization getOwner() {
+		return civOwner;
+	}
+	
+	public int getProductionCost() {
+		return productionCost;
+	}
+	
+	public boolean isSettler() {
+		return this instanceof Settler;
+	}
+	public boolean isWarrior() {
+		return this instanceof Warrior;
 	}
 }

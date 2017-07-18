@@ -1,11 +1,11 @@
 package com.proj.civ.unit;
 
 import com.proj.civ.datastruct.HexCoordinate;
+import com.proj.civ.map.civilization.Civilization;
 
 public class Settler extends Unit {
 
-	public Settler(HexCoordinate curPos) {
-		super(curPos, 2.0D);
+	public Settler(Civilization civOwner, HexCoordinate curPos) {
+		super("Settler", civOwner, curPos, 0.0D, 106);
 	}
-	
 }

@@ -1,6 +1,8 @@
 package com.proj.civ.datastruct;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -112,5 +114,35 @@ public class HexMap {
 	}
 	public int getMapHeight() {
 		return this.MAP_HEIGHT;
+	}
+	
+	public static List<HexCoordinate> getAllInRange(HexCoordinate centre, int range) {
+		List<HexCoordinate> results = new ArrayList<HexCoordinate>();
+		for (int dx = -range; dx <= range; dx++) {
+			for (int dy = Math.max(-range, -dx - range); dy <= Math.min(range, -dx + range); dy++) {
+				int dz = -dx - dy;
+				results.add(centre.add(new HexCoordinate(dx, dy, dz)));
+			}
+		}
+		return results;
+	}
+	
+	public static boolean rangesIntersect(HexCoordinate h1, HexCoordinate h2, int range) {
+		List<HexCoordinate> results = new ArrayList<HexCoordinate>();
+		int xMin = Math.max(h1.q - range, h2.q - range);
+		int xMax = Math.min(h1.q + range, h2.q + range);
+		int yMin = Math.max(h1.r - range, h2.r - range);
+		int yMax = Math.min(h1.r + range, h2.r + range);
+		int zMin = Math.max(h1.s - range, h2.s - range);
+		int zMax = Math.min(h1.s + range, h2.s + range);
+		
+		for (int x = xMin; x <= xMax; x++) {
+			for (int y = Math.max(yMin, -x - zMax); y <= Math.min(yMax, -x -zMin); y++) {
+				int z = -x - y;
+				results.add(new HexCoordinate(x, y, z));
+			}
+		}
+		
+		return results.size() > 0;
 	}
 }

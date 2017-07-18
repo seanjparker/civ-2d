@@ -9,7 +9,9 @@ import java.awt.Toolkit;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 
+import com.proj.civ.datastruct.HexCoordinate;
 import com.proj.civ.display.GUI;
 import com.proj.civ.input.KeyboardHandler;
 import com.proj.civ.input.MouseHandler;
@@ -50,9 +52,11 @@ public class Main extends JPanel implements Runnable {
 		gameThread = new Thread(this, "Game");
 		gameThread.start();
 		init();
+		
+		createCivs();
 	}
 	
-	private void init() {	
+	private void init() {
 		createAndSetupGUI();
 		
 		f.setTitle(TITLE);
@@ -65,6 +69,10 @@ public class Main extends JPanel implements Runnable {
 		
 		f.setLocationRelativeTo(null);
 		f.setVisible(true);
+	}
+	
+	private void createCivs() {
+		gui.createCiv();
 	}
 	
 	private void createAndSetupGUI() {
@@ -96,10 +104,12 @@ public class Main extends JPanel implements Runnable {
 		
 		protected void paintComponent(Graphics2D g) {
 			gui.drawHexGrid(g);
+			gui.drawUnits(g);
 			gui.drawSelectedHex(g);
 			gui.drawHexInspect(g);
 			gui.drawPath(g);
 			gui.drawFocusHex(g);
+
 		}
 	}
  	

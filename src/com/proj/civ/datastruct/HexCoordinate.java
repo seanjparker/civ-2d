@@ -1,5 +1,7 @@
 package com.proj.civ.datastruct;
 
+import java.util.Random;
+
 public class HexCoordinate {
 	public static final int NEIGHBOURS = 6;
 	
@@ -18,5 +20,14 @@ public class HexCoordinate {
 	
 	public boolean isEqual(HexCoordinate b) {
 		return (b != null) && (this.q == b.q) && (this.r == b.r) && (this.s == b.s);
+	}
+	
+	public HexCoordinate add(HexCoordinate b) {
+		return new HexCoordinate(q + b.q, r + b.r, s + b.s);
+	}
+	
+	public HexCoordinate getRandomNeighbour() {
+		Random r = new Random();
+		return add(Hex.directions.get(r.nextInt(NEIGHBOURS - 1)));
 	}
 }

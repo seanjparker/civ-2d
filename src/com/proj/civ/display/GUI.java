@@ -10,21 +10,28 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import com.proj.civ.ai.Pathfinding;
 import com.proj.civ.datastruct.FractionalHex;
 import com.proj.civ.datastruct.Hex;
+import com.proj.civ.datastruct.HexCoordinate;
 import com.proj.civ.datastruct.HexMap;
 import com.proj.civ.datastruct.Layout;
 import com.proj.civ.datastruct.Point;
 import com.proj.civ.input.MouseHandler;
-import com.proj.civ.map.improvement.Farm;
-import com.proj.civ.map.improvement.Improvement;
+import com.proj.civ.map.civilization.America;
+import com.proj.civ.map.civilization.Civilization;
 import com.proj.civ.map.terrain.Feature;
 import com.proj.civ.map.terrain.YieldType;
+import com.proj.civ.unit.Settler;
+import com.proj.civ.unit.Unit;
+import com.proj.civ.unit.Warrior;
 
 public class GUI {
+	private Random rnd;
+	
 	private final int WIDTH;
 	private final int HEIGHT;
 	
@@ -33,7 +40,7 @@ public class GUI {
 	private int hHexes;
 	private int focusX = 0, focusY = 0;
 	
-	private int scrollX, scrollY;
+	private int scrollX, scrollY, scroll;
 	
 	private boolean ShiftPressed;
 	//private boolean farmToAdd;
@@ -49,10 +56,15 @@ public class GUI {
 	private Hex focusHex = null;
 	private Hex pathToHex = null;
 	
+	private Civilization c1;
+	
 	public GUI(int w, int h, int h_s, int o_x, int o_y) {
+		rnd = new Random();
+		
 		this.WIDTH = w;
 		this.HEIGHT = h;
 		this.hSize = h_s;
+		this.scroll = h_s >> 1;
 		
 		this.wHexes = 40;
 		this.hHexes = 25;
@@ -69,7 +81,6 @@ public class GUI {
 	
 	public void drawHexGrid(Graphics2D g) {
 		g.setStroke(new BasicStroke(1.0f));
-		g.setFont(new Font("TimesRoman", Font.BOLD, 18));
 		
 		//if (MouseHandler.zoom != 0) {
 		//	hSize = (MouseHandler.zoom == 1) ? hSize >> 1 : hSize << 1;
@@ -92,7 +103,7 @@ public class GUI {
 					
 					int drawX = (int) (p.get(0).x);
 					int drawY = (int) (p.get(0).y);
-					if ((drawX + scrollX < 0) || (drawX + scrollX > WIDTH + hSize * 2) || (drawY + scrollY < 0) || (drawY + scrollY > HEIGHT + hSize * 2)) {
+					if ((drawX + scrollX < 0) || (drawX + scrollX > WIDTH + hSize * 2) || (drawY + scrollY < -hSize) || (drawY + scrollY > HEIGHT + hSize * 2)) {
 						continue;
 					}
 					for (int k = 0; k < p.size(); k++) {
@@ -178,8 +189,14 @@ public class GUI {
 				//Write text in the box (about improvements)
 				if (h1.getImprovement() != null) {
 					String improvement = "Improvement: " + h1.getImprovement().getName();
-					g.drawString(improvement, mouseX + padding, mouseY + m.getHeight() + yOff);
+					g.drawString(improvement, mouseX + padding, mouseY + m.getHeight() + (yOff += yOff1));
 				}
+				
+				//Write text in the box if a unit occupies it
+				//if (c1.getUnits().stream().filter(i -> i.getPosition().isEqual(h1)) != null) {
+					
+				//}
+				
 			}
 		}
 	}
@@ -249,21 +266,81 @@ public class GUI {
 		}
 	}
 	
+	public void createCiv() {
+		c1 = new America();
+		HexCoordinate settler = getRandomUnitCoord();
+		HexCoordinate warrior = settler.getRandomNeighbour();
+		c1.addNewUnit(new Settler(c1, settler));
+		c1.addNewUnit(new Warrior(c1, warrior));
+		
+		c1.getUnits().forEach(x -> x.setIsSpawned());
+		
+		setInitialScroll(settler);
+	}
+	
+	private HexCoordinate getRandomUnitCoord() {
+		Hex h = null;
+		do {
+			double x = (double) rnd.nextInt(wHexes * hSize);
+			double y = (double) rnd.nextInt(hHexes * hSize);
+			FractionalHex fh = Layout.pixelToHex(layout, new Point(x, y));
+			Hex h1 = FractionalHex.hexRound(fh);
+			h = map.get(HexMap.hash(h1));
+		} while (h == null);
+		
+		return new HexCoordinate(h.q, h.r, h.s);
+	}
+	
+	public void drawUnits(Graphics2D g) {
+		g.setColor(Color.WHITE);
+		g.setFont(new Font("SansSerif", Font.BOLD, 16));
+		
+		List<Unit> units = c1.getUnits();
+		for (Unit u : units) {
+			HexCoordinate hc = u.getPosition();
+			Hex h = map.get(HexMap.hash(new Hex(hc.q, hc.r, hc.s)));
+			Point p = Layout.hexToPixel(layout, h);
+			String name = u.getName();
+			g.drawString(name, (int) (p.x + scrollX - (name.length() * g.getFont().getSize())), (int) (p.y) + scrollY);	
+		}
+		//Hex h1 = map.get(HexMap.hash(new Hex(h.q, h.r, h.s)));
+		//Point p = Layout.hexToPixel(layout, h1);
+		
+		
+		//c1.getUnits().stream().filter(i -> i.isWarrior()).forEach(j -> g.drawString("Warrior", (int) (p.x) + scrollX, (int) (p.y) + scrollY));
+		
+		//g.drawString("Settler", (int) (p.x) + scrollX, (int) (p.y) + scrollY);
+	}
+	
+	public void setInitialScroll(HexCoordinate h) {
+		Point p = Layout.hexToPixel(layout, new Hex(h.q, h.r, h.s));
+		int sX = Math.min(((int) -p.x + (WIDTH >> 2)), hSize); //Ensure the units are shown on-screen
+		int sY = Math.min(((int) -p.y + (HEIGHT >> 2)), 0);
+		
+		
+		//Round the values to a multiple of the scroll value
+		scrollX = sX + scroll / 2;
+		scrollX -= scrollX % scroll;
+		
+		scrollY = sY + scroll / 2;
+		scrollY -= scrollY % scroll;
+	}
+	
 	public void updateKeys(Set<Integer> keys) {
 		if (keys.size() > 0) {
 			for (Integer k : keys) {
 				switch (k) {
 				case KeyEvent.VK_UP:
-					scrollY += scrollY < 0 ? hSize >> 1 : 0;						
+					scrollY += scrollY < 0 ? scroll : 0;						
 					break;
 				case KeyEvent.VK_DOWN:
-					scrollY -= scrollY > -(getAdjustedHexHeight()) ? hSize >> 1 : 0;
+					scrollY -= scrollY > -(getAdjustedHeight()) ? scroll : 0;
 					break;
 				case KeyEvent.VK_LEFT:
-					scrollX += scrollX < hSize ? hSize >> 1 : 0;
+					scrollX += scrollX < hSize ? scroll : 0;
 					break;
 				case KeyEvent.VK_RIGHT:
-					scrollX -= scrollX > -(getAdjustedHexWidth()) ? hSize >> 1 : 0;
+					scrollX -= scrollX > -(getAdjustedWidth()) ? scroll : 0;
 					break;
 				case KeyEvent.VK_SHIFT:
 					ShiftPressed = true;
@@ -273,6 +350,7 @@ public class GUI {
 				//	break;
 				}
 			}
+			//System.out.println("ScrollX:" + scrollX + ", ScrollY:" + scrollY);
 		}
 	}
 	
@@ -293,10 +371,10 @@ public class GUI {
 	}
 	*/
 	
-	private int getAdjustedHexWidth() {
+	private int getAdjustedWidth() {
 		return (int) ((Math.sqrt(3) * hSize * wHexes) - WIDTH);
 	}
-	private int getAdjustedHexHeight() {
+	private int getAdjustedHeight() {
 		return (int) ((hHexes * hSize * 3 / 2) - HEIGHT + hSize);
 	}
 }
