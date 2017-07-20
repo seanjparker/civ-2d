@@ -7,7 +7,7 @@ import com.proj.civ.map.civilization.Civilization;
 public class Unit {
 	private double movementPotential;
 	
-	private int strength = 0;
+	private double strength = 0;
 	private int productionCost = 0;
 	
 	private boolean isSpawned = false;
@@ -28,11 +28,15 @@ public class Unit {
 		this(name, civOwner, curPos, movementPotential, productionCost);
 		this.isSpawned = isSpawned;
 	}
-	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, int strength, int productionCost) {
+	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, double strength, int productionCost) {
 		this(name, civOwner, curPos, movementPotential, productionCost);
 		this.strength = strength;
 	}
-	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, int strength, boolean isMilitary, int productionCost) {
+	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, double strength, int productionCost, boolean isSpawned) {
+		this(name, civOwner, curPos, movementPotential, strength, productionCost);
+		this.isSpawned = isSpawned;
+	}
+	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, double strength, boolean isMilitary, int productionCost) {
 		this(name, civOwner, curPos, movementPotential, productionCost);
 		this.strength = strength;
 		this.isMilitary = isMilitary;
@@ -48,7 +52,7 @@ public class Unit {
 	public boolean isMilitary() {
 		return isMilitary;
 	}
-	public int getStrength() {
+	public double getStrength() {
 		return strength;
 	}
 	public String getName() {

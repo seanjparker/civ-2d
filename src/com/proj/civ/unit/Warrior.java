@@ -5,10 +5,7 @@ import com.proj.civ.map.civilization.Civilization;
 
 public class Warrior extends Unit {
 	
-	public Warrior(Civilization civOwner, HexCoordinate curPos) {
-		super("Warrior", civOwner, curPos, 8.0D, 40);
-	}
 	public Warrior(Civilization civOwner, HexCoordinate curPos, boolean isSpawned) {
-		super("Warrior", civOwner, curPos, 8.0D, isSpawned, 40);
+		super("Warrior", civOwner, curPos, 2.0D, 8.0D, 40, isSpawned);
 	}
 }

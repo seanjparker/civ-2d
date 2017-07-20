@@ -9,9 +9,7 @@ import java.awt.Toolkit;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.UIManager;
 
-import com.proj.civ.datastruct.HexCoordinate;
 import com.proj.civ.display.GUI;
 import com.proj.civ.input.KeyboardHandler;
 import com.proj.civ.input.MouseHandler;

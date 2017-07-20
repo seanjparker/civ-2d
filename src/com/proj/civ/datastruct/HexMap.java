@@ -100,6 +100,11 @@ public class HexMap {
 		int hr = h.r;
 		return hq ^ (hr + 0x9e3779b9 + (hq << 6) + (hq >> 2));
 	}
+	public static int hash(HexCoordinate h) {
+		int hq = h.q;
+		int hr = h.r;
+		return hq ^ (hr + 0x9e3779b9 + (hq << 6) + (hq >> 2));
+	}
 	
 	public void setCell(Hex h, Hex newH) {
 		map.replace(hash(h), newH);

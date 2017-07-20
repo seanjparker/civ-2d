@@ -30,4 +30,8 @@ public class HexCoordinate {
 		Random r = new Random();
 		return add(Hex.directions.get(r.nextInt(NEIGHBOURS - 1)));
 	}
+	
+	public String toString() {
+		return "q:" + q + ", r:" + r + ", s:" + s;
+	}
 }

@@ -164,43 +164,49 @@ public class GUI {
 				int yOff1 = g.getFontMetrics().getHeight();
 				
 				boolean flip = ((mouseX - rectW < 0) || mouseY - rectH < 0);
-				int startX = flip ? mouseX : mouseX - rectW;
+				int startX = flip ? mouseX + padding: mouseX - rectW + padding;
 				int startY = flip ? mouseY : mouseY - rectH;
 				
 				//Draw rectangle at the mouse
-				g.fillRoundRect(startX, startY, rectW, rectH + (features.size() * yOff1), rectW / rectArcRatio, rectH / rectArcRatio);
+				g.fillRoundRect(startX - padding, startY, rectW, rectH + (features.size() * yOff1), rectW / rectArcRatio, rectH / rectArcRatio);
 				
 				//Write text in the box about hex yeild
-				drawYieldAmount(g, YieldType.FOOD, Color.GREEN, h1, m, startX + padding, startY, 0);
-				drawYieldAmount(g, YieldType.PRODUCTION, new Color(150, 75, 5), h1, m, startX + padding, startY, xOff);
-				drawYieldAmount(g, YieldType.SCIENCE, Color.BLUE, h1, m, startX + padding, startY, xOff * 2);
-				drawYieldAmount(g, YieldType.GOLD, new Color(244, 244, 34), h1, m, startX + padding, startY, xOff * 3);
+				drawYieldAmount(g, YieldType.FOOD, Color.GREEN, h1, m, startX, startY, 0);
+				drawYieldAmount(g, YieldType.PRODUCTION, new Color(150, 75, 5), h1, m, startX, startY, xOff);
+				drawYieldAmount(g, YieldType.SCIENCE, Color.BLUE, h1, m, startX, startY, xOff * 2);
+				drawYieldAmount(g, YieldType.GOLD, new Color(244, 244, 34), h1, m, startX, startY, xOff * 3);
 			
 				//Write text in the box (about landscape type)
 				g.setColor(Color.BLACK);
 				String landscape = "Landscape: " + h1.getLandscape().getName();
-				g.drawString(landscape, startX + padding, startY + m.getHeight() + (yOff += yOff1));
+				g.drawString(landscape, startX, startY + m.getHeight() + (yOff += yOff1));
 				
 				//Write text in the box (about landscape features)
 				if (features.size() > 0) {
 					StringBuilder sb = new StringBuilder(100);
 					sb.append("Features: \n");
 					features.forEach(i -> sb.append("- " + i.getName() + "\n"));
-					drawHexInspectFeatures(g, sb, startX + padding, startY + m.getHeight() + yOff1, yOff1);	
+					drawStringBuilderData(g, sb, startX, startY + m.getHeight() + yOff1, yOff1);	
 				}
 				
 				yOff += (features.size() * yOff1) + (yOff1 * (features.size() > 0 ? 2 : 1)); //Determine text y-offset
 				//Write text in the box (about improvements)
 				if (h1.getImprovement() != null) {
 					String improvement = "Improvement: " + h1.getImprovement().getName();
-					g.drawString(improvement, startX + padding, startY + m.getHeight() + (yOff += yOff1));
+					g.drawString(improvement, startX, startY + m.getHeight() + (yOff += yOff1));
 				}
 				
 				//Write text in the box if a unit occupies it
-				//if (c1.getUnits().stream().filter(i -> i.getPosition().isEqual(h1)) != null) {
-					
-				//}
-				
+				List<Unit> hexUnits = c1.getUnits();
+				if (hexUnits.stream().anyMatch(x -> x.getPosition().isEqual(new HexCoordinate(h1.q, h1.r, h1.s)))) {
+					StringBuilder sb = new StringBuilder(100);
+					for (Unit u : hexUnits) {
+						if (u.getPosition().isEqual(new HexCoordinate(h1.q, h1.r, h1.s))) {
+							sb.append(u.getName() + " : " + u.getStrength() + " Strength\n");	
+						}
+					}
+					drawStringBuilderData(g, sb, startX, startY + m.getHeight() + yOff, yOff1);
+				}
 			}
 		}
 	}
@@ -212,7 +218,7 @@ public class GUI {
 		g.drawString(amount, x + widthX + xOff, y + m.getHeight());
 	}
 	
-	private void drawHexInspectFeatures(Graphics2D g, StringBuilder s, int x, int y, int yOff) {
+	private void drawStringBuilderData(Graphics2D g, StringBuilder s, int x, int y, int yOff) {
 		for (String l : s.toString().split("\n")) {
 			g.drawString(l, x, y += yOff);
 		}
@@ -278,25 +284,31 @@ public class GUI {
 		HexCoordinate settler = getRandomUnitCoord();
 		HexCoordinate warrior = settler.getRandomNeighbour();
 		
+		//Ensure the neighbour is in the map, the following loop will not get stuck on infinite loop
+		do {
+			warrior = settler.getRandomNeighbour();
+		} while (map.get(HexMap.hash(warrior)) == null);
+		
 		//Set the units in the hexes
 		Unit s = new Settler(c1, settler, true);
 		Unit w = new Warrior(c1, warrior, true);
-		
+
 		addUnit(settler, s, false);
 		addUnit(warrior, w, true);
 		
 		setInitialScroll(settler);
 	}
 	
-	private void addUnit(HexCoordinate hc, Unit u, boolean isMilitary) {
+	private void addUnit(HexCoordinate h, Unit u, boolean isMilitary) {
 		//Get the map hex for units
-		Hex h = map.get(HexMap.hash(new Hex(hc.q, hc.r, hc.s)));
-		
+		int hexHash = HexMap.hash(h);
+		Hex hex = map.get(hexHash);
+
 		//Set the units in the hexes
-		h.addNewUnit(u, isMilitary);
+		hex.addNewUnit(u, isMilitary);
 		
 		//Update the hexes in the map
-		map.put(HexMap.hash(h), h);
+		map.replace(hexHash, hex);
 		
 		//Add units to the civ
 		c1.addUnit(u);
@@ -322,10 +334,10 @@ public class GUI {
 		List<Unit> units = c1.getUnits();
 		for (Unit u : units) {
 			HexCoordinate hc = u.getPosition();
-			Hex h = map.get(HexMap.hash(new Hex(hc.q, hc.r, hc.s)));
+			Hex h = map.get(HexMap.hash(hc));
 			Point p = Layout.hexToPixel(layout, h);
 			String name = u.getName();
-			g.drawString(name, (int) (p.x + scrollX - (name.length() * g.getFont().getSize())), (int) (p.y) + scrollY);	
+			g.drawString(name, (int) (p.x + scrollX - ((name.length() * g.getFont().getSize()) >> 2)), (int) (p.y) + scrollY);	
 		}
 	}
 	
