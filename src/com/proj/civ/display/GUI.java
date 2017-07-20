@@ -103,7 +103,7 @@ public class GUI {
 					
 					int drawX = (int) (p.get(0).x);
 					int drawY = (int) (p.get(0).y);
-					if ((drawX + scrollX < 0) || (drawX + scrollX > WIDTH + hSize * 2) || (drawY + scrollY < -hSize) || (drawY + scrollY > HEIGHT + hSize * 2)) {
+					if ((drawX + scrollX < 0) || (drawX + scrollX > WIDTH + hSize * 2) || (drawY + scrollY < 0) || (drawY + scrollY > HEIGHT + hSize * 2)) {
 						continue;
 					}
 					for (int k = 0; k < p.size(); k++) {
@@ -268,12 +268,29 @@ public class GUI {
 	
 	public void createCiv() {
 		c1 = new America();
+		
+		//Add units to the game map
+		//Get settler and warrior co-ordinate
 		HexCoordinate settler = getRandomUnitCoord();
 		HexCoordinate warrior = settler.getRandomNeighbour();
-		c1.addNewUnit(new Settler(c1, settler));
-		c1.addNewUnit(new Warrior(c1, warrior));
 		
-		c1.getUnits().forEach(x -> x.setIsSpawned());
+		//Get the map hex for units
+		Hex settlerHex = map.get(HexMap.hash(new Hex(settler.q, settler.r, settler.s)));
+		Hex warriorHex = map.get(HexMap.hash(new Hex(warrior.q, warrior.r, settler.s)));
+		
+		//Set the units in the hexes
+		Unit s = new Settler(c1, settler, true);
+		Unit w = new Warrior(c1, warrior, true);
+		settlerHex.addNewUnit(s, false);
+		warriorHex.addNewUnit(w, true);
+		
+		//Update the hexes in the map
+		map.put(HexMap.hash(settlerHex), settlerHex);
+		map.put(HexMap.hash(warriorHex), warriorHex);
+		
+		//Add units to the civ
+		c1.addUnit(s);
+		c1.addUnit(w);
 		
 		setInitialScroll(settler);
 	}
@@ -292,7 +309,7 @@ public class GUI {
 	}
 	
 	public void drawUnits(Graphics2D g) {
-		g.setColor(Color.WHITE);
+		g.setColor(Color.BLACK);
 		g.setFont(new Font("SansSerif", Font.BOLD, 16));
 		
 		List<Unit> units = c1.getUnits();
@@ -303,6 +320,7 @@ public class GUI {
 			String name = u.getName();
 			g.drawString(name, (int) (p.x + scrollX - (name.length() * g.getFont().getSize())), (int) (p.y) + scrollY);	
 		}
+		
 		//Hex h1 = map.get(HexMap.hash(new Hex(h.q, h.r, h.s)));
 		//Point p = Layout.hexToPixel(layout, h1);
 		

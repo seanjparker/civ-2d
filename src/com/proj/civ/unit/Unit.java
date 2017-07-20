@@ -13,11 +13,10 @@ public class Unit {
 	private boolean isSpawned = false;
 	private boolean isMilitary = false;
 	
-	private HexCoordinate curPos;
-	
-	private Civilization civOwner;
-	
 	private String name;
+	
+	private HexCoordinate curPos;
+	private Civilization civOwner;
 	
  	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, int productionCost) {
 		this.name = name;

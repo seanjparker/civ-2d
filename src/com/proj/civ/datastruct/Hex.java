@@ -3,11 +3,11 @@ package com.proj.civ.datastruct;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.proj.civ.map.improvement.Farm;
 import com.proj.civ.map.improvement.Improvement;
 import com.proj.civ.map.terrain.Feature;
 import com.proj.civ.map.terrain.Landscape;
 import com.proj.civ.map.terrain.YieldType;
+import com.proj.civ.unit.Unit;
 
 public class Hex extends HexCoordinate {
 	
@@ -32,6 +32,8 @@ public class Hex extends HexCoordinate {
     private Improvement TileImprovement = null;
 	private Landscape Type = null;
 	private List<Feature> Features = new ArrayList<Feature>();
+	private Unit militaryUnit = null;
+	private Unit civilianUnit = null;
 	
 	public Hex(int q, int r, int s) {
 		super(q, r, s);
@@ -75,12 +77,12 @@ public class Hex extends HexCoordinate {
     }
 	
 	public boolean validFeature(Landscape l, Feature f) {
-		switch (l) {
-			case COAST:
-				return (f == Feature.ICE) || (f == Feature.CLIFFS);
-			case DESERT:
-				return (f == Feature.OASIS) || (f == Feature.FLOODPLAINS);
-		}
+		//switch (l) {
+		//	case COAST:
+		//		return (f == Feature.ICE) || (f == Feature.CLIFFS);
+		//	case DESERT:
+		//		return (f == Feature.OASIS) || (f == Feature.FLOODPLAINS);
+		//}
 		return false;
 	}
 	
@@ -143,4 +145,37 @@ public class Hex extends HexCoordinate {
 		return this.getFeatures().stream().mapToDouble(x -> x.getMovement()).sum();
 	}
 	
+	public boolean canSetMilitary() {
+		return militaryUnit == null;
+	}
+	public boolean canSetCivilian() {
+		return civilianUnit == null;
+	}
+	public void addNewUnit(Unit unit, boolean isMilitary) {
+		if (isMilitary && canSetMilitary()) {
+			militaryUnit = unit;
+		} else if (!isMilitary && canSetCivilian()) {
+			civilianUnit = unit;
+		}
+	}
+	public Unit getCivilianUnit() {
+		return civilianUnit;
+	}
+	public Unit getMilitaryUnit() {
+		return militaryUnit;
+	}
+	public Unit[] getUnits() {
+		return new Unit[] {civilianUnit, militaryUnit};
+	}
+	
+	public void setCivilianUnit(Unit u) {
+		if (canSetCivilian()) {
+			this.civilianUnit = u;
+		}
+	}
+	public void setMilitaryUnit(Unit u) {
+		if (canSetMilitary()) {
+			this.militaryUnit = u;
+		}
+	}
 }
