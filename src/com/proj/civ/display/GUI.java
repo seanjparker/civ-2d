@@ -163,33 +163,37 @@ public class GUI {
 				int yOff = 0;
 				int yOff1 = g.getFontMetrics().getHeight();
 				
+				boolean flip = ((mouseX - rectW < 0) || mouseY - rectH < 0);
+				int startX = flip ? mouseX : mouseX - rectW;
+				int startY = flip ? mouseY : mouseY - rectH;
+				
 				//Draw rectangle at the mouse
-				g.fillRoundRect(mouseX, mouseY, rectW, rectH + (features.size() * yOff1), rectW / rectArcRatio, rectH / rectArcRatio);
+				g.fillRoundRect(startX, startY, rectW, rectH + (features.size() * yOff1), rectW / rectArcRatio, rectH / rectArcRatio);
 				
 				//Write text in the box about hex yeild
-				drawYieldAmount(g, YieldType.FOOD, Color.GREEN, h1, m, mouseX + padding, mouseY, 0);
-				drawYieldAmount(g, YieldType.PRODUCTION, new Color(150, 75, 5), h1, m, mouseX + padding, mouseY, xOff);
-				drawYieldAmount(g, YieldType.SCIENCE, Color.BLUE, h1, m, mouseX + padding, mouseY, xOff * 2);
-				drawYieldAmount(g, YieldType.GOLD, new Color(244, 244, 34), h1, m, mouseX + padding, mouseY, xOff * 3);
+				drawYieldAmount(g, YieldType.FOOD, Color.GREEN, h1, m, startX + padding, startY, 0);
+				drawYieldAmount(g, YieldType.PRODUCTION, new Color(150, 75, 5), h1, m, startX + padding, startY, xOff);
+				drawYieldAmount(g, YieldType.SCIENCE, Color.BLUE, h1, m, startX + padding, startY, xOff * 2);
+				drawYieldAmount(g, YieldType.GOLD, new Color(244, 244, 34), h1, m, startX + padding, startY, xOff * 3);
 			
 				//Write text in the box (about landscape type)
 				g.setColor(Color.BLACK);
 				String landscape = "Landscape: " + h1.getLandscape().getName();
-				g.drawString(landscape, mouseX + padding, mouseY + m.getHeight() + (yOff += yOff1));
+				g.drawString(landscape, startX + padding, startY + m.getHeight() + (yOff += yOff1));
 				
 				//Write text in the box (about landscape features)
 				if (features.size() > 0) {
 					StringBuilder sb = new StringBuilder(100);
 					sb.append("Features: \n");
 					features.forEach(i -> sb.append("- " + i.getName() + "\n"));
-					drawHexInspectFeatures(g, sb, mouseX + padding, mouseY + m.getHeight() + yOff1, yOff1);	
+					drawHexInspectFeatures(g, sb, startX + padding, startY + m.getHeight() + yOff1, yOff1);	
 				}
 				
 				yOff += (features.size() * yOff1) + (yOff1 * (features.size() > 0 ? 2 : 1)); //Determine text y-offset
 				//Write text in the box (about improvements)
 				if (h1.getImprovement() != null) {
 					String improvement = "Improvement: " + h1.getImprovement().getName();
-					g.drawString(improvement, mouseX + padding, mouseY + m.getHeight() + (yOff += yOff1));
+					g.drawString(improvement, startX + padding, startY + m.getHeight() + (yOff += yOff1));
 				}
 				
 				//Write text in the box if a unit occupies it
@@ -274,25 +278,28 @@ public class GUI {
 		HexCoordinate settler = getRandomUnitCoord();
 		HexCoordinate warrior = settler.getRandomNeighbour();
 		
-		//Get the map hex for units
-		Hex settlerHex = map.get(HexMap.hash(new Hex(settler.q, settler.r, settler.s)));
-		Hex warriorHex = map.get(HexMap.hash(new Hex(warrior.q, warrior.r, settler.s)));
-		
 		//Set the units in the hexes
 		Unit s = new Settler(c1, settler, true);
 		Unit w = new Warrior(c1, warrior, true);
-		settlerHex.addNewUnit(s, false);
-		warriorHex.addNewUnit(w, true);
 		
-		//Update the hexes in the map
-		map.put(HexMap.hash(settlerHex), settlerHex);
-		map.put(HexMap.hash(warriorHex), warriorHex);
-		
-		//Add units to the civ
-		c1.addUnit(s);
-		c1.addUnit(w);
+		addUnit(settler, s, false);
+		addUnit(warrior, w, true);
 		
 		setInitialScroll(settler);
+	}
+	
+	private void addUnit(HexCoordinate hc, Unit u, boolean isMilitary) {
+		//Get the map hex for units
+		Hex h = map.get(HexMap.hash(new Hex(hc.q, hc.r, hc.s)));
+		
+		//Set the units in the hexes
+		h.addNewUnit(u, isMilitary);
+		
+		//Update the hexes in the map
+		map.put(HexMap.hash(h), h);
+		
+		//Add units to the civ
+		c1.addUnit(u);
 	}
 	
 	private HexCoordinate getRandomUnitCoord() {
@@ -320,14 +327,6 @@ public class GUI {
 			String name = u.getName();
 			g.drawString(name, (int) (p.x + scrollX - (name.length() * g.getFont().getSize())), (int) (p.y) + scrollY);	
 		}
-		
-		//Hex h1 = map.get(HexMap.hash(new Hex(h.q, h.r, h.s)));
-		//Point p = Layout.hexToPixel(layout, h1);
-		
-		
-		//c1.getUnits().stream().filter(i -> i.isWarrior()).forEach(j -> g.drawString("Warrior", (int) (p.x) + scrollX, (int) (p.y) + scrollY));
-		
-		//g.drawString("Settler", (int) (p.x) + scrollX, (int) (p.y) + scrollY);
 	}
 	
 	public void setInitialScroll(HexCoordinate h) {
