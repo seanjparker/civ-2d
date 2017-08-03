@@ -9,7 +9,7 @@ public class FractionalHex {
 		this.s = s;						
 	}
 	
-	public static Hex hexRound(FractionalHex h) {
+	public static HexCoordinate hexRound(FractionalHex h) {
 		int q = (int) Math.round(h.q);
 		int r = (int) Math.round(h.r);
 		int s = (int) Math.round(h.s);
@@ -21,7 +21,7 @@ public class FractionalHex {
 		} else if (r_diff > s_diff) {
 			r = -q -s;
 		}
-		return new Hex(q, r, -q - r);
+		return new HexCoordinate(q, r, -q - r);
 	}
 	
 }

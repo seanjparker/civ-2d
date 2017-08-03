@@ -13,36 +13,36 @@ public class Layout {
 		this.origin = origin;
 	}
 
-	public static Orientation layout = new Orientation(Math.sqrt(3.0), Math.sqrt(3.0) / 2.0, 0.0, 3.0 / 2.0, Math.sqrt(3.0) / 3.0, -1.0 / 3.0, 0.0, 2.0 / 3.0, 0.5);
+	public static Orientation POINTY_TOP = new Orientation(Math.sqrt(3.0), Math.sqrt(3.0) / 2.0, 0.0, 3.0 / 2.0, Math.sqrt(3.0) / 3.0, -1.0 / 3.0, 0.0, 2.0 / 3.0, 0.5);
 	
-	public static Point hexToPixel(Layout l, Hex h) {
+	public Point hexToPixel(Layout l, HexCoordinate h) {
 		Orientation m = l.orientation;
 		double x = (m.f0 * h.q + m.f1 * h.r) * l.size.x;
 		double y = (m.f2 * h.q + m.f3 * h.r) * l.size.y;
 		return new Point(x + l.origin.x, y + l.origin.y);
 	}
 	
-	public static FractionalHex pixelToHex(Layout l, Point p) {
+	public HexCoordinate pixelToHex(Layout l, Point p) {
 		Orientation m = l.orientation;
 		Point pt = new Point((p.x - l.origin.x) / l.size.x, (p.y - l.origin.y) / l.size.y);
 		double q = m.b0 * pt.x + m.b1 * pt.y;
 		double r = m.b2 * pt.x + m.b3 * pt.y;
-		return new FractionalHex(q, r, -q - r);
+		return FractionalHex.hexRound(new FractionalHex(q, r, -q - r));
 	}
 	
-    public static Point hexCornerOffset(Layout layout, int corner) {
+    public Point hexCornerOffset(Layout layout, int corner) {
         Orientation m = layout.orientation;
         Point size = layout.size;
         double angle = 2.0 * Math.PI * (m.startAngle - corner) / 6;
         return new Point(size.x * Math.cos(angle), size.y * Math.sin(angle));
     }
 
-    public static ArrayList<Point> polygonCorners(Layout layout, Hex h) {
+    public ArrayList<Point> polygonCorners(Layout layout, HexCoordinate h) {
         ArrayList<Point> corners = new ArrayList<Point>(){{}};
-        Point center = Layout.hexToPixel(layout, h);
+        Point center = hexToPixel(layout, h);
         for (int i = 0; i < 6; i++)
         {
-            Point offset = Layout.hexCornerOffset(layout, i);
+            Point offset = hexCornerOffset(layout, i);
             corners.add(new Point(center.x + offset.x, center.y + offset.y));
         }
         return corners;

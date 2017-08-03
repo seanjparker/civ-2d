@@ -10,7 +10,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import com.proj.civ.display.GUI;
 import com.proj.civ.input.KeyboardHandler;
 import com.proj.civ.input.MouseHandler;
 
@@ -20,18 +19,16 @@ public class Main extends JPanel implements Runnable {
 	private JFrame f;
 	private JPanel p;
 	private Thread gameThread;
-	private GUI gui;
+	private Game game;
 	private MouseHandler m;
 	private KeyboardHandler k;
 	
 	private final String TITLE = "Civilization";
 	private final double FPS = 60.0;
-	
-	private int WIDTH = 1920; //Default
-	private int HEIGHT = 1080; //Default
-	private int HEX_RADIUS = 40; //Default
+
 	
 	private boolean running = false;
+	private int WIDTH, HEIGHT;
 	
 	public Main() {
 		f = new JFrame();
@@ -48,10 +45,9 @@ public class Main extends JPanel implements Runnable {
 	public synchronized void start() {
 		running = true;
 		gameThread = new Thread(this, "Game");
-		gameThread.start();
 		init();
 		
-		createCivs();
+		gameThread.start();
 	}
 	
 	private void init() {
@@ -69,17 +65,12 @@ public class Main extends JPanel implements Runnable {
 		f.setVisible(true);
 	}
 	
-	private void createCivs() {
-		gui.createCiv();
-	}
-	
 	private void createAndSetupGUI() {
-		int w = Toolkit.getDefaultToolkit().getScreenSize().width * 3 / 4;
-		int h = Toolkit.getDefaultToolkit().getScreenSize().height * 3 / 4;
-		this.WIDTH = w;
-		this.HEIGHT = h;
-		this.HEX_RADIUS = ((w >> 4) + (h >> 4)) >> 1; // Fits ~16 hexes on the screen based on the above size
-		gui = new GUI(w, h, HEX_RADIUS, HEX_RADIUS, HEX_RADIUS);
+		WIDTH = Toolkit.getDefaultToolkit().getScreenSize().width * 3 / 4;
+		HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().height * 3 / 4;
+		int hr = ((WIDTH >> 4) + (HEIGHT >> 4)) >> 1; // Fits ~16 hexes on the screen based on the above size
+		
+		game = new Game(1, WIDTH, HEIGHT, hr); //players -- width -- height -- hex raduis
 	}
 	
 	
@@ -101,16 +92,17 @@ public class Main extends JPanel implements Runnable {
 		}
 		
 		protected void paintComponent(Graphics2D g) {
-			gui.drawHexGrid(g);
-			gui.drawUnits(g);
-			gui.drawSelectedHex(g);
-			gui.drawHexInspect(g);
-			gui.drawPath(g);
-			gui.drawFocusHex(g);
-
+			game.draw(g);
 		}
 	}
  	
+	private void render() {
+		f.repaint();
+	}
+	private void update() {
+		game.update(this.k);
+	}
+	
 	public void run() {
 		long lastTime = System.nanoTime();
 		long timer = System.currentTimeMillis();
@@ -139,17 +131,6 @@ public class Main extends JPanel implements Runnable {
 				updates = 0;
 				frames = 0;
 			}
-		}		
-	}
-	
-	private void render() {
-		f.repaint();
-	}
-	
-	private void update() {
-		if (this.k.pressedSet.size() > 0) {
-			gui.updateKeys(this.k.pressedSet);
-			//gui.addFarm();
 		}
 	}
 }

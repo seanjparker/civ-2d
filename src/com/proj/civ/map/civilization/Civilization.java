@@ -12,7 +12,9 @@ public class Civilization {
 	private String CivName;
 	private List<String> cityNames = new ArrayList<String>();
 	private int NumberOfCities = 0;
+	
 	private int happiness = 0;
+	
 	private List<Unit> units = new ArrayList<Unit>();
 	
 	public Civilization(String name) {

@@ -178,4 +178,11 @@ public class Hex extends HexCoordinate {
 			this.militaryUnit = u;
 		}
 	}
+	public void resetUnit(boolean isMilitary) {
+		if (isMilitary) {
+			this.militaryUnit = null;
+		} else {
+			this.civilianUnit = null;
+		}
+	}
 }

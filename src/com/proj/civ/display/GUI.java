@@ -14,7 +14,6 @@ import java.util.Random;
 import java.util.Set;
 
 import com.proj.civ.ai.Pathfinding;
-import com.proj.civ.datastruct.FractionalHex;
 import com.proj.civ.datastruct.Hex;
 import com.proj.civ.datastruct.HexCoordinate;
 import com.proj.civ.datastruct.HexMap;
@@ -70,7 +69,7 @@ public class GUI {
 		this.hHexes = 25;
 		
 		pf = new Pathfinding();
-		layout = new Layout(Layout.layout, new Point(hSize, hSize), new Point(hSize, hSize));
+		layout = new Layout(Layout.POINTY_TOP, new Point(hSize, hSize), new Point(hSize, hSize));
 		poly = new Polygon();
 		hexMap = new HexMap(this.wHexes, this.hHexes, hSize, layout);
 		pathToFollow = new ArrayList<Hex>();
@@ -99,7 +98,7 @@ public class GUI {
 				Hex h1 = new Hex(q, r, -q - r);
 				hex = map.get(HexMap.hash(h1));
 				if (hex != null) {
-					ArrayList<Point> p = Layout.polygonCorners(layout, hex);
+					ArrayList<Point> p = layout.polygonCorners(layout, hex);
 					
 					int drawX = (int) (p.get(0).x);
 					int drawY = (int) (p.get(0).y);
@@ -125,10 +124,9 @@ public class GUI {
 		
 		g.setStroke(new BasicStroke(3.5f));
 			
-		FractionalHex r = Layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
-		Hex s = FractionalHex.hexRound(r);
+		HexCoordinate s = layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
 		if (map.get(HexMap.hash(s)) != null) {	
-			ArrayList<Point> p = Layout.polygonCorners(layout, s);
+			ArrayList<Point> p = layout.polygonCorners(layout, s);
 			for (int k = 0; k < p.size(); k++) {
 				poly.addPoint((int) (p.get(k).x) + scrollX, (int) (p.get(k).y) + scrollY);
 			}
@@ -145,11 +143,11 @@ public class GUI {
 			int mouseX = MouseHandler.movedMX;
 			int mouseY = MouseHandler.movedMY;
 			
-			FractionalHex r = Layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
-			Hex h = FractionalHex.hexRound(r);
+			HexCoordinate h = layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
 			Hex h1 = map.get(HexMap.hash(h));
 			
 			g.setFont(new Font("SansSerif", Font.BOLD, 16));
+			//g.setFont(new Font("Symbola", Font.BOLD, 16));
 			
 			if (h1 != null) {
 				FontMetrics m = g.getFontMetrics();
@@ -202,7 +200,7 @@ public class GUI {
 					StringBuilder sb = new StringBuilder(100);
 					for (Unit u : hexUnits) {
 						if (u.getPosition().isEqual(new HexCoordinate(h1.q, h1.r, h1.s))) {
-							sb.append(u.getName() + " : " + u.getStrength() + " Strength\n");	
+							sb.append("" + u.getName() + " : " + u.getStrength() + " Strength\n");	
 						}
 					}
 					drawStringBuilderData(g, sb, startX, startY + m.getHeight() + yOff, yOff1);
@@ -228,19 +226,20 @@ public class GUI {
 		if (MouseHandler.pressedMouse) {
 			focusX = MouseHandler.mX;
 			focusY = MouseHandler.mY;
-			FractionalHex fromFH = Layout.pixelToHex(layout, new Point(focusX - scrollX, focusY - scrollY));
-			Hex tempFocusHex = FractionalHex.hexRound(fromFH);
-			focusHex = tempFocusHex.equals(focusHex) ? null : tempFocusHex;		
+			HexCoordinate tempFocusHex = layout.pixelToHex(layout, new Point(focusX - scrollX, focusY - scrollY));
+			Hex mapHex = map.get(HexMap.hash(tempFocusHex));
+			if ((!mapHex.canSetMilitary() || !mapHex.canSetCivilian())) {
+				focusHex = tempFocusHex.equals(focusHex) ? null : new Hex(tempFocusHex.q, tempFocusHex.r, tempFocusHex.s);		
+			}
 		}
 		if (focusHex != null) {
 			g.setColor(Color.WHITE);
 			
 			int toX = MouseHandler.movedMX;
 			int toY = MouseHandler.movedMY;
-			FractionalHex toFH = Layout.pixelToHex(layout, new Point(toX - scrollX, toY - scrollY));
-			Hex endHex = FractionalHex.hexRound(toFH);
+			HexCoordinate endHex = layout.pixelToHex(layout, new Point(toX - scrollX, toY - scrollY));
 			if (!endHex.equals(pathToHex)) {
-				pathToHex = endHex;
+				pathToHex = new Hex(endHex.q, endHex.r, endHex.s);
 				pathToFollow = pf.findPath(map, focusHex, pathToHex);
 				drawPathOnGrid(g);
 			} else if (!focusHex.equals(endHex)){
@@ -253,7 +252,7 @@ public class GUI {
 		if (pathToFollow != null) {
 			for (Hex h : pathToFollow) {
 				if (!h.equals(focusHex)) {
-					Point hexCentre = Layout.hexToPixel(layout, h);
+					Point hexCentre = layout.hexToPixel(layout, h);
 					g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20, 20);
 				}
 			}	
@@ -265,7 +264,7 @@ public class GUI {
 			if (map.get(HexMap.hash(focusHex)) != null) {	
 				g.setStroke(new BasicStroke(5.0f));
 				
-				ArrayList<Point> p = Layout.polygonCorners(layout, focusHex);
+				ArrayList<Point> p = layout.polygonCorners(layout, focusHex);
 				for (int k = 0; k < p.size(); k++) {
 					poly.addPoint((int) (p.get(k).x) + scrollX, (int) (p.get(k).y) + scrollY);
 				}
@@ -274,6 +273,29 @@ public class GUI {
 				poly.reset();
 			}
 		}
+	}
+	
+	public void drawUnits(Graphics2D g) {
+		g.setColor(Color.BLACK);
+		g.setFont(new Font("SansSerif", Font.BOLD, 16));
+		
+		List<Unit> units = c1.getUnits();
+		for (Unit u : units) {
+			HexCoordinate hc = u.getPosition();
+			Hex h = map.get(HexMap.hash(hc));
+			Point p = layout.hexToPixel(layout, h);
+			String name = u.getName();
+			g.drawString(name, (int) (p.x + scrollX - ((name.length() * g.getFont().getSize()) >> 2)), (int) (p.y) + scrollY);	
+		}
+	}
+
+	public void drawUI(Graphics2D g) {
+		//g.setColor(Color.BLACK);
+		
+		//Draw the top bar of the ui
+		//g.fillRect(0, 0, WIDTH, hSize >> 1);
+		
+		//Draw the civ yield per turn
 	}
 	
 	public void createCiv() {
@@ -319,30 +341,15 @@ public class GUI {
 		do {
 			double x = (double) rnd.nextInt(wHexes * hSize);
 			double y = (double) rnd.nextInt(hHexes * hSize);
-			FractionalHex fh = Layout.pixelToHex(layout, new Point(x, y));
-			Hex h1 = FractionalHex.hexRound(fh);
+			HexCoordinate h1 = layout.pixelToHex(layout, new Point(x, y));
 			h = map.get(HexMap.hash(h1));
 		} while (h == null);
 		
 		return new HexCoordinate(h.q, h.r, h.s);
 	}
 	
-	public void drawUnits(Graphics2D g) {
-		g.setColor(Color.BLACK);
-		g.setFont(new Font("SansSerif", Font.BOLD, 16));
-		
-		List<Unit> units = c1.getUnits();
-		for (Unit u : units) {
-			HexCoordinate hc = u.getPosition();
-			Hex h = map.get(HexMap.hash(hc));
-			Point p = Layout.hexToPixel(layout, h);
-			String name = u.getName();
-			g.drawString(name, (int) (p.x + scrollX - ((name.length() * g.getFont().getSize()) >> 2)), (int) (p.y) + scrollY);	
-		}
-	}
-	
 	public void setInitialScroll(HexCoordinate h) {
-		Point p = Layout.hexToPixel(layout, new Hex(h.q, h.r, h.s));
+		Point p = layout.hexToPixel(layout, new Hex(h.q, h.r, h.s));
 		int sX = Math.min(((int) -p.x + (WIDTH >> 2)), hSize); //Ensure the units are shown on-screen
 		int sY = Math.min(((int) -p.y + (HEIGHT >> 2)), 0);
 		
@@ -383,6 +390,48 @@ public class GUI {
 		}
 	}
 	
+	public void moveUnit() {
+		//If a friendly unit is currently selected
+			//If the new location is a valid position and (empty or a piece of the same type occupies)
+				//If new location is empty -- set current piece to the new location -- update map and civ unit list
+				//If new location of same type occupies it -- switch the pieces positions
+		if (MouseHandler.pressedMouse && focusHex != null) {
+			Hex fromHex = map.get(HexMap.hash(focusHex));
+			if (!fromHex.canSetCivilian() || !fromHex.canSetMilitary()) {
+				Unit cu = fromHex.getCivilianUnit();
+				Unit mu = fromHex.getMilitaryUnit();
+				
+				int mouseX = MouseHandler.dMX;
+				int mouseY = MouseHandler.dMY;
+				HexCoordinate h = layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
+				Hex toHex = map.get(HexMap.hash(h));
+				
+				Unit ctu = toHex.getCivilianUnit();
+				Unit mtu = toHex.getMilitaryUnit();
+				
+				if (cu != null && ctu != null) {
+					if (sameOwner(cu, ctu)) {	
+					}
+					//Swap civ units
+				} else if (mu != null && mtu != null) {
+					//if (mu.getOwner().getName() == c1.getName()) {	
+					//}
+					//Swap military units
+				} else if (cu != null && ctu == null) {
+					//Move civ units to new hex
+				} else if (mu != null && mtu == null) {
+					//Move military unit ot new hex
+				}
+			}
+		}
+	}
+	
+	private boolean sameOwner(Unit fromU, Unit toU) {
+		if (fromU.getOwner().getName() == c1.getName()) {	
+		}
+		return false;
+	}
+	
 	/*
 	public void addFarm() {
 		if (farmToAdd) {
@@ -406,4 +455,16 @@ public class GUI {
 	private int getAdjustedHeight() {
 		return (int) ((hHexes * hSize * 3 / 2) - HEIGHT + hSize);
 	}
+	
+	/*
+	public void registerFonts(String name) {
+	    Font font = null;
+	        String fName = Params.get().getFontPath() + name;
+	        File fontFile = new File(fName);
+	        font = Font.createFont(Font.TRUETYPE_FONT, fontFile);
+	        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+
+	        ge.registerFont(font);
+	}
+	*/
 }
