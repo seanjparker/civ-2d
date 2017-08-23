@@ -10,8 +10,8 @@ import com.proj.civ.map.terrain.Feature;
 import com.proj.civ.map.terrain.Landscape;
 
 public class TerrainGeneration {
-	private final int OCTAVES = 8;
-	private final double FEATURE_SIZE = 100.0;
+	private final int OCTAVES = 6;
+	private final double FEATURE_SIZE = 25.0;
 	private final Random rnd;
 	
 	private int width, height;

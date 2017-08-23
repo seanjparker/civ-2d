@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 
 import javax.swing.BorderFactory;
@@ -29,6 +30,7 @@ public class Main extends JPanel implements Runnable {
 	
 	private boolean running = false;
 	private int WIDTH, HEIGHT;
+	private int drawablefps = 0;
 	
 	public Main() {
 		f = new JFrame();
@@ -93,6 +95,7 @@ public class Main extends JPanel implements Runnable {
 		
 		protected void paintComponent(Graphics2D g) {
 			game.draw(g);
+			drawFPS(g);
 		}
 	}
  	
@@ -109,7 +112,7 @@ public class Main extends JPanel implements Runnable {
 		
 		final double ns = 1000000000.0 / FPS;
 		double delta = 0;
-		int frames = 0, updates = 0;
+		int fps = 0;
 		
 		while (running) {
 			long now = System.nanoTime();
@@ -117,20 +120,25 @@ public class Main extends JPanel implements Runnable {
 			lastTime = now;
 			while (delta >= 1) {
 				update();
-				updates++;
 				delta--;
 				
 				render();
-				frames++;
+				fps++;
 			}
 			
 			if ((System.currentTimeMillis() - timer) > 1000) {
 				timer += 1000;
-				f.setTitle(TITLE + " - " + updates + " UPS, " + frames + " FPS");
-				
-				updates = 0;
-				frames = 0;
+				drawablefps = fps;
+				fps = 0;
 			}
 		}
+	}
+	
+	private void drawFPS(Graphics2D g) {
+		int textWidth = Integer.toString(drawablefps).length() * g.getFont().getSize();
+		g.setColor(Color.WHITE);
+		g.fillRect(0, 0, textWidth, g.getFontMetrics().getHeight());
+		g.setColor(Color.BLACK);
+		g.drawString(Integer.toString(drawablefps), 0, g.getFontMetrics().getHeight());
 	}
 }

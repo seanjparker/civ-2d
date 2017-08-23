@@ -10,19 +10,21 @@ import com.proj.civ.unit.Unit;
 
 public class Civilization {
 	private String CivName;
-	private List<String> cityNames = new ArrayList<String>();
 	private int NumberOfCities = 0;
-	
 	private int happiness = 0;
 	
 	private List<Unit> units = new ArrayList<Unit>();
+	private List<String> cityNames = new ArrayList<String>();
 	
-	public Civilization(String name) {
-		this.CivName = name;
+	private CivType ct;
+	
+	public Civilization(CivType ct) {
+		this.ct = ct;
+		this.CivName = ct.name();
 	}
 	
-	public String getName() {
-		return this.CivName;
+	public boolean sameCiv(CivType c) {
+		return this.ct == c;
 	}
 	
 	private String getNextCityName() {
@@ -50,5 +52,9 @@ public class Civilization {
 	
 	public void addUnit(Unit u) {
 		units.add(u);
+	}
+	
+	public CivType getCivType() {
+		return ct;
 	}
 }

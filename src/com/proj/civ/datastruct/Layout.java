@@ -47,5 +47,8 @@ public class Layout {
         }
         return corners;
     }
+    public Point getPolygonPositionEstimate(Layout layout, HexCoordinate h) {
+    		return hexToPixel(layout, h);
+    }
 }
 

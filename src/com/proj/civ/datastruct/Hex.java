@@ -10,6 +10,8 @@ import com.proj.civ.map.terrain.YieldType;
 import com.proj.civ.unit.Unit;
 
 public class Hex extends HexCoordinate {
+	public static final int CIV_UNIT = 0;
+	public static final int MIL_UNIT = 1;
 	
 	public static final List<HexCoordinate> directions = new ArrayList<HexCoordinate>() {{
 	add(new HexCoordinate(1, 0, -1));
@@ -32,8 +34,7 @@ public class Hex extends HexCoordinate {
     private Improvement TileImprovement = null;
 	private Landscape Type = null;
 	private List<Feature> Features = new ArrayList<Feature>();
-	private Unit militaryUnit = null;
-	private Unit civilianUnit = null;
+	private Unit[] hexUnits = new Unit[1 + CIV_UNIT + MIL_UNIT];
 	
 	public Hex(int q, int r, int s) {
 		super(q, r, s);
@@ -146,43 +147,43 @@ public class Hex extends HexCoordinate {
 	}
 	
 	public boolean canSetMilitary() {
-		return militaryUnit == null;
+		return hexUnits[MIL_UNIT] == null;
 	}
 	public boolean canSetCivilian() {
-		return civilianUnit == null;
+		return hexUnits[CIV_UNIT] == null;
 	}
 	public void addNewUnit(Unit unit, boolean isMilitary) {
 		if (isMilitary && canSetMilitary()) {
-			militaryUnit = unit;
+			hexUnits[MIL_UNIT] = unit;
 		} else if (!isMilitary && canSetCivilian()) {
-			civilianUnit = unit;
+			hexUnits[CIV_UNIT] = unit;
 		}
 	}
 	public Unit getCivilianUnit() {
-		return civilianUnit;
+		return hexUnits[CIV_UNIT];
 	}
 	public Unit getMilitaryUnit() {
-		return militaryUnit;
+		return hexUnits[MIL_UNIT];
 	}
 	public Unit[] getUnits() {
-		return new Unit[] {civilianUnit, militaryUnit};
+		return hexUnits;
 	}
 	
 	public void setCivilianUnit(Unit u) {
 		if (canSetCivilian()) {
-			this.civilianUnit = u;
+			this.hexUnits[CIV_UNIT] = u;
 		}
 	}
 	public void setMilitaryUnit(Unit u) {
 		if (canSetMilitary()) {
-			this.militaryUnit = u;
+			this.hexUnits[MIL_UNIT] = u;
 		}
 	}
 	public void resetUnit(boolean isMilitary) {
 		if (isMilitary) {
-			this.militaryUnit = null;
+			this.hexUnits[MIL_UNIT] = null;
 		} else {
-			this.civilianUnit = null;
+			this.hexUnits[CIV_UNIT] = null;
 		}
 	}
 }
