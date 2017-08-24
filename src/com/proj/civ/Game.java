@@ -13,6 +13,7 @@ import com.proj.civ.datastruct.Layout;
 import com.proj.civ.datastruct.Point;
 import com.proj.civ.display.GUI;
 import com.proj.civ.input.KeyboardHandler;
+import com.proj.civ.input.MouseHandler;
 import com.proj.civ.map.civilization.America;
 import com.proj.civ.map.civilization.Civilization;
 import com.proj.civ.unit.Settler;
@@ -66,9 +67,9 @@ public class Game {
 		ui.setFocusHex();
 		
 		if (shouldMoveUnit()) {
-			System.out.println("move the selected unit");
-			//gl.moveUnit(map, civs.get(0), ui.getFocusHex(), ui.getScrollX(), ui.getScrollY());
-			//shouldUpdate = true;
+			gl.moveUnit(map, civs.get(0), ui.getFocusHex(), ui.getScrollX(), ui.getScrollY());
+			shouldUpdate = true;
+			MouseHandler.pressedMouse = false;
 		}
 		if (shouldUpdate) { //Last thing, if the map has been changed, update the map
 			ui.setMap(map);
@@ -151,11 +152,13 @@ public class Game {
 	private boolean shouldMoveUnit() {
 		HexCoordinate fromHex = ui.getFocusHex();
 		if (fromHex != null) { //If a unit is currently selected
-			HexCoordinate toHexPlace = layout.pixelToHex(layout, ui.getHexPosFromMouse());
-			if (fromHex != null) {
-				if (!fromHex.equals(toHexPlace)) {
-					return true;	
-				}
+			if (MouseHandler.pressedMouse) {
+				HexCoordinate toHexPlace = layout.pixelToHex(layout, ui.getHexPosFromMouse());
+				if (fromHex != null) {
+					if (!fromHex.isEqual(toHexPlace)) {
+						return true;	
+					}
+				}	
 			}
 		}
 		return false;

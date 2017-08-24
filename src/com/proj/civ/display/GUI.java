@@ -394,13 +394,13 @@ public class GUI {
 		return scrollY;
 	}
 	public void setFocusHex() {
-		if (MouseHandler.pressedMouse) {
+		if (MouseHandler.pressedMouse && (focusHex == null)) {
 			focusX = MouseHandler.mX;
 			focusY = MouseHandler.mY;
 			HexCoordinate tempFocusHex = layout.pixelToHex(layout, new Point(focusX - scrollX, focusY - scrollY));
 			Hex mapHex = map.get(HexMap.hash(tempFocusHex));
 			if ((!mapHex.canSetMilitary() || !mapHex.canSetCivilian())) {
-				focusHex = tempFocusHex.isEqual(focusHex) ? null : new Hex(tempFocusHex.q, tempFocusHex.r, tempFocusHex.s);		
+				focusHex = new Hex(tempFocusHex.q, tempFocusHex.r, tempFocusHex.s);		
 			}
 		}
 	}

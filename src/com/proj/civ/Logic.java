@@ -25,42 +25,42 @@ public class Logic {
 			//If the new location is a valid position and (empty or a piece of the same type occupies)
 				//If new location is empty -- set current piece to the new location -- update map and civ unit list
 				//If new location of same type occupies it -- switch the pieces positions
-		if (focusHex != null) {
-			System.out.println("is focused to move");
-			/*
-			Hex fromHex = map.get(HexMap.hash(focusHex));
-			if (!fromHex.canSetCivilian() || !fromHex.canSetMilitary()) {
-				Unit cu = fromHex.getCivilianUnit();
-				Unit mu = fromHex.getMilitaryUnit();
-				
-				int mouseX = MouseHandler.dMX;
-				int mouseY = MouseHandler.dMY;
-				HexCoordinate h = layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
-				Hex toHex = map.get(HexMap.hash(h));
-				
-				Unit ctu = toHex.getCivilianUnit();
-				Unit mtu = toHex.getMilitaryUnit();
-				
-				
-				*/
-				
-				
-				/*
-				if (cu != null && ctu != null) {
-					if (sameOwner(cu, ctu)) {
-					}
-					//Swap civ units
-				} else if (mu != null && mtu != null) {
-					//if (mu.getOwner().getName() == c1.getName()) {	
-					//}
-					//Swap military units
-				} else if (cu != null && ctu == null) {
-					//Move civ units to new hex
-				} else if (mu != null && mtu == null) {
-					//Move military unit ot new hex
+		Hex fromHex = map.get(HexMap.hash(focusHex));
+		if (!fromHex.canSetCivilian() || !fromHex.canSetMilitary()) {			
+			int mouseX = MouseHandler.dMX;
+			int mouseY = MouseHandler.dMY;
+			
+			HexCoordinate h = layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
+			Hex toHex = map.get(HexMap.hash(h));
+			
+			Unit cu = fromHex.getCivilianUnit();
+			Unit mu = fromHex.getMilitaryUnit();
+			
+			Unit ctu = toHex.getCivilianUnit();
+			Unit mtu = toHex.getMilitaryUnit();
+			
+			for (int i = 0; i < fromHex.getUnits().length; i++) {
+				for (int j = 0; j < toHex.getUnits().length; j++) {
+					
 				}
-				*/
-			//}
+			}
+			
+			/*
+			//Civ units and military units cannot occupy the same hex
+			if (cu != null && ctu != null) {
+				if (sameOwner(cu, ctu)) {
+					//Swap the civ units
+				}
+			} else if (mu != null && mtu != null) {
+				//if (mu.getOwner().getName() == c1.getName()) {	
+				//}
+				//Swap military units
+			} else if (cu != null && ctu == null) {
+				//Move civ units to new hex
+			} else if (mu != null && mtu == null) {
+				//Move military unit to new hex
+			}
+			*/
 		}
 	}
 	
