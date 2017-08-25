@@ -54,6 +54,11 @@ public class Civilization {
 		units.add(u);
 	}
 	
+	public void replaceUnit(Unit oldUnit, Unit newUnit) {
+		units.remove(oldUnit);
+		units.add(newUnit);
+	}
+	
 	public CivType getCivType() {
 		return ct;
 	}

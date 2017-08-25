@@ -16,6 +16,7 @@ import com.proj.civ.input.KeyboardHandler;
 import com.proj.civ.input.MouseHandler;
 import com.proj.civ.map.civilization.America;
 import com.proj.civ.map.civilization.Civilization;
+import com.proj.civ.map.terrain.Landscape;
 import com.proj.civ.unit.Settler;
 import com.proj.civ.unit.Unit;
 import com.proj.civ.unit.Warrior;
@@ -67,12 +68,13 @@ public class Game {
 		ui.setFocusHex();
 		
 		if (shouldMoveUnit()) {
-			gl.moveUnit(map, civs.get(0), ui.getFocusHex(), ui.getScrollX(), ui.getScrollY());
+			moveUnit(map, civs.get(0), ui.getFocusHex(), ui.getScrollX(), ui.getScrollY());
 			shouldUpdate = true;
 			MouseHandler.pressedMouse = false;
 		}
 		if (shouldUpdate) { //Last thing, if the map has been changed, update the map
 			ui.setMap(map);
+			ui.resetFocusHex();
 			shouldUpdate = false;
 		}
 	}
@@ -119,8 +121,8 @@ public class Game {
 	private HexCoordinate getRandomUnitCoord() {
 		Hex h = null;
 		do {
-			double x = (double) rnd.nextInt(wHexes * HEX_RADIUS);
-			double y = (double) rnd.nextInt(hHexes * HEX_RADIUS);
+			double x = (double) rnd.nextInt(wHexes * HEX_RADIUS * 2);
+			double y = (double) rnd.nextInt(hHexes * HEX_RADIUS * 2);
 			HexCoordinate h1 = layout.pixelToHex(layout, new Point(x, y));
 			h = map.get(HexMap.hash(h1));
 		} while (h == null);
@@ -144,7 +146,54 @@ public class Game {
 		c1.addUnit(u);
 		civs.set(0, c1);
 	}
-
+	private void moveUnit(Hex fromHex, Hex toHex, Unit u) {
+		HexCoordinate newLocation = toHex.getPosition();
+		
+		Unit tempUnit = u;
+		tempUnit.setPosition(newLocation);
+		
+		fromHex.resetUnits();
+		toHex.replaceUnit(u, tempUnit.isMilitary());
+		
+		//Move the unit on the map
+		map.replace(HexMap.hash(toHex), toHex);
+		map.replace(HexMap.hash(fromHex), fromHex);
+		
+		//Add units to the civ
+		Civilization c1 = civs.get(0);
+		c1.replaceUnit(u, tempUnit);
+		civs.set(0, c1);
+	}
+	private void swapUnit(Hex fromHex, Hex toHex, Unit currentFromUnit, Unit currentToUnit) {
+		//Unit newUnit = cu;
+		//newUnit.setPosition(toHex.getPosition());
+		//replaceUnit(fromHex, toHex, cu, newUnit, false);
+		
+		fromHex.resetUnits();
+		toHex.resetUnits();
+		
+		Unit tempToUnit = currentToUnit;
+		Unit tempFromUnit = currentFromUnit;
+		HexCoordinate unitFrom = currentFromUnit.getPosition();
+		HexCoordinate unitTo = currentToUnit.getPosition();
+		
+		tempToUnit.setPosition(unitFrom);
+		tempFromUnit.setPosition(unitTo);
+		
+		fromHex.replaceUnit(tempToUnit, currentToUnit.isMilitary());
+		toHex.replaceUnit(tempFromUnit, currentFromUnit.isMilitary());
+		
+		//Move the units on the map
+		map.replace(HexMap.hash(toHex), toHex);
+		map.replace(HexMap.hash(fromHex), fromHex);
+		
+		//Add units to the civ
+		Civilization c1 = civs.get(0);
+		c1.replaceUnit(currentFromUnit, tempFromUnit);
+		c1.replaceUnit(currentToUnit, tempToUnit);
+		civs.set(0, c1);
+	}
+	
 	public Map<Integer, Hex> getMap() {
 		return map;
 	}
@@ -163,4 +212,44 @@ public class Game {
 		}
 		return false;
 	}
+	
+	public void moveUnit(Map<Integer, Hex> map, Civilization c, Hex focusHex, int scrollX, int scrollY) {
+		//If a friendly unit is currently selected
+			//If the new location is a valid position and (empty or a piece of the same type occupies)
+				//If new location is empty -- set current piece to the new location -- update map and civ unit list
+				//If new location of same type occupies it -- switch the pieces positions
+		Hex fromHex = map.get(HexMap.hash(focusHex));
+		if (!fromHex.canSetCivilian() || !fromHex.canSetMilitary()) {			
+			int mouseX = MouseHandler.movedMX;
+			int mouseY = MouseHandler.movedMY;
+			
+			HexCoordinate h = layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
+			Hex toHex = map.get(HexMap.hash(h));
+			
+			Unit cu = fromHex.getCivilianUnit();
+			Unit mu = fromHex.getMilitaryUnit();
+			
+			Unit ctu = toHex.getCivilianUnit();
+			Unit mtu = toHex.getMilitaryUnit();
+			
+			//Civ units and military units cannot occupy the same hex (for now)
+			if (cu != null && ctu == null && mu == null && mtu != null) { //swapping units -- civ to mil
+				if (sameOwner(cu, mtu)) {
+					swapUnit(fromHex, toHex, cu, mtu);
+				}
+			} else if (cu == null && ctu != null && mu != null && mtu == null) { //swapping units -- mil to civ
+				if (sameOwner(mu, ctu)) {
+					swapUnit(fromHex, toHex, mu, ctu);
+				}
+			} else if ((cu != null || mu != null) && ctu == null && mtu == null) { //Move civ or mil units to empty hex
+				moveUnit(fromHex, toHex, cu != null ? cu : mu);
+			}
+		}
+	}
+	
+	private boolean sameOwner(Unit fromU, Unit toU) {
+		//return fromU.getOwner().sameCiv(toU.getOwner().getCivType());
+		return fromU.getOwner().sameCiv(toU.getOwner().getCivType());
+	}
+	
 }

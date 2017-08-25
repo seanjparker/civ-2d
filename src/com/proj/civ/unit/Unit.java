@@ -20,6 +20,7 @@ public class Unit {
 	
  	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, int productionCost) {
 		this.name = name;
+		this.civOwner = civOwner;
  		this.curPos = curPos;
 		this.movementPotential = movementPotential;
 		this.productionCost = productionCost;
@@ -36,10 +37,11 @@ public class Unit {
 		this(name, civOwner, curPos, movementPotential, strength, productionCost);
 		this.isSpawned = isSpawned;
 	}
-	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, double strength, boolean isMilitary, int productionCost) {
+	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, double strength, int productionCost, boolean isMilitary, boolean isSpawned) {
 		this(name, civOwner, curPos, movementPotential, productionCost);
 		this.strength = strength;
 		this.isMilitary = isMilitary;
+		this.isSpawned = isSpawned;
 	}
 	
 	public HexCoordinate getPosition() {
@@ -93,5 +95,9 @@ public class Unit {
 	}
 	public boolean isWarrior() {
 		return this instanceof Warrior;
+	}
+	
+	public void setPosition(HexCoordinate h) {
+		this.curPos = h;
 	}
 }

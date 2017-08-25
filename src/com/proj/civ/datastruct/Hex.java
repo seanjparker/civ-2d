@@ -45,6 +45,10 @@ public class Hex extends HexCoordinate {
 		this.Type = Type;
 	}
 	
+	public HexCoordinate getPosition() {
+		return new HexCoordinate(q, r, s);
+	}
+	
 	public boolean equals(Hex b) {
 		return (b != null) && (this.q == b.q) && (this.r == b.r) && (this.s == b.s);
 	}
@@ -179,11 +183,15 @@ public class Hex extends HexCoordinate {
 			this.hexUnits[MIL_UNIT] = u;
 		}
 	}
-	public void resetUnit(boolean isMilitary) {
+	public void resetUnits() {
+		this.hexUnits[MIL_UNIT] = null;
+		this.hexUnits[CIV_UNIT] = null;
+	}
+	public void replaceUnit(Unit u, boolean isMilitary) {
 		if (isMilitary) {
-			this.hexUnits[MIL_UNIT] = null;
+			this.hexUnits[MIL_UNIT] = u;
 		} else {
-			this.hexUnits[CIV_UNIT] = null;
+			this.hexUnits[CIV_UNIT] = u;
 		}
 	}
 }

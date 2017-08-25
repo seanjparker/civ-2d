@@ -404,6 +404,9 @@ public class GUI {
 			}
 		}
 	}
+	public void resetFocusHex() {
+		this.focusHex = null;
+	}
 	public Hex getFocusHex() {
 		return this.focusHex;
 	}
