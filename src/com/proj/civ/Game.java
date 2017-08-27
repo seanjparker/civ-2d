@@ -213,7 +213,7 @@ public class Game {
 					if (!fromHex.isEqual(toHexPlace)) {
 						List<PathHex> path = ui.getUnitPath();
 						if (path != null) {
-							return path.stream().anyMatch(x -> x.getPassable() && x.isEqual(toHexPlace));
+							return path.stream().anyMatch(x -> (x.getPassable() || x.getCanSwitch()) && x.isEqual(toHexPlace));
 						}
 					}
 				}	
@@ -289,24 +289,29 @@ public class Game {
 			}
 		}
 		
+		boolean unitBlocking = false;
 		for (int i = path.size(); --i >= 0;) {
 			boolean done = false;
 			HexCoordinate h = path.get(i);
 			Hex mapHex = map.get(HexMap.hash(h));
 			for (Unit u : mapHex.getUnits()) { //Check for a unit blocking the path
 				if (u != null) {
-					finalPath.add(new PathHex(h, false));
-					done = true;
+					boolean canSwitch = false;
+					done = true; unitBlocking = true;
+					if (u.getOwner() == currentUnit.getOwner()) canSwitch = true;
+					finalPath.add(new PathHex(h, false, canSwitch));
 				}
 			}
-			if (!done) {
+			if (!done && !unitBlocking) {
 				if (!currentUnit.ableToMove(current.getMovementTotal())) {
-					//System.out.println("cannot move");
 					finalPath.add(new PathHex(h, false));
 				} else {
-					//System.out.println("can move here");
 					finalPath.add(new PathHex(h, true));
 				}	
+			} else {
+				if (unitBlocking) {
+					finalPath.add(new PathHex(h, false));
+				}
 			}
 		}
 		currentUnit.resetMovementTemp();

@@ -113,7 +113,7 @@ public class Main extends JPanel implements Runnable {
 		final double ns = 1000000000.0 / FPS;
 		double delta = 0;
 		int fps = 0;
-		
+
 		while (running) {
 			long now = System.nanoTime();
 			delta += (now - lastTime) / ns;
