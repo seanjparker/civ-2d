@@ -66,18 +66,21 @@ public class Unit {
 	}
 	
 	public boolean ableToMove(double hexCost) {
-		return (movementTemp -= hexCost) >= 0;
+		return ((movementTemp -= hexCost) >= 0D) && (movementPotential - hexCost >= 0D);
 	}
 	
-	public boolean decreaseMovement(double hexCost) {
+	public boolean canDecreaseMovement(double hexCost) {
 		boolean canMove = ableToMove(hexCost);
 		double finalMovement = movementPotential - hexCost;
 		movementPotential = canMove ? finalMovement : movementPotential;
 		return canMove;
 	}
+	public void decreaseMovement(double hexCost) {
+		this.movementPotential -= hexCost;
+	}
 	
 	public double getMovementPotential() {
-		return movementTemp;
+		return movementPotential;
 	}
 	public double getTotalMovement() {
 		return movement;
@@ -109,10 +112,20 @@ public class Unit {
 	public void setPosition(HexCoordinate h) {
 		this.curPos = h;
 	}
+	
+	public void nextTurn() {
+		resetMovementTemp();
+		resetMovementPotential();
+	}
 	public void resetMovementTemp() {
 		this.movementTemp = movement;
 	}
 	public void resetMovementPotential() {
 		this.movementPotential = movement;
+	}
+	public void setMovementTempForMultiMove() {
+		if (this.movementPotential != this.movement) {
+			this.movementTemp = this.movementPotential;
+		}
 	}
 }

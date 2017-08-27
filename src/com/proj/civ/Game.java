@@ -69,8 +69,8 @@ public class Game {
 		if (k.pressedSet.size() > 0) {
 			ui.updateKeys(k.pressedSet);
 		}
-		ui.setFocusHex();
 		
+		ui.setFocusHex();
 		createUnitPath();
 		
 		if (shouldMoveUnit()) {
@@ -152,12 +152,13 @@ public class Game {
 		c1.addUnit(u);
 		civs.set(0, c1);
 	}
-	private void moveUnit(Hex fromHex, Hex toHex, Unit u) {
+	private void moveUnit(Hex fromHex, Hex toHex, Unit u, double totalHexCost) {
 		HexCoordinate newLocation = toHex.getPosition();
+		u.decreaseMovement(totalHexCost);
 		
 		Unit tempUnit = u;
 		tempUnit.setPosition(newLocation);
-		
+
 		fromHex.resetUnits();
 		toHex.replaceUnit(u, tempUnit.isMilitary());
 		
@@ -170,13 +171,16 @@ public class Game {
 		c1.replaceUnit(u, tempUnit);
 		civs.set(0, c1);
 	}
-	private void swapUnit(Hex fromHex, Hex toHex, Unit currentFromUnit, Unit currentToUnit) {
+	private void swapUnit(Hex fromHex, Hex toHex, Unit currentFromUnit, Unit currentToUnit, double totalHexCost) {
 		//Unit newUnit = cu;
 		//newUnit.setPosition(toHex.getPosition());
 		//replaceUnit(fromHex, toHex, cu, newUnit, false);
 		
 		fromHex.resetUnits();
 		toHex.resetUnits();
+		
+		currentToUnit.decreaseMovement(totalHexCost);
+		currentFromUnit.decreaseMovement(totalHexCost);
 		
 		Unit tempToUnit = currentToUnit;
 		Unit tempFromUnit = currentFromUnit;
@@ -213,7 +217,7 @@ public class Game {
 					if (!fromHex.isEqual(toHexPlace)) {
 						List<PathHex> path = ui.getUnitPath();
 						if (path != null) {
-							return path.stream().anyMatch(x -> (x.getPassable() || x.getCanSwitch()) && x.isEqual(toHexPlace));
+							return path.stream().anyMatch(x -> x.getPassable() && x.isEqual(toHexPlace));
 						}
 					}
 				}	
@@ -236,17 +240,25 @@ public class Game {
 			Unit ctu = toHex.getCivilianUnit();
 			Unit mtu = toHex.getMilitaryUnit();
 			
+			double pathTotal = 0.0D;
+			for (PathHex ph : ui.getUnitPath()) {
+				if (ph.getPassable()) {
+					Hex mapHex = map.get(HexMap.hash(ph));
+					pathTotal += mapHex.getMovementTotal();	
+				}
+			}
+			
 			//Civ units and military units cannot occupy the same hex (for now)
 			if (cu != null && ctu == null && mu == null && mtu != null) { //swapping units -- civ to mil
 				if (sameOwner(cu, mtu)) {
-					swapUnit(fromHex, toHex, cu, mtu);
+					swapUnit(fromHex, toHex, cu, mtu, pathTotal);
 				}
 			} else if (cu == null && ctu != null && mu != null && mtu == null) { //swapping units -- mil to civ
 				if (sameOwner(mu, ctu)) {
-					swapUnit(fromHex, toHex, mu, ctu);
+					swapUnit(fromHex, toHex, mu, ctu, pathTotal);
 				}
 			} else if ((cu != null || mu != null) && ctu == null && mtu == null) { //Move civ or mil units to empty hex
-				moveUnit(fromHex, toHex, cu != null ? cu : mu);
+				moveUnit(fromHex, toHex, cu != null ? cu : mu, pathTotal);
 			}
 			ui.setFocusedUnitPath(null);
 		}
@@ -294,27 +306,28 @@ public class Game {
 			boolean done = false;
 			HexCoordinate h = path.get(i);
 			Hex mapHex = map.get(HexMap.hash(h));
-			for (Unit u : mapHex.getUnits()) { //Check for a unit blocking the path
-				if (u != null) {
-					boolean canSwitch = false;
-					done = true; unitBlocking = true;
-					if (u.getOwner() == currentUnit.getOwner()) canSwitch = true;
-					finalPath.add(new PathHex(h, false, canSwitch));
+			boolean unitMovementRemaining = currentUnit.ableToMove(current.getMovementTotal());
+			if (unitMovementRemaining) {
+				for (Unit u : mapHex.getUnits()) { //Check for a unit blocking the path
+					if (u != null) {
+						boolean canSwitch = false; 
+						if (u.getOwner() == currentUnit.getOwner()) {
+							canSwitch = true;
+						} else {
+							unitBlocking = true;
+						}
+						finalPath.add(new PathHex(h, !unitBlocking, canSwitch));
+						done = true;
+					}
 				}
-			}
-			if (!done && !unitBlocking) {
-				if (!currentUnit.ableToMove(current.getMovementTotal())) {
-					finalPath.add(new PathHex(h, false));
-				} else {
+				if (!done) {
 					finalPath.add(new PathHex(h, true));
-				}	
-			} else {
-				if (unitBlocking) {
-					finalPath.add(new PathHex(h, false));
 				}
+			} else {
+				finalPath.add(new PathHex(h, false));
 			}
 		}
-		currentUnit.resetMovementTemp();
+		currentUnit.setMovementTempForMultiMove();
 		return finalPath;
 	}
 }
