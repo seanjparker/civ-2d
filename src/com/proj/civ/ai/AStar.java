@@ -15,7 +15,7 @@ import com.proj.civ.datastruct.HexMap;
 
 public class AStar {
 	
-	public List<Hex> aStar(Map<Integer, Hex> map, Hex start, Hex end) {
+	public List<HexCoordinate> aStar(Map<Integer, Hex> map, Hex start, Hex end) {
 		int size = map.size();
 		final List<Hex> openSet = new ArrayList<Hex>(size);
 		final Set<Hex> closedSet = new HashSet<Hex>(size);
@@ -45,14 +45,16 @@ public class AStar {
 			final Hex current = map.get(HexMap.hash(openSet.get(0)));
 			
 			if (current.equals(end)) {
-				return rebuildPath(cameFrom, end); //The end of the path is reached, rebuild final path
+				return rebuildPath(cameFrom, start, end); //The end of the path is reached, rebuild final path
 			}
 
 			openSet.remove(0);
 			closedSet.add(current);
 			for (int i = 0; i < HexCoordinate.NEIGHBOURS; i++) { //Iterate through all the neighbours of the current hex
 				final Hex neighbour = map.get(HexMap.hash(current.neighbor(i)));
-				if (map.containsValue(neighbour) && neighbour.getFeatures().stream().allMatch(x -> x.getPassable())) { //Does the list contain the neighbour
+				if (map.containsValue(neighbour) 
+						&& neighbour.getFeatures().stream().allMatch(x -> x.getPassable())
+						) { //Does the list contain the neighbour
 					
 					if (closedSet.contains(neighbour)) {
 						continue;
@@ -92,12 +94,14 @@ public class AStar {
 		return h.getMovementTotal();
 	}
 	
-	private List<Hex> rebuildPath(Map<Hex, Hex> cameFrom, Hex current) {
-		final List<Hex> totalPath = new ArrayList<Hex>();
-		totalPath.add(current);
+	private List<HexCoordinate> rebuildPath(Map<Hex, Hex> cameFrom, Hex start, Hex current) {
+		final List<HexCoordinate> totalPath = new ArrayList<HexCoordinate>();
+		totalPath.add(current.getPosition());
 		while (current != null && cameFrom.containsKey(current)) {
 			current = cameFrom.get(current);
-			totalPath.add(current);
+			if (!start.equals(current)) {
+				totalPath.add(current.getPosition());
+			}
 		}
 		return totalPath;
 	}

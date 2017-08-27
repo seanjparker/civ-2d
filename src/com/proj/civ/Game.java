@@ -6,17 +6,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import com.proj.civ.ai.Pathfinding;
 import com.proj.civ.datastruct.Hex;
 import com.proj.civ.datastruct.HexCoordinate;
 import com.proj.civ.datastruct.HexMap;
 import com.proj.civ.datastruct.Layout;
+import com.proj.civ.datastruct.PathHex;
 import com.proj.civ.datastruct.Point;
 import com.proj.civ.display.GUI;
 import com.proj.civ.input.KeyboardHandler;
 import com.proj.civ.input.MouseHandler;
 import com.proj.civ.map.civilization.America;
 import com.proj.civ.map.civilization.Civilization;
-import com.proj.civ.map.terrain.Landscape;
 import com.proj.civ.unit.Settler;
 import com.proj.civ.unit.Unit;
 import com.proj.civ.unit.Warrior;
@@ -36,12 +37,15 @@ public class Game {
 	
 	private Random rnd;
 	private GUI ui;
-	private Logic gl;
 	private List<Civilization> civs;
 	private Map<Integer, Hex> map;
 	private Layout layout;
+	private Pathfinding pf;
 	
-	public Game(int players, int width, int height, int hexradius) {
+	private HexCoordinate hexToPath;
+	private List<HexCoordinate> pathToFollow;
+	
+ 	public Game(int players, int width, int height, int hexradius) {
 		this.WIDTH = width;
 		this.HEIGHT = height;
 		this.HEX_RADIUS = hexradius;
@@ -52,7 +56,7 @@ public class Game {
 		civs = new ArrayList<Civilization>(this.TOTAL_PLAYERS);
 		layout = new Layout(Layout.POINTY_TOP, new Point(HEX_RADIUS, HEX_RADIUS), new Point(HEX_RADIUS, HEX_RADIUS));
 		hexMap = new HexMap(this.wHexes, this.hHexes, HEX_RADIUS, layout);
-		gl = new Logic(layout); //Create the game logic class, contains the main game civ logic
+		pf = new Pathfinding();
 		
 		hexMap.populateMap(); //Generate initial map
 		this.map = hexMap.getMap(); //Get the map from the map generation
@@ -66,6 +70,8 @@ public class Game {
 			ui.updateKeys(k.pressedSet);
 		}
 		ui.setFocusHex();
+		
+		createUnitPath();
 		
 		if (shouldMoveUnit()) {
 			moveUnit(map, civs.get(0), ui.getFocusHex(), ui.getScrollX(), ui.getScrollY());
@@ -205,19 +211,17 @@ public class Game {
 				HexCoordinate toHexPlace = layout.pixelToHex(layout, ui.getHexPosFromMouse());
 				if (fromHex != null) {
 					if (!fromHex.isEqual(toHexPlace)) {
-						return true;	
+						List<PathHex> path = ui.getUnitPath();
+						if (path != null) {
+							return path.stream().anyMatch(x -> x.getPassable() && x.isEqual(toHexPlace));
+						}
 					}
 				}	
 			}
 		}
 		return false;
 	}
-	
 	public void moveUnit(Map<Integer, Hex> map, Civilization c, Hex focusHex, int scrollX, int scrollY) {
-		//If a friendly unit is currently selected
-			//If the new location is a valid position and (empty or a piece of the same type occupies)
-				//If new location is empty -- set current piece to the new location -- update map and civ unit list
-				//If new location of same type occupies it -- switch the pieces positions
 		Hex fromHex = map.get(HexMap.hash(focusHex));
 		if (!fromHex.canSetCivilian() || !fromHex.canSetMilitary()) {			
 			int mouseX = MouseHandler.movedMX;
@@ -244,12 +248,68 @@ public class Game {
 			} else if ((cu != null || mu != null) && ctu == null && mtu == null) { //Move civ or mil units to empty hex
 				moveUnit(fromHex, toHex, cu != null ? cu : mu);
 			}
+			ui.setFocusedUnitPath(null);
 		}
 	}
-	
 	private boolean sameOwner(Unit fromU, Unit toU) {
-		//return fromU.getOwner().sameCiv(toU.getOwner().getCivType());
 		return fromU.getOwner().sameCiv(toU.getOwner().getCivType());
 	}
 	
+	public void createUnitPath() {
+		Hex focusHex = ui.getFocusHex();
+		Hex endHex;
+		pathToFollow = new ArrayList<HexCoordinate>();
+		int scrollX = ui.getScrollX();
+		int scrollY= ui.getScrollY();
+		
+		if (focusHex != null) {
+			int toX = MouseHandler.movedMX;
+			int toY = MouseHandler.movedMY;
+			HexCoordinate tempTo = layout.pixelToHex(layout, new Point(toX - scrollX, toY - scrollY));
+			if (map.get(HexMap.hash(tempTo)) != null && !focusHex.isEqual(tempTo)) {
+				if ((hexToPath == null) || (!hexToPath.isEqual(tempTo))) {
+					hexToPath = tempTo;
+					endHex = map.get(HexMap.hash(hexToPath));
+					pathToFollow = pf.findPath(map, focusHex, endHex);
+					List<PathHex> finalPath = validUnitMove(pathToFollow, focusHex);
+					ui.setFocusedUnitPath(finalPath);
+				}
+			}
+		}
+	}
+	private List<PathHex> validUnitMove(List<HexCoordinate> path, Hex focusHex) {
+		List<PathHex> finalPath = new ArrayList<PathHex>();
+		List<Unit> civUnits = civs.get(0).getUnits();
+		Hex current = map.get(HexMap.hash(focusHex));
+		Unit currentUnit = null;
+		
+		for (Unit u : civUnits) {
+			if (u.getPosition().isEqual(current.getPosition())) {
+				currentUnit = u;
+			}
+		}
+		
+		for (int i = path.size(); --i >= 0;) {
+			boolean done = false;
+			HexCoordinate h = path.get(i);
+			Hex mapHex = map.get(HexMap.hash(h));
+			for (Unit u : mapHex.getUnits()) { //Check for a unit blocking the path
+				if (u != null) {
+					finalPath.add(new PathHex(h, false));
+					done = true;
+				}
+			}
+			if (!done) {
+				if (!currentUnit.ableToMove(current.getMovementTotal())) {
+					//System.out.println("cannot move");
+					finalPath.add(new PathHex(h, false));
+				} else {
+					//System.out.println("can move here");
+					finalPath.add(new PathHex(h, true));
+				}	
+			}
+		}
+		currentUnit.resetMovementTemp();
+		return finalPath;
+	}
 }

@@ -17,4 +17,7 @@ public enum CivType {
 	public Color getColour() {
 		return this.colour;
 	}
+	public String getName() {
+		return this.name;
+	}
 }

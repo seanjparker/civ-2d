@@ -9,7 +9,6 @@ import com.proj.civ.datastruct.Hex;
 import com.proj.civ.unit.Unit;
 
 public class Civilization {
-	private String CivName;
 	private int NumberOfCities = 0;
 	private int happiness = 0;
 	
@@ -20,7 +19,6 @@ public class Civilization {
 	
 	public Civilization(CivType ct) {
 		this.ct = ct;
-		this.CivName = ct.name();
 	}
 	
 	public boolean sameCiv(CivType c) {

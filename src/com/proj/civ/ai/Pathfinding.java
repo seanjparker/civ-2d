@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.proj.civ.datastruct.Hex;
+import com.proj.civ.datastruct.HexCoordinate;
 
 public class Pathfinding {
 	AStar ap;
@@ -12,7 +13,7 @@ public class Pathfinding {
 		ap = new AStar();
 	}
 	
-	public List<Hex> findPath(Map<Integer, Hex> map, Hex from, Hex to) {
+	public List<HexCoordinate> findPath(Map<Integer, Hex> map, Hex from, Hex to) {
 		return ap.aStar(map, from, to);	
 	}
 }

@@ -147,7 +147,11 @@ public class Hex extends HexCoordinate {
 	}
 	
 	public double getMovementTotal() {
-		return this.getFeatures().stream().mapToDouble(x -> x.getMovement()).sum();
+		double t = 1.0D;
+		if (this.getFeatures().size() > 0) {
+			t = this.getFeatures().stream().mapToDouble(x -> x.getMovement()).sum();
+		}
+		return t;
 	}
 	
 	public boolean canSetMilitary() {

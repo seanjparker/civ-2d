@@ -5,6 +5,8 @@ import com.proj.civ.datastruct.HexMap;
 import com.proj.civ.map.civilization.Civilization;
 
 public class Unit {
+	private final double movement;
+	private double movementTemp;
 	private double movementPotential;
 	
 	private double strength = 0;
@@ -22,7 +24,9 @@ public class Unit {
 		this.name = name;
 		this.civOwner = civOwner;
  		this.curPos = curPos;
+ 		this.movement = movementPotential;
 		this.movementPotential = movementPotential;
+		this.movementTemp = movementPotential;
 		this.productionCost = productionCost;
 	}
 	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, boolean isSpawned, int productionCost) {
@@ -62,16 +66,21 @@ public class Unit {
 	}
 	
 	public boolean ableToMove(double hexCost) {
-		return (movementPotential - hexCost) >= 0;
+		return (movementTemp -= hexCost) >= 0;
 	}
 	
-	public void decreaseMovement(double hexCost) {
+	public boolean decreaseMovement(double hexCost) {
+		boolean canMove = ableToMove(hexCost);
 		double finalMovement = movementPotential - hexCost;
-		movementPotential = ableToMove(hexCost) ? finalMovement : movementPotential;
+		movementPotential = canMove ? finalMovement : movementPotential;
+		return canMove;
 	}
 	
 	public double getMovementPotential() {
-		return movementPotential;
+		return movementTemp;
+	}
+	public double getTotalMovement() {
+		return movement;
 	}
 	
 	public boolean isInZOC(HexCoordinate h) {
@@ -99,5 +108,11 @@ public class Unit {
 	
 	public void setPosition(HexCoordinate h) {
 		this.curPos = h;
+	}
+	public void resetMovementTemp() {
+		this.movementTemp = movement;
+	}
+	public void resetMovementPotential() {
+		this.movementPotential = movement;
 	}
 }

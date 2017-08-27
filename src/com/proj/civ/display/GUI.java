@@ -13,11 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.proj.civ.ai.Pathfinding;
 import com.proj.civ.datastruct.Hex;
 import com.proj.civ.datastruct.HexCoordinate;
 import com.proj.civ.datastruct.HexMap;
 import com.proj.civ.datastruct.Layout;
+import com.proj.civ.datastruct.PathHex;
 import com.proj.civ.datastruct.Point;
 import com.proj.civ.input.MouseHandler;
 import com.proj.civ.map.civilization.CivType;
@@ -40,14 +40,12 @@ public class GUI {
 	private boolean ShiftPressed;
 	
 	private Map<Integer, Hex> map;
-	private List<Hex> pathToFollow;
+	private List<PathHex> pathToFollow;
 	
 	private final Layout layout;
 	private final Polygon poly;
-	private final Pathfinding pf;
 	
 	private Hex focusHex = null;
-	private Hex pathToHex = null;
 	
 	public GUI(int w, int h, int h_s, int o_x, int o_y, int wH, int hH) {
 		this.WIDTH = w;
@@ -58,10 +56,8 @@ public class GUI {
 		this.wHexes = wH;
 		this.hHexes = hH;
 		
-		pf = new Pathfinding();
 		layout = new Layout(Layout.POINTY_TOP, new Point(hSize, hSize), new Point(hSize, hSize));
 		poly = new Polygon();
-		pathToFollow = new ArrayList<Hex>();
 	}
 	
 	public void drawHexGrid(Graphics2D g) {
@@ -125,65 +121,72 @@ public class GUI {
 			Hex h1 = map.get(HexMap.hash(h));
 			
 			g.setFont(new Font("SansSerif", Font.BOLD, 16));
-			//g.setFont(new Font("Symbola", Font.BOLD, 16));
 			
 			if (h1 != null) {
 				FontMetrics m = g.getFontMetrics();
 				List<Feature> features = h1.getFeatures();
 				
+				StringBuilder hexBox = new StringBuilder();
+				
+				String landscape = null;
+				String improvement = null;
+				StringBuilder sbUnits = new StringBuilder();
+				StringBuilder sbFeatures = new StringBuilder();
+				
+				Unit[] units = h1.getUnits();
+				
 				int xOff = g.getFont().getSize();
 				int padding = 3;
-				int rectW = 200;
-				int rectH = 100;
 				int rectArcRatio = 20;
-				int yOff = 0;
-				int yOff1 = g.getFontMetrics().getHeight();
+				int yOff = g.getFontMetrics().getHeight();
+				
+				int rectW = 200;
+				int rectH = yOff * 2 + padding;
+				
+				landscape = "Landscape: " + h1.getLandscape().getName() + "\n";
+				
+				if (h1.getImprovement() != null) {
+					improvement = "Improvement: " + h1.getImprovement().getName() + "\n";
+					rectH += yOff;
+				}
+				
+				if (features.size() > 0) {
+					sbFeatures.append("Features: \n");
+					features.forEach(i -> sbFeatures.append("- " + i.getName() + "\n"));
+					rectH += ((features.size() + 1) * yOff);
+				}
+				
+				for (Unit u : units) {
+					if (u != null && u.getPosition().isEqual(new HexCoordinate(h1.q, h1.r, h1.s))) {
+						sbUnits.append("(" + u.getOwner().getCivType().getName() + ") " 
+									+ u.getName() + " :\n" 
+									+ u.getStrength() + " Strength\n" 
+									+ u.getMovementPotential() + "/" + u.getTotalMovement() + " Movement\n");	
+						rectH += yOff * 3;
+					}
+				}
+				
+				
+				if (landscape != null) hexBox.append(landscape);
+				if (features.size() > 0) hexBox.append(sbFeatures.toString());
+				if (improvement != null) hexBox.append(improvement);
+				if (units != null) hexBox.append(sbUnits.toString());
+				
 				
 				boolean flip = ((mouseX - rectW < 0) || mouseY - rectH < 0);
 				int startX = flip ? mouseX + padding: mouseX - rectW + padding;
 				int startY = flip ? mouseY : mouseY - rectH;
 				
 				//Draw rectangle at the mouse
-				g.fillRoundRect(startX - padding, startY, rectW, rectH + (features.size() * yOff1), rectW / rectArcRatio, rectH / rectArcRatio);
+				g.fillRoundRect(startX - padding, startY, rectW, rectH, rectW / rectArcRatio, rectH / rectArcRatio);
 				
 				//Write text in the box about hex yeild
 				drawYieldAmount(g, YieldType.FOOD, Color.GREEN, h1, m, startX, startY, 0);
 				drawYieldAmount(g, YieldType.PRODUCTION, new Color(150, 75, 5), h1, m, startX, startY, xOff);
 				drawYieldAmount(g, YieldType.SCIENCE, Color.BLUE, h1, m, startX, startY, xOff * 2);
 				drawYieldAmount(g, YieldType.GOLD, new Color(244, 244, 34), h1, m, startX, startY, xOff * 3);
-			
-				//Write text in the box (about landscape type)
-				g.setColor(Color.BLACK);
-				String landscape = "Landscape: " + h1.getLandscape().getName();
-				g.drawString(landscape, startX, startY + m.getHeight() + (yOff += yOff1));
 				
-				//Write text in the box (about landscape features)
-				if (features.size() > 0) {
-					StringBuilder sb = new StringBuilder(100);
-					sb.append("Features: \n");
-					features.forEach(i -> sb.append("- " + i.getName() + "\n"));
-					drawStringBuilderData(g, sb, startX, startY + m.getHeight() + yOff1, yOff1);	
-				}
-				
-				yOff += (features.size() * yOff1) + (yOff1 * (features.size() > 0 ? 2 : 1)); //Determine text y-offset
-				//Write text in the box (about improvements)
-				if (h1.getImprovement() != null) {
-					String improvement = "Improvement: " + h1.getImprovement().getName();
-					g.drawString(improvement, startX, startY + m.getHeight() + (yOff += yOff1));
-				}
-				
-				//Write text in the box if a unit occupies it
-				Unit[] units = h1.getUnits();
-				//List<Unit> hexUnits = c.getUnits();
-				//if (hexUnits.stream().anyMatch(x -> x.getPosition().isEqual(new HexCoordinate(h1.q, h1.r, h1.s)))) {
-					StringBuilder sb = new StringBuilder(100);
-					for (Unit u : units) {
-						if (u != null && u.getPosition().isEqual(new HexCoordinate(h1.q, h1.r, h1.s))) {
-							sb.append("" + u.getName() + " : " + u.getStrength() + " Strength\n");	
-						}
-					}
-					drawStringBuilderData(g, sb, startX, startY + m.getHeight() + yOff, yOff1);
-				//}
+				drawStringBuilderData(g, hexBox, startX, startY + yOff, yOff);
 			}
 		}
 	}
@@ -196,6 +199,7 @@ public class GUI {
 	}
 	
 	private void drawStringBuilderData(Graphics2D g, StringBuilder s, int x, int y, int yOff) {
+		g.setColor(Color.BLACK);
 		for (String l : s.toString().split("\n")) {
 			g.drawString(l, x, y += yOff);
 		}
@@ -203,29 +207,19 @@ public class GUI {
 	
 	public void drawPath(Graphics2D g) {
 		if (focusHex != null) {
-			g.setColor(Color.WHITE);
-			
-			int toX = MouseHandler.movedMX;
-			int toY = MouseHandler.movedMY;
-			HexCoordinate endHex = layout.pixelToHex(layout, new Point(toX - scrollX, toY - scrollY));
-			if (!endHex.equals(pathToHex)) {
-				pathToHex = new Hex(endHex.q, endHex.r, endHex.s);
-				pathToFollow = pf.findPath(map, focusHex, pathToHex);
-				drawPathOnGrid(g);
-			} else if (!focusHex.equals(endHex)){
-				drawPathOnGrid(g);
+			if (pathToFollow != null) {
+				for (PathHex h : pathToFollow) {
+					if (!h.equals(focusHex)) {
+						if (h.getPassable()) {
+							g.setColor(Color.WHITE);
+						} else {
+							g.setColor(Color.RED);
+						}
+						Point hexCentre = layout.hexToPixel(layout, h);
+						g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20, 20);
+					}
+				}	
 			}
-		}
-	}
-	
-	private void drawPathOnGrid(Graphics2D g) {
-		if (pathToFollow != null) {
-			for (Hex h : pathToFollow) {
-				if (!h.equals(focusHex)) {
-					Point hexCentre = layout.hexToPixel(layout, h);
-					g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20, 20);
-				}
-			}	
 		}
 	}
 	
@@ -262,13 +256,14 @@ public class GUI {
 				int textY = g.getFontMetrics().getHeight();
 				int x = (int) (p.x + scrollX - (hSize >> 2));
 				int y = (int) (p.y + scrollY - (hSize >> 2));
-				drawUnit(g, CivType.AMERICA, x, y, hSize >> 1, textX, textY, name);
+				drawUnit(g, u, x, y, hSize >> 1, textX, textY, name);
 			}
 		}
 	}
 	
-	private void drawUnit(Graphics2D g, CivType c, int x, int y, int radius, int textX, int textY, String name) {
-		Color baseCol = c.getColour();
+	private void drawUnit(Graphics2D g, Unit u, int x, int y, int radius, int textX, int textY, String name) {
+		CivType unitType = u.getOwner().getCivType();
+		Color baseCol = unitType.getColour();
 		Color cB = baseCol.brighter();
 		Color cD = baseCol.darker();
 	    
@@ -338,6 +333,7 @@ public class GUI {
 					break;
 				case KeyEvent.VK_ESCAPE:
 					focusHex = null;
+					pathToFollow = null;
 					break;
 				//case KeyEvent.VK_F:
 				//	farmToAdd = true;
@@ -412,5 +408,11 @@ public class GUI {
 	}
 	public void setMap(Map<Integer, Hex> map) {
 		this.map = map;
+	}
+	public void setFocusedUnitPath(List<PathHex> pathToFollow) {
+		this.pathToFollow = pathToFollow;
+	}
+	public List<PathHex> getUnitPath() {
+		return pathToFollow;
 	}
 }
