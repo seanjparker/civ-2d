@@ -2,7 +2,7 @@ package com.proj.civ.unit;
 
 import com.proj.civ.datastruct.HexCoordinate;
 import com.proj.civ.datastruct.HexMap;
-import com.proj.civ.map.civilization.Civilization;
+import com.proj.civ.map.civilization.BaseCivilization;
 
 public class Unit {
 	private final double movement;
@@ -18,9 +18,9 @@ public class Unit {
 	private String name;
 	
 	private HexCoordinate curPos;
-	private Civilization civOwner;
+	private BaseCivilization civOwner;
 	
- 	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, int productionCost) {
+ 	public Unit(String name, BaseCivilization civOwner, HexCoordinate curPos, double movementPotential, int productionCost) {
 		this.name = name;
 		this.civOwner = civOwner;
  		this.curPos = curPos;
@@ -29,19 +29,19 @@ public class Unit {
 		this.movementTemp = movementPotential;
 		this.productionCost = productionCost;
 	}
-	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, boolean isSpawned, int productionCost) {
+	public Unit(String name, BaseCivilization civOwner, HexCoordinate curPos, double movementPotential, boolean isSpawned, int productionCost) {
 		this(name, civOwner, curPos, movementPotential, productionCost);
 		this.isSpawned = isSpawned;
 	}
-	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, double strength, int productionCost) {
+	public Unit(String name, BaseCivilization civOwner, HexCoordinate curPos, double movementPotential, double strength, int productionCost) {
 		this(name, civOwner, curPos, movementPotential, productionCost);
 		this.strength = strength;
 	}
-	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, double strength, int productionCost, boolean isSpawned) {
+	public Unit(String name, BaseCivilization civOwner, HexCoordinate curPos, double movementPotential, double strength, int productionCost, boolean isSpawned) {
 		this(name, civOwner, curPos, movementPotential, strength, productionCost);
 		this.isSpawned = isSpawned;
 	}
-	public Unit(String name, Civilization civOwner, HexCoordinate curPos, double movementPotential, double strength, int productionCost, boolean isMilitary, boolean isSpawned) {
+	public Unit(String name, BaseCivilization civOwner, HexCoordinate curPos, double movementPotential, double strength, int productionCost, boolean isMilitary, boolean isSpawned) {
 		this(name, civOwner, curPos, movementPotential, productionCost);
 		this.strength = strength;
 		this.isMilitary = isMilitary;
@@ -94,7 +94,7 @@ public class Unit {
 		isSpawned = true;
 	}
 	
-	public Civilization getOwner() {
+	public BaseCivilization getOwner() {
 		return civOwner;
 	}
 	

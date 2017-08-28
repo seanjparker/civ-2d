@@ -17,15 +17,13 @@ import com.proj.civ.display.GUI;
 import com.proj.civ.input.KeyboardHandler;
 import com.proj.civ.input.MouseHandler;
 import com.proj.civ.map.civilization.America;
-import com.proj.civ.map.civilization.Civilization;
+import com.proj.civ.map.civilization.BaseCivilization;
 import com.proj.civ.unit.Settler;
 import com.proj.civ.unit.Unit;
 import com.proj.civ.unit.Warrior;
 
 public class Game {
 	private final int TOTAL_PLAYERS;
-	private final int WIDTH;
-	private final int HEIGHT;
 	private final int HEX_RADIUS;
 	
 	private final HexMap hexMap;
@@ -37,7 +35,7 @@ public class Game {
 	
 	private Random rnd;
 	private GUI ui;
-	private List<Civilization> civs;
+	private List<BaseCivilization> civs;
 	private Map<Integer, Hex> map;
 	private Layout layout;
 	private Pathfinding pf;
@@ -46,14 +44,12 @@ public class Game {
 	private List<HexCoordinate> pathToFollow;
 	
  	public Game(int players, int width, int height, int hexradius) {
-		this.WIDTH = width;
-		this.HEIGHT = height;
 		this.HEX_RADIUS = hexradius;
 		this.TOTAL_PLAYERS = players;
 		
 		rnd = new Random();
 		ui = new GUI(width, height, hexradius, hexradius, hexradius, wHexes, hHexes); //Initalize GUI
-		civs = new ArrayList<Civilization>(this.TOTAL_PLAYERS);
+		civs = new ArrayList<BaseCivilization>(this.TOTAL_PLAYERS);
 		layout = new Layout(Layout.POINTY_TOP, new Point(HEX_RADIUS, HEX_RADIUS), new Point(HEX_RADIUS, HEX_RADIUS));
 		hexMap = new HexMap(this.wHexes, this.hHexes, HEX_RADIUS, layout);
 		pf = new Pathfinding();
@@ -148,14 +144,14 @@ public class Game {
 		map.replace(hexHash, hex);
 		
 		//Add units to the civ
-		Civilization c1 = civs.get(0);
+		BaseCivilization c1 = civs.get(0);
 		c1.addUnit(u);
 		civs.set(0, c1);
 	}
 	private void moveUnit(Hex fromHex, Hex toHex, Unit u, double totalHexCost) {
 		HexCoordinate newLocation = toHex.getPosition();
 		u.decreaseMovement(totalHexCost);
-		
+
 		Unit tempUnit = u;
 		tempUnit.setPosition(newLocation);
 
@@ -167,15 +163,11 @@ public class Game {
 		map.replace(HexMap.hash(fromHex), fromHex);
 		
 		//Add units to the civ
-		Civilization c1 = civs.get(0);
+		BaseCivilization c1 = civs.get(0);
 		c1.replaceUnit(u, tempUnit);
 		civs.set(0, c1);
 	}
 	private void swapUnit(Hex fromHex, Hex toHex, Unit currentFromUnit, Unit currentToUnit, double totalHexCost) {
-		//Unit newUnit = cu;
-		//newUnit.setPosition(toHex.getPosition());
-		//replaceUnit(fromHex, toHex, cu, newUnit, false);
-		
 		fromHex.resetUnits();
 		toHex.resetUnits();
 		
@@ -198,7 +190,7 @@ public class Game {
 		map.replace(HexMap.hash(fromHex), fromHex);
 		
 		//Add units to the civ
-		Civilization c1 = civs.get(0);
+		BaseCivilization c1 = civs.get(0);
 		c1.replaceUnit(currentFromUnit, tempFromUnit);
 		c1.replaceUnit(currentToUnit, tempToUnit);
 		civs.set(0, c1);
@@ -226,7 +218,7 @@ public class Game {
 		}
 		return false;
 	}
-	public void moveUnit(Map<Integer, Hex> map, Civilization c, Hex focusHex, int scrollX, int scrollY) {
+	public void moveUnit(Map<Integer, Hex> map, BaseCivilization c, Hex focusHex, int scrollX, int scrollY) {
 		Hex fromHex = map.get(HexMap.hash(focusHex));
 		if (!fromHex.canSetCivilian() || !fromHex.canSetMilitary()) {			
 			int mouseX = MouseHandler.movedMX;
@@ -243,7 +235,7 @@ public class Game {
 			
 			double pathTotal = 0.0D;
 			for (PathHex ph : ui.getUnitPath()) {
-				if (ph.getPassable()) {
+				if (ph.getPassable() || ph.getCanSwitch()) {
 					Hex mapHex = map.get(HexMap.hash(ph));
 					pathTotal += mapHex.getMovementTotal();	
 				}
@@ -265,7 +257,7 @@ public class Game {
 		}
 	}
 	private boolean sameOwner(Unit fromU, Unit toU) {
-		return fromU.getOwner().sameCiv(toU.getOwner().getCivType());
+		return fromU.getOwner().sameCivilization(toU.getOwner().getID());
 	}
 	
 	public void createUnitPath() {

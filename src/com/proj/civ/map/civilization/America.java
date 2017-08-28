@@ -1,7 +1,27 @@
 package com.proj.civ.map.civilization;
 
-public class America extends Civilization {
+import java.awt.Color;
+
+public class America extends BaseCivilization {
 	public America() {
-		super(CivType.AMERICA);
+		super("America", "American", 
+				new Color(34, 103, 214), 
+				new String[]{
+						"Washington",
+						"New York",
+						"Boston",
+						"Philadelphia",
+						"Atlanta",
+						"Chicago",
+						"Seattle",
+						"San Francisco",
+						"Los Angeles",
+						"Houston"	
+				});
+	}
+
+	@Override
+	public boolean sameCivilization(int id) {
+		return super.getID() == id;
 	}
 }

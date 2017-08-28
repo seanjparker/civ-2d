@@ -20,8 +20,7 @@ import com.proj.civ.datastruct.Layout;
 import com.proj.civ.datastruct.PathHex;
 import com.proj.civ.datastruct.Point;
 import com.proj.civ.input.MouseHandler;
-import com.proj.civ.map.civilization.CivType;
-import com.proj.civ.map.civilization.Civilization;
+import com.proj.civ.map.civilization.BaseCivilization;
 import com.proj.civ.map.terrain.Feature;
 import com.proj.civ.map.terrain.YieldType;
 import com.proj.civ.unit.Unit;
@@ -158,7 +157,7 @@ public class GUI {
 				
 				for (Unit u : units) {
 					if (u != null && u.getPosition().isEqual(new HexCoordinate(h1.q, h1.r, h1.s))) {
-						sbUnits.append("(" + u.getOwner().getCivType().getName() + ") " 
+						sbUnits.append("(" + u.getOwner().getPluralName() + ") " 
 									+ u.getName() + " :\n" 
 									+ u.getStrength() + " Strength\n" 
 									+ u.getMovementPotential() + "/" + u.getTotalMovement() + " Movement\n");	
@@ -239,11 +238,11 @@ public class GUI {
 		}
 	}
 	
-	public void drawUnits(Graphics2D g, List<Civilization> cs) {
+	public void drawUnits(Graphics2D g, List<BaseCivilization> cs) {
 		g.setColor(Color.BLACK);
 		g.setFont(new Font("SansSerif", Font.BOLD, 16));
 		
-		for (Civilization c : cs) {
+		for (BaseCivilization c : cs) {
 			List<Unit> units = c.getUnits();
 			if (units.size() > 0) g = enableAntiAliasing(g);
 			
@@ -262,8 +261,7 @@ public class GUI {
 	}
 	
 	private void drawUnit(Graphics2D g, Unit u, int x, int y, int radius, int textX, int textY, String name) {
-		CivType unitType = u.getOwner().getCivType();
-		Color baseCol = unitType.getColour();
+		Color baseCol = u.getOwner().getColour();
 		Color cB = baseCol.brighter();
 		Color cD = baseCol.darker();
 	    
