@@ -210,7 +210,7 @@ public class GUI {
 			if (pathToFollow != null) {
 				for (PathHex h : pathToFollow) {
 					if (!h.equals(focusHex)) {
-						if (h.getPassable()) {
+						if (h.getPassable() || h.getCanSwitch()) {
 							g.setColor(Color.WHITE);
 						} else {
 							g.setColor(Color.RED);

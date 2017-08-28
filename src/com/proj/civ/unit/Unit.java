@@ -124,8 +124,9 @@ public class Unit {
 		this.movementPotential = movement;
 	}
 	public void setMovementTempForMultiMove() {
-		if (this.movementPotential != this.movement) {
-			this.movementTemp = this.movementPotential;
-		}
+		this.movementTemp = 
+				this.movementPotential != this.movement
+				? this.movementPotential
+				: this.movement;
 	}
 }

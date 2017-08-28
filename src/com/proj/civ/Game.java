@@ -217,11 +217,12 @@ public class Game {
 					if (!fromHex.isEqual(toHexPlace)) {
 						List<PathHex> path = ui.getUnitPath();
 						if (path != null) {
-							return path.stream().anyMatch(x -> x.getPassable() && x.isEqual(toHexPlace));
+							return (path.stream().anyMatch(i -> i.getPassable() && i.isEqual(toHexPlace)))
+									|| (path.stream().filter(j -> j.isEqual(toHexPlace)).anyMatch(k -> k.getCanSwitch()));
 						}
 					}
 				}	
-			}
+			} 
 		}
 		return false;
 	}
@@ -302,26 +303,35 @@ public class Game {
 		}
 		
 		boolean unitBlocking = false;
+		double currentPathCost = 0D;
 		for (int i = path.size(); --i >= 0;) {
-			boolean done = false;
 			HexCoordinate h = path.get(i);
 			Hex mapHex = map.get(HexMap.hash(h));
-			boolean unitMovementRemaining = currentUnit.ableToMove(current.getMovementTotal());
+			
+			double hexCost = current.getMovementTotal();
+			boolean unitMovementRemaining = currentUnit.ableToMove(hexCost);
+			boolean done = false;
+			
+			currentPathCost += hexCost;
+			
 			if (unitMovementRemaining) {
-				for (Unit u : mapHex.getUnits()) { //Check for a unit blocking the path
-					if (u != null) {
-						boolean canSwitch = false; 
-						if (u.getOwner() == currentUnit.getOwner()) {
-							canSwitch = true;
-						} else {
+				if (!unitBlocking) {
+					for (Unit u : mapHex.getUnits()) { //Check for a unit blocking the path
+						if (u != null) {
+							boolean canSwitch = false; 
+							if (u.getOwner() == currentUnit.getOwner() && u.ableToMove(currentPathCost)) {
+								canSwitch = true;
+							}
 							unitBlocking = true;
+							finalPath.add(new PathHex(h, !unitBlocking, canSwitch));
+							done = true;
 						}
-						finalPath.add(new PathHex(h, !unitBlocking, canSwitch));
-						done = true;
 					}
-				}
-				if (!done) {
-					finalPath.add(new PathHex(h, true));
+					if (!done) {
+						finalPath.add(new PathHex(h, true));
+					}
+				} else {
+					finalPath.add(new PathHex(h, false));
 				}
 			} else {
 				finalPath.add(new PathHex(h, false));
