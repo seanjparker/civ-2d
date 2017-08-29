@@ -4,8 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import com.proj.civ.datastruct.Hex;
-import com.proj.civ.datastruct.HexMap;
+import com.proj.civ.datastruct.hex.Hex;
+import com.proj.civ.datastruct.hex.HexCoordinate;
+import com.proj.civ.datastruct.map.HexMap;
 import com.proj.civ.map.terrain.Feature;
 import com.proj.civ.map.terrain.Landscape;
 
@@ -34,7 +35,7 @@ public class TerrainGeneration {
 	
 	public Map<Integer, Hex> generateMap() {
 		//TODO: Fix an issue where on larger maps some hexes are generated as voids
-		
+
 		Map<Integer, Hex> map = new HashMap<Integer, Hex>();
 		double[][] eHMap = new double[hexWidth][hexHeight];
 		double[][] eTMap = new double[hexWidth][hexHeight];
@@ -70,6 +71,7 @@ public class TerrainGeneration {
 				map.put(HexMap.hash(n), nextHex);
 			}
 		}
+
 		return map;
 	}
 	

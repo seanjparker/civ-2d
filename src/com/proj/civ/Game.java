@@ -7,12 +7,12 @@ import java.util.Map;
 import java.util.Random;
 
 import com.proj.civ.ai.Pathfinding;
-import com.proj.civ.datastruct.Hex;
-import com.proj.civ.datastruct.HexCoordinate;
-import com.proj.civ.datastruct.HexMap;
 import com.proj.civ.datastruct.Layout;
-import com.proj.civ.datastruct.PathHex;
 import com.proj.civ.datastruct.Point;
+import com.proj.civ.datastruct.hex.Hex;
+import com.proj.civ.datastruct.hex.HexCoordinate;
+import com.proj.civ.datastruct.hex.PathHex;
+import com.proj.civ.datastruct.map.HexMap;
 import com.proj.civ.display.GUI;
 import com.proj.civ.input.KeyboardHandler;
 import com.proj.civ.input.MouseHandler;
@@ -28,15 +28,12 @@ public class Game {
 	
 	private final HexMap hexMap;
 	
-	private int wHexes = 40; //40
-	private int hHexes = 25; //25
-	
-	private boolean shouldUpdate = false;
+	private int wHexes = 128; //40
+	private int hHexes = 80; //25
 	
 	private Random rnd;
 	private GUI ui;
 	private List<BaseCivilization> civs;
-	private Map<Integer, Hex> map;
 	private Layout layout;
 	private Pathfinding pf;
 	
@@ -47,16 +44,15 @@ public class Game {
 		this.HEX_RADIUS = hexradius;
 		this.TOTAL_PLAYERS = players;
 		
+		hexMap = new HexMap(this.wHexes, this.hHexes, HEX_RADIUS, layout);
+		
 		rnd = new Random();
-		ui = new GUI(width, height, hexradius, hexradius, hexradius, wHexes, hHexes); //Initalize GUI
+		ui = new GUI(hexMap, width, height, hexradius, hexradius, hexradius, wHexes, hHexes); //Initalize GUI
 		civs = new ArrayList<BaseCivilization>(this.TOTAL_PLAYERS);
 		layout = new Layout(Layout.POINTY_TOP, new Point(HEX_RADIUS, HEX_RADIUS), new Point(HEX_RADIUS, HEX_RADIUS));
-		hexMap = new HexMap(this.wHexes, this.hHexes, HEX_RADIUS, layout);
 		pf = new Pathfinding();
 		
 		hexMap.populateMap(); //Generate initial map
-		this.map = hexMap.getMap(); //Get the map from the map generation
-		ui.setMap(this.map); //Set the map in the ui
 		
 		createCiv();
 	}
@@ -70,14 +66,9 @@ public class Game {
 		createUnitPath();
 		
 		if (shouldMoveUnit()) {
-			moveUnit(map, civs.get(0), ui.getFocusHex(), ui.getScrollX(), ui.getScrollY());
-			shouldUpdate = true;
-			MouseHandler.pressedMouse = false;
-		}
-		if (shouldUpdate) { //Last thing, if the map has been changed, update the map
-			ui.setMap(map);
+			moveUnit(hexMap.getMap(), civs.get(0), ui.getFocusHex(), ui.getScrollX(), ui.getScrollY());
 			ui.resetFocusHex();
-			shouldUpdate = false;
+			MouseHandler.pressedMouse = false;
 		}
 	}
 	
@@ -102,13 +93,14 @@ public class Game {
 		
 		do {
 			settler = getRandomUnitCoord();
-			tempH = map.get(HexMap.hash(settler));
+			tempH = hexMap.getHex(settler);
 		} while ((tempH == null)); // && (tempH.getLandscape() != Landscape.COAST)
 		
 		//Ensure the neighbour is in the map, the following loop will not get stuck on infinite loop
 		do {
+
 			warrior = settler.getRandomNeighbour();
-		} while (map.get(HexMap.hash(warrior)) == null);
+		} while (hexMap.getHex(warrior) == null);
 		
 		//Set the units in the hexes
 		Unit s = new Settler(civs.get(0), settler, true);
@@ -118,6 +110,7 @@ public class Game {
 		addUnit(warrior, w, true);
 		
 		ui.setInitialScroll(settler);
+
 	}
 	
 	private HexCoordinate getRandomUnitCoord() {
@@ -126,7 +119,7 @@ public class Game {
 			double x = (double) rnd.nextInt(wHexes * HEX_RADIUS * 2);
 			double y = (double) rnd.nextInt(hHexes * HEX_RADIUS * 2);
 			HexCoordinate h1 = layout.pixelToHex(layout, new Point(x, y));
-			h = map.get(HexMap.hash(h1));
+			h = hexMap.getHex(h1);
 		} while (h == null);
 		
 		return new HexCoordinate(h.q, h.r, h.s);
@@ -134,14 +127,13 @@ public class Game {
 	
 	private void addUnit(HexCoordinate h, Unit u, boolean isMilitary) {
 		//Get the map hex for units
-		int hexHash = HexMap.hash(h);
-		Hex hex = map.get(hexHash);
+		Hex hex = hexMap.getHex(h);
 
 		//Set the units in the hexes
 		hex.addNewUnit(u, isMilitary);
 		
 		//Update the hexes in the map
-		map.replace(hexHash, hex);
+		hexMap.setHex(h, hex);
 		
 		//Add units to the civ
 		BaseCivilization c1 = civs.get(0);
@@ -156,21 +148,18 @@ public class Game {
 		tempUnit.setPosition(newLocation);
 
 		fromHex.resetUnits();
-		toHex.replaceUnit(u, tempUnit.isMilitary());
+		toHex.replaceUnit(u, tempUnit.getIsMilitary());
 		
 		//Move the unit on the map
-		map.replace(HexMap.hash(toHex), toHex);
-		map.replace(HexMap.hash(fromHex), fromHex);
+		hexMap.setHex(toHex, toHex);
+		hexMap.setHex(fromHex, fromHex);
 		
 		//Add units to the civ
 		BaseCivilization c1 = civs.get(0);
 		c1.replaceUnit(u, tempUnit);
 		civs.set(0, c1);
 	}
-	private void swapUnit(Hex fromHex, Hex toHex, Unit currentFromUnit, Unit currentToUnit, double totalHexCost) {
-		fromHex.resetUnits();
-		toHex.resetUnits();
-		
+	private void swapUnit(Hex fromHex, Hex toHex, Unit currentFromUnit, Unit currentToUnit, double totalHexCost) {		
 		currentToUnit.decreaseMovement(totalHexCost);
 		currentFromUnit.decreaseMovement(totalHexCost);
 		
@@ -182,22 +171,18 @@ public class Game {
 		tempToUnit.setPosition(unitFrom);
 		tempFromUnit.setPosition(unitTo);
 		
-		fromHex.replaceUnit(tempToUnit, currentToUnit.isMilitary());
-		toHex.replaceUnit(tempFromUnit, currentFromUnit.isMilitary());
+		fromHex.replaceUnit(tempToUnit, currentToUnit.getIsMilitary());
+		toHex.replaceUnit(tempFromUnit, currentFromUnit.getIsMilitary());
 		
 		//Move the units on the map
-		map.replace(HexMap.hash(toHex), toHex);
-		map.replace(HexMap.hash(fromHex), fromHex);
+		hexMap.setHex(toHex, toHex);
+		hexMap.setHex(fromHex, fromHex);
 		
 		//Add units to the civ
 		BaseCivilization c1 = civs.get(0);
 		c1.replaceUnit(currentFromUnit, tempFromUnit);
 		c1.replaceUnit(currentToUnit, tempToUnit);
 		civs.set(0, c1);
-	}
-	
-	public Map<Integer, Hex> getMap() {
-		return map;
 	}
 
 	private boolean shouldMoveUnit() {
@@ -219,13 +204,13 @@ public class Game {
 		return false;
 	}
 	public void moveUnit(Map<Integer, Hex> map, BaseCivilization c, Hex focusHex, int scrollX, int scrollY) {
-		Hex fromHex = map.get(HexMap.hash(focusHex));
+		Hex fromHex = hexMap.getHex(focusHex);
 		if (!fromHex.canSetCivilian() || !fromHex.canSetMilitary()) {			
 			int mouseX = MouseHandler.movedMX;
 			int mouseY = MouseHandler.movedMY;
 			
 			HexCoordinate h = layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
-			Hex toHex = map.get(HexMap.hash(h));
+			Hex toHex = hexMap.getHex(h);
 			
 			Unit cu = fromHex.getCivilianUnit();
 			Unit mu = fromHex.getMilitaryUnit();
@@ -236,7 +221,7 @@ public class Game {
 			double pathTotal = 0.0D;
 			for (PathHex ph : ui.getUnitPath()) {
 				if (ph.getPassable() || ph.getCanSwitch()) {
-					Hex mapHex = map.get(HexMap.hash(ph));
+					Hex mapHex = hexMap.getHex(ph);
 					pathTotal += mapHex.getMovementTotal();	
 				}
 			}
@@ -271,11 +256,11 @@ public class Game {
 			int toX = MouseHandler.movedMX;
 			int toY = MouseHandler.movedMY;
 			HexCoordinate tempTo = layout.pixelToHex(layout, new Point(toX - scrollX, toY - scrollY));
-			if (map.get(HexMap.hash(tempTo)) != null && !focusHex.isEqual(tempTo)) {
+			if (hexMap.getHex(tempTo) != null && !focusHex.isEqual(tempTo)) {
 				if ((hexToPath == null) || (!hexToPath.isEqual(tempTo))) {
 					hexToPath = tempTo;
-					endHex = map.get(HexMap.hash(hexToPath));
-					pathToFollow = pf.findPath(map, focusHex, endHex);
+					endHex = hexMap.getHex(hexToPath);
+					pathToFollow = pf.findPath(hexMap.getMap(), focusHex, endHex);
 					List<PathHex> finalPath = validUnitMove(pathToFollow, focusHex);
 					ui.setFocusedUnitPath(finalPath);
 				}
@@ -285,7 +270,7 @@ public class Game {
 	private List<PathHex> validUnitMove(List<HexCoordinate> path, Hex focusHex) {
 		List<PathHex> finalPath = new ArrayList<PathHex>();
 		List<Unit> civUnits = civs.get(0).getUnits();
-		Hex current = map.get(HexMap.hash(focusHex));
+		Hex current = hexMap.getHex(focusHex);
 		Unit currentUnit = null;
 		
 		for (Unit u : civUnits) {
@@ -298,7 +283,7 @@ public class Game {
 		double currentPathCost = 0D;
 		for (int i = path.size(); --i >= 0;) {
 			HexCoordinate h = path.get(i);
-			Hex mapHex = map.get(HexMap.hash(h));
+			Hex mapHex = hexMap.getHex(h);
 			
 			double hexCost = current.getMovementTotal();
 			boolean unitMovementRemaining = currentUnit.ableToMove(hexCost);

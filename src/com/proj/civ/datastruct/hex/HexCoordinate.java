@@ -1,4 +1,4 @@
-package com.proj.civ.datastruct;
+package com.proj.civ.datastruct.hex;
 
 import java.util.Random;
 
@@ -28,7 +28,11 @@ public class HexCoordinate {
 	
 	public HexCoordinate getRandomNeighbour() {
 		Random r = new Random();
-		return add(Hex.directions.get(r.nextInt(NEIGHBOURS - 1)));
+		return add(Hex.DIRECTIONS[r.nextInt(NEIGHBOURS - 1)]);
+	}
+	
+	public HexCoordinate getPosition() {
+		return this;
 	}
 	
 	public String toString() {

@@ -1,4 +1,4 @@
-package com.proj.civ.datastruct;
+package com.proj.civ.datastruct.hex;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,23 +13,23 @@ public class Hex extends HexCoordinate {
 	public static final int CIV_UNIT = 0;
 	public static final int MIL_UNIT = 1;
 	
-	public static final List<HexCoordinate> directions = new ArrayList<HexCoordinate>() {{
-	add(new HexCoordinate(1, 0, -1));
-	add(new HexCoordinate(1, -1, 0));
-	add(new HexCoordinate(0, -1, 1));
-	add(new HexCoordinate(-1, 0, 1));
-	add(new HexCoordinate(-1, 1, 0));
-	add(new HexCoordinate(0, 1, -1));
-	}};
+	public static final HexCoordinate[] DIRECTIONS = new HexCoordinate[] {
+			new HexCoordinate(1, 0, -1),
+			new HexCoordinate(1, -1, 0),
+			new HexCoordinate(0, -1, 1),
+			new HexCoordinate(-1, 0, 1),
+			new HexCoordinate(-1, 1, 0),
+			new HexCoordinate(0, 1, -1),
+	};
 	
-	private final List<HexCoordinate> diagonals = new ArrayList<HexCoordinate>() {{
-	add(new HexCoordinate(2, -1, -1));
-	add(new HexCoordinate(1, -2, 1));
-	add(new HexCoordinate(-1, -1, 2));
-	add(new HexCoordinate(-2, 1, 1));
-	add(new HexCoordinate(-1, 2, -1));
-	add(new HexCoordinate(1, 1, -2));
-	}};
+	public static final HexCoordinate[] DIAGONALS = new HexCoordinate[] {
+			new HexCoordinate(2, -1, -1),
+			new HexCoordinate(1, -2, 1),
+			new HexCoordinate(-1, -1, 2),
+			new HexCoordinate(-2, 1, 1),
+			new HexCoordinate(-1, 2, -1),
+			new HexCoordinate(1, 1, -2),
+	};
 	
     private Improvement TileImprovement = null;
 	private Landscape Type = null;
@@ -70,7 +70,7 @@ public class Hex extends HexCoordinate {
     }
 
     public HexCoordinate direction(int direction) {
-      return directions.get(direction);
+      return DIRECTIONS[direction];
     }
 
     public Hex neighbor(int direction) {
@@ -78,7 +78,7 @@ public class Hex extends HexCoordinate {
     }
 
     public Hex diagonalNeighbor(int direction) {
-        return add(diagonals.get(direction));
+        return add(DIAGONALS[direction]);
     }
 	
 	public boolean validFeature(Landscape l, Feature f) {

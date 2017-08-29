@@ -1,6 +1,6 @@
 package com.proj.civ.unit;
 
-import com.proj.civ.datastruct.HexCoordinate;
+import com.proj.civ.datastruct.hex.HexCoordinate;
 import com.proj.civ.map.civilization.BaseCivilization;
 
 public class Settler extends Unit {

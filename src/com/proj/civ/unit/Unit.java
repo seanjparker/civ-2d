@@ -1,7 +1,7 @@
 package com.proj.civ.unit;
 
-import com.proj.civ.datastruct.HexCoordinate;
-import com.proj.civ.datastruct.HexMap;
+import com.proj.civ.datastruct.hex.HexCoordinate;
+import com.proj.civ.datastruct.map.HexMap;
 import com.proj.civ.map.civilization.BaseCivilization;
 
 public class Unit {
@@ -29,18 +29,6 @@ public class Unit {
 		this.movementTemp = movementPotential;
 		this.productionCost = productionCost;
 	}
-	public Unit(String name, BaseCivilization civOwner, HexCoordinate curPos, double movementPotential, boolean isSpawned, int productionCost) {
-		this(name, civOwner, curPos, movementPotential, productionCost);
-		this.isSpawned = isSpawned;
-	}
-	public Unit(String name, BaseCivilization civOwner, HexCoordinate curPos, double movementPotential, double strength, int productionCost) {
-		this(name, civOwner, curPos, movementPotential, productionCost);
-		this.strength = strength;
-	}
-	public Unit(String name, BaseCivilization civOwner, HexCoordinate curPos, double movementPotential, double strength, int productionCost, boolean isSpawned) {
-		this(name, civOwner, curPos, movementPotential, strength, productionCost);
-		this.isSpawned = isSpawned;
-	}
 	public Unit(String name, BaseCivilization civOwner, HexCoordinate curPos, double movementPotential, double strength, int productionCost, boolean isMilitary, boolean isSpawned) {
 		this(name, civOwner, curPos, movementPotential, productionCost);
 		this.strength = strength;
@@ -51,11 +39,10 @@ public class Unit {
 	public HexCoordinate getPosition() {
 		return curPos;
 	}
-	
 	public boolean getSpawned() {
 		return isSpawned;
 	}
-	public boolean isMilitary() {
+	public boolean getIsMilitary() {
 		return isMilitary;
 	}
 	public double getStrength() {
@@ -64,42 +51,22 @@ public class Unit {
 	public String getName() {
 		return name;
 	}
-	
-	public boolean ableToMove(double hexCost) {
-		return ((movementTemp -= hexCost) >= 0D) && (movementPotential - hexCost >= 0D);
-	}
-	
-	public boolean canDecreaseMovement(double hexCost) {
-		boolean canMove = ableToMove(hexCost);
-		double finalMovement = movementPotential - hexCost;
-		movementPotential = canMove ? finalMovement : movementPotential;
-		return canMove;
-	}
-	public void decreaseMovement(double hexCost) {
-		this.movementPotential -= hexCost;
-	}
-	
-	public double getMovementPotential() {
-		return movementPotential;
-	}
 	public double getTotalMovement() {
 		return movement;
 	}
-	
-	public boolean isInZOC(HexCoordinate h) {
-		return curPos != null ? HexMap.rangesIntersect(h, curPos, 1) : false;
+	public double getMovementPotential() {
+		return movementPotential;
 	}
-	
-	public void setIsSpawned() {
-		isSpawned = true;
-	}
-	
 	public BaseCivilization getOwner() {
 		return civOwner;
 	}
 	
 	public int getProductionCost() {
 		return productionCost;
+	}
+	
+	public void setIsSpawned() {
+		isSpawned = true;
 	}
 	
 	public boolean isSettler() {
@@ -113,10 +80,14 @@ public class Unit {
 		this.curPos = h;
 	}
 	
-	public void nextTurn() {
-		resetMovementTemp();
-		resetMovementPotential();
+	public boolean ableToMove(double hexCost) {
+		return ((movementTemp -= hexCost) >= 0D) && (movementPotential - hexCost >= 0D);
 	}
+	public void decreaseMovement(double hexCost) {
+		this.movementPotential -= hexCost;
+	}
+	
+
 	public void resetMovementTemp() {
 		this.movementTemp = movement;
 	}
@@ -128,5 +99,14 @@ public class Unit {
 				this.movementPotential != this.movement
 				? this.movementPotential
 				: this.movement;
+	}
+	
+	
+	public boolean isInZOC(HexCoordinate h) {
+		return curPos != null ? HexMap.rangesIntersect(h, curPos, 1) : false;
+	}
+	public void nextTurn() {
+		resetMovementTemp();
+		resetMovementPotential();
 	}
 }

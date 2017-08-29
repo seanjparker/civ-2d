@@ -3,8 +3,8 @@ package com.proj.civ.ai;
 import java.util.List;
 import java.util.Map;
 
-import com.proj.civ.datastruct.Hex;
-import com.proj.civ.datastruct.HexCoordinate;
+import com.proj.civ.datastruct.hex.Hex;
+import com.proj.civ.datastruct.hex.HexCoordinate;
 
 public class Pathfinding {
 	AStar ap;

@@ -1,13 +1,20 @@
-package com.proj.civ.datastruct;
+package com.proj.civ.datastruct.map;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.proj.civ.datastruct.Layout;
+import com.proj.civ.datastruct.hex.Hex;
+import com.proj.civ.datastruct.hex.HexCoordinate;
+import com.proj.civ.datastruct.hex.PathHex;
 import com.proj.civ.map.generation.TerrainGeneration;
 
 public class HexMap {
+	private final static short HASH_CONSTANT_Q = 0x32B;
+	private final static short HASH_CONSTANT_R = 0x21D;
+	
 	private TerrainGeneration tg;
 
 	private final int MAP_WIDTH;
@@ -27,23 +34,14 @@ public class HexMap {
 		map = tg.generateMap();
 	}
 	
-	public static int hash(Hex h) {
-		int hq = h.q;
-		int hr = h.r;
-		return hq ^ (hr + 0x9e3779b9 + (hq << 6) + (hq >> 2));
-	}
-	public static int hash(HexCoordinate h) {
-		int hq = h.q;
-		int hr = h.r;
-		return hq ^ (hr + 0x9e3779b9 + (hq << 6) + (hq >> 2));
-	}
-	public static int hash(PathHex h) {
-		int hq = h.q;
-		int hr = h.r;
-		return hq ^ (hr + 0x9e3779b9 + (hq << 6) + (hq >> 2));
+	public static <T extends HexCoordinate> int hash(T h) {
+		return ((h.q * HASH_CONSTANT_Q) + h.r) * HASH_CONSTANT_R + h.s;
 	}
 	
-	public void setCell(Hex h, Hex newH) {
+	public void setHex(Hex h, Hex newH) {
+		map.replace(hash(h), newH);
+	}
+	public void setHex(HexCoordinate h, Hex newH) {
 		map.replace(hash(h), newH);
 	}
 	
@@ -58,6 +56,10 @@ public class HexMap {
 		return this.MAP_HEIGHT;
 	}
 	
+	public <T extends HexCoordinate> Hex getHex(T h) {
+		return map.get(hash(h));
+	}
+	
 	public static List<HexCoordinate> getAllInRange(HexCoordinate centre, int range) {
 		List<HexCoordinate> results = new ArrayList<HexCoordinate>();
 		for (int dx = -range; dx <= range; dx++) {
@@ -67,8 +69,7 @@ public class HexMap {
 			}
 		}
 		return results;
-	}
-	
+	}	
 	public static boolean rangesIntersect(HexCoordinate h1, HexCoordinate h2, int range) {
 		List<HexCoordinate> results = new ArrayList<HexCoordinate>();
 		int xMin = Math.max(h1.q - range, h2.q - range);

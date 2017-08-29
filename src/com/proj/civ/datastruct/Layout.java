@@ -1,8 +1,10 @@
 package com.proj.civ.datastruct;
 
-import java.util.ArrayList;
+import com.proj.civ.datastruct.hex.FractionalHex;
+import com.proj.civ.datastruct.hex.HexCoordinate;
 
 public class Layout {
+	private final byte POLYGON_POINTS = 6;
 	public final Orientation orientation;
 	public final Point size;
 	public final Point origin;
@@ -37,13 +39,13 @@ public class Layout {
         return new Point(size.x * Math.cos(angle), size.y * Math.sin(angle));
     }
 
-    public ArrayList<Point> polygonCorners(Layout layout, HexCoordinate h) {
-        ArrayList<Point> corners = new ArrayList<Point>(){{}};
+    public Point[] polygonCorners(Layout layout, HexCoordinate h) {
+        Point[] corners = new Point[POLYGON_POINTS];
         Point center = hexToPixel(layout, h);
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < POLYGON_POINTS; i++)
         {
             Point offset = hexCornerOffset(layout, i);
-            corners.add(new Point(center.x + offset.x, center.y + offset.y));
+            corners[i] = new Point(center.x + offset.x, center.y + offset.y);
         }
         return corners;
     }

@@ -10,15 +10,14 @@ import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import com.proj.civ.datastruct.Hex;
-import com.proj.civ.datastruct.HexCoordinate;
-import com.proj.civ.datastruct.HexMap;
 import com.proj.civ.datastruct.Layout;
-import com.proj.civ.datastruct.PathHex;
 import com.proj.civ.datastruct.Point;
+import com.proj.civ.datastruct.hex.Hex;
+import com.proj.civ.datastruct.hex.HexCoordinate;
+import com.proj.civ.datastruct.hex.PathHex;
+import com.proj.civ.datastruct.map.HexMap;
 import com.proj.civ.input.MouseHandler;
 import com.proj.civ.map.civilization.BaseCivilization;
 import com.proj.civ.map.terrain.Feature;
@@ -38,15 +37,17 @@ public class GUI {
 	
 	private boolean ShiftPressed;
 	
-	private Map<Integer, Hex> map;
 	private List<PathHex> pathToFollow;
 	
 	private final Layout layout;
 	private final Polygon poly;
+	private final HexMap hexMap;
 	
 	private Hex focusHex = null;
 	
-	public GUI(int w, int h, int h_s, int o_x, int o_y, int wH, int hH) {
+	public GUI(HexMap hexMap, int w, int h, int h_s, int o_x, int o_y, int wH, int hH) {
+		this.hexMap = hexMap;
+		
 		this.WIDTH = w;
 		this.HEIGHT = h;
 		this.hSize = h_s;
@@ -68,8 +69,11 @@ public class GUI {
 				int centreX = (-scrollX) + WIDTH / 2;
 				int centreY = (-scrollY) + HEIGHT / 2;
 				
+				//HexCoordinate h = layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
+				//Hex h1 = hexMap.getHex(h);
+				
 				HexCoordinate hexc = layout.pixelToHex(layout, new Point(centreX, centreY));
-				Hex h = map.get(HexMap.hash(new HexCoordinate(hexc.q + dx, hexc.r + dy, hexc.s + dz)));
+				Hex h = hexMap.getHex(new HexCoordinate(hexc.q + dx, hexc.r + dy, hexc.s + dz));
 				
 				if (h != null) {
 					Point p1 = layout.getPolygonPositionEstimate(layout, h);
@@ -77,9 +81,9 @@ public class GUI {
 						continue;
 					}
 					
-					ArrayList<Point> p2 = layout.polygonCorners(layout, h);
-					for (int k = 0; k < p2.size(); k++) {
-						poly.addPoint((int) (p2.get(k).x) + scrollX, (int) (p2.get(k).y) + scrollY);
+					Point[] p2 = layout.polygonCorners(layout, h);
+					for (int k = 0; k < p2.length; k++) {
+						poly.addPoint((int) (p2[k].x) + scrollX, (int) (p2[k].y) + scrollY);
 					}			
 					g.setColor(h.getLandscape().getColour());
 					g.fillPolygon(poly);
@@ -98,10 +102,10 @@ public class GUI {
 		g.setStroke(new BasicStroke(3.5f));
 			
 		HexCoordinate s = layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
-		if (map.get(HexMap.hash(s)) != null) {	
-			ArrayList<Point> p = layout.polygonCorners(layout, s);
-			for (int k = 0; k < p.size(); k++) {
-				poly.addPoint((int) (p.get(k).x) + scrollX, (int) (p.get(k).y) + scrollY);
+		if (hexMap.getHex(s) != null) {	
+			Point[] p = layout.polygonCorners(layout, s);
+			for (int k = 0; k < p.length; k++) {
+				poly.addPoint((int) (p[k].x) + scrollX, (int) (p[k].y) + scrollY);
 			}
 			g.setColor(Color.WHITE);
 			g.drawPolygon(poly);
@@ -117,7 +121,7 @@ public class GUI {
 			int mouseY = MouseHandler.movedMY;
 			
 			HexCoordinate h = layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
-			Hex h1 = map.get(HexMap.hash(h));
+			Hex h1 = hexMap.getHex(h);
 			
 			g.setFont(new Font("SansSerif", Font.BOLD, 16));
 			
@@ -224,12 +228,12 @@ public class GUI {
 	
 	public void drawFocusHex(Graphics2D g) {
 		if (focusHex != null) {
-			if (map.get(HexMap.hash(focusHex)) != null) {	
+			if (hexMap.getHex(focusHex) != null) {	
 				g.setStroke(new BasicStroke(5.0f));
 				
-				ArrayList<Point> p = layout.polygonCorners(layout, focusHex);
-				for (int k = 0; k < p.size(); k++) {
-					poly.addPoint((int) (p.get(k).x) + scrollX, (int) (p.get(k).y) + scrollY);
+				Point[] p = layout.polygonCorners(layout, focusHex);
+				for (int k = 0; k < p.length; k++) {
+					poly.addPoint((int) (p[k].x) + scrollX, (int) (p[k].y) + scrollY);
 				}
 				g.setColor(Color.WHITE);
 				g.drawPolygon(poly);
@@ -247,8 +251,7 @@ public class GUI {
 			if (units.size() > 0) g = enableAntiAliasing(g);
 			
 			for (Unit u : units) {
-				HexCoordinate hc = u.getPosition();
-				Hex h = map.get(HexMap.hash(hc));
+				Hex h = hexMap.getHex(u.getPosition());
 				Point p = layout.hexToPixel(layout, h);
 				String name = u.getName().substring(0, 1);
 				int textX = (name.length() * g.getFontMetrics().charWidth(name.charAt(0))) >> 1;
@@ -392,7 +395,7 @@ public class GUI {
 			focusX = MouseHandler.mX;
 			focusY = MouseHandler.mY;
 			HexCoordinate tempFocusHex = layout.pixelToHex(layout, new Point(focusX - scrollX, focusY - scrollY));
-			Hex mapHex = map.get(HexMap.hash(tempFocusHex));
+			Hex mapHex = hexMap.getHex(tempFocusHex);
 			if ((!mapHex.canSetMilitary() || !mapHex.canSetCivilian())) {
 				focusHex = new Hex(tempFocusHex.q, tempFocusHex.r, tempFocusHex.s);		
 			}
@@ -403,9 +406,6 @@ public class GUI {
 	}
 	public Hex getFocusHex() {
 		return this.focusHex;
-	}
-	public void setMap(Map<Integer, Hex> map) {
-		this.map = map;
 	}
 	public void setFocusedUnitPath(List<PathHex> pathToFollow) {
 		this.pathToFollow = pathToFollow;
