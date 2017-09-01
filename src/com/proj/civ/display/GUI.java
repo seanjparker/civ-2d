@@ -8,7 +8,6 @@ import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -17,20 +16,14 @@ import com.proj.civ.datastruct.Point;
 import com.proj.civ.datastruct.hex.Hex;
 import com.proj.civ.datastruct.hex.HexCoordinate;
 import com.proj.civ.datastruct.hex.PathHex;
-import com.proj.civ.datastruct.map.HexMap;
 import com.proj.civ.input.MouseHandler;
+import com.proj.civ.instance.IData;
 import com.proj.civ.map.civilization.BaseCivilization;
 import com.proj.civ.map.terrain.Feature;
 import com.proj.civ.map.terrain.YieldType;
 import com.proj.civ.unit.Unit;
 
-public class GUI {
-	private final int WIDTH;
-	private final int HEIGHT;
-	
-	private int hSize;
-	private int wHexes;
-	private int hHexes;
+public class GUI extends IData {
 	private int focusX = 0, focusY = 0;
 	
 	private int scrollX, scrollY, scroll;
@@ -41,22 +34,13 @@ public class GUI {
 	
 	private final Layout layout;
 	private final Polygon poly;
-	private final HexMap hexMap;
 	
 	private Hex focusHex = null;
 	
-	public GUI(HexMap hexMap, int w, int h, int h_s, int o_x, int o_y, int wH, int hH) {
-		this.hexMap = hexMap;
+	public GUI() {
+		this.scroll = HEX_RADIUS >> 1;
 		
-		this.WIDTH = w;
-		this.HEIGHT = h;
-		this.hSize = h_s;
-		this.scroll = h_s >> 1;
-		
-		this.wHexes = wH;
-		this.hHexes = hH;
-		
-		layout = new Layout(Layout.POINTY_TOP, new Point(hSize, hSize), new Point(hSize, hSize));
+		layout = new Layout(Layout.POINTY_TOP, new Point(HEX_RADIUS, HEX_RADIUS), new Point(HEX_RADIUS, HEX_RADIUS));
 		poly = new Polygon();
 	}
 	
@@ -72,16 +56,16 @@ public class GUI {
 				//HexCoordinate h = layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
 				//Hex h1 = hexMap.getHex(h);
 				
-				HexCoordinate hexc = layout.pixelToHex(layout, new Point(centreX, centreY));
+				HexCoordinate hexc = layout.pixelToHex(new Point(centreX, centreY));
 				Hex h = hexMap.getHex(new HexCoordinate(hexc.q + dx, hexc.r + dy, hexc.s + dz));
 				
 				if (h != null) {
-					Point p1 = layout.getPolygonPositionEstimate(layout, h);
-					if ((p1.x + scrollX < -hSize) || (p1.x + scrollX > WIDTH + hSize) || (p1.y + scrollY < -hSize) || (p1.y + scrollY > HEIGHT + hSize)) {
+					Point p1 = layout.getPolygonPositionEstimate(h);
+					if ((p1.x + scrollX < -HEX_RADIUS) || (p1.x + scrollX > WIDTH + HEX_RADIUS) || (p1.y + scrollY < -HEX_RADIUS) || (p1.y + scrollY > HEIGHT + HEX_RADIUS)) {
 						continue;
 					}
 					
-					Point[] p2 = layout.polygonCorners(layout, h);
+					Point[] p2 = layout.polygonCorners(h);
 					for (int k = 0; k < p2.length; k++) {
 						poly.addPoint((int) (p2[k].x) + scrollX, (int) (p2[k].y) + scrollY);
 					}			
@@ -101,9 +85,9 @@ public class GUI {
 		
 		g.setStroke(new BasicStroke(3.5f));
 			
-		HexCoordinate s = layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
+		HexCoordinate s = layout.pixelToHex(new Point(mouseX - scrollX, mouseY - scrollY));
 		if (hexMap.getHex(s) != null) {	
-			Point[] p = layout.polygonCorners(layout, s);
+			Point[] p = layout.polygonCorners(s);
 			for (int k = 0; k < p.length; k++) {
 				poly.addPoint((int) (p[k].x) + scrollX, (int) (p[k].y) + scrollY);
 			}
@@ -120,7 +104,7 @@ public class GUI {
 			int mouseX = MouseHandler.movedMX;
 			int mouseY = MouseHandler.movedMY;
 			
-			HexCoordinate h = layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
+			HexCoordinate h = layout.pixelToHex(new Point(mouseX - scrollX, mouseY - scrollY));
 			Hex h1 = hexMap.getHex(h);
 			
 			g.setFont(new Font("SansSerif", Font.BOLD, 16));
@@ -218,7 +202,7 @@ public class GUI {
 						} else {
 							g.setColor(Color.RED);
 						}
-						Point hexCentre = layout.hexToPixel(layout, h);
+						Point hexCentre = layout.hexToPixel(h);
 						g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20, 20);
 					}
 				}	
@@ -231,7 +215,7 @@ public class GUI {
 			if (hexMap.getHex(focusHex) != null) {	
 				g.setStroke(new BasicStroke(5.0f));
 				
-				Point[] p = layout.polygonCorners(layout, focusHex);
+				Point[] p = layout.polygonCorners(focusHex);
 				for (int k = 0; k < p.length; k++) {
 					poly.addPoint((int) (p[k].x) + scrollX, (int) (p[k].y) + scrollY);
 				}
@@ -252,13 +236,13 @@ public class GUI {
 			
 			for (Unit u : units) {
 				Hex h = hexMap.getHex(u.getPosition());
-				Point p = layout.hexToPixel(layout, h);
+				Point p = layout.hexToPixel(h);
 				String name = u.getName().substring(0, 1);
 				int textX = (name.length() * g.getFontMetrics().charWidth(name.charAt(0))) >> 1;
 				int textY = g.getFontMetrics().getHeight();
-				int x = (int) (p.x + scrollX - (hSize >> 2));
-				int y = (int) (p.y + scrollY - (hSize >> 2));
-				drawUnit(g, u, x, y, hSize >> 1, textX, textY, name);
+				int x = (int) (p.x + scrollX - (HEX_RADIUS >> 2));
+				int y = (int) (p.y + scrollY - (HEX_RADIUS >> 2));
+				drawUnit(g, u, x, y, HEX_RADIUS >> 1, textX, textY, name);
 			}
 		}
 	}
@@ -300,8 +284,8 @@ public class GUI {
 	}
 
 	public void setInitialScroll(HexCoordinate h) {
-		Point p = layout.hexToPixel(layout, new Hex(h.q, h.r, h.s));
-		int sX = Math.min(((int) -p.x + (WIDTH >> 2)), hSize); //Ensure the units are shown on-screen
+		Point p = layout.hexToPixel(new Hex(h.q, h.r, h.s));
+		int sX = Math.min(((int) -p.x + (WIDTH >> 2)), HEX_RADIUS); //Ensure the units are shown on-screen
 		int sY = Math.min(((int) -p.y + (HEIGHT >> 2)), 0);
 		
 		
@@ -324,7 +308,7 @@ public class GUI {
 					scrollY -= scrollY > -(getAdjustedHeight()) ? scroll : 0;
 					break;
 				case KeyEvent.VK_LEFT:
-					scrollX += scrollX < hSize ? scroll : 0;
+					scrollX += scrollX < HEX_RADIUS ? scroll : 0;
 					break;
 				case KeyEvent.VK_RIGHT:
 					scrollX -= scrollX > -(getAdjustedWidth()) ? scroll : 0;
@@ -333,8 +317,7 @@ public class GUI {
 					ShiftPressed = true;
 					break;
 				case KeyEvent.VK_ESCAPE:
-					focusHex = null;
-					pathToFollow = null;
+					setFocusedUnitPath(null);
 					break;
 				//case KeyEvent.VK_F:
 				//	farmToAdd = true;
@@ -363,10 +346,10 @@ public class GUI {
 	*/
 	
 	private int getAdjustedWidth() {
-		return (int) ((Math.sqrt(3) * hSize * wHexes) - WIDTH);
+		return (int) ((Math.sqrt(3) * HEX_RADIUS * W_HEXES) - WIDTH);
 	}
 	private int getAdjustedHeight() {
-		return (int) ((hHexes * hSize * 3 / 2) - HEIGHT + hSize);
+		return (int) ((H_HEXES * HEX_RADIUS * 3 / 2) - HEIGHT + HEX_RADIUS);
 	}
 	
 	/*
@@ -394,20 +377,22 @@ public class GUI {
 		if (MouseHandler.pressedMouse && (focusHex == null)) {
 			focusX = MouseHandler.mX;
 			focusY = MouseHandler.mY;
-			HexCoordinate tempFocusHex = layout.pixelToHex(layout, new Point(focusX - scrollX, focusY - scrollY));
+			HexCoordinate tempFocusHex = layout.pixelToHex(new Point(focusX - scrollX, focusY - scrollY));
 			Hex mapHex = hexMap.getHex(tempFocusHex);
 			if ((!mapHex.canSetMilitary() || !mapHex.canSetCivilian())) {
 				focusHex = new Hex(tempFocusHex.q, tempFocusHex.r, tempFocusHex.s);		
 			}
 		}
 	}
-	public void resetFocusHex() {
+	public void resetFocusData() {
 		this.focusHex = null;
+		currentUnit = null;
 	}
 	public Hex getFocusHex() {
 		return this.focusHex;
 	}
 	public void setFocusedUnitPath(List<PathHex> pathToFollow) {
+		if (pathToFollow == null) resetFocusData();
 		this.pathToFollow = pathToFollow;
 	}
 	public List<PathHex> getUnitPath() {

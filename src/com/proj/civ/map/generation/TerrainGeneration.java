@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Random;
 
 import com.proj.civ.datastruct.hex.Hex;
-import com.proj.civ.datastruct.hex.HexCoordinate;
 import com.proj.civ.datastruct.map.HexMap;
 import com.proj.civ.map.terrain.Feature;
 import com.proj.civ.map.terrain.Landscape;

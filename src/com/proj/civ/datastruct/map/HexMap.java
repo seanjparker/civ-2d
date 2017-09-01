@@ -5,10 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.proj.civ.datastruct.Layout;
 import com.proj.civ.datastruct.hex.Hex;
 import com.proj.civ.datastruct.hex.HexCoordinate;
-import com.proj.civ.datastruct.hex.PathHex;
 import com.proj.civ.map.generation.TerrainGeneration;
 
 public class HexMap {
@@ -21,7 +19,7 @@ public class HexMap {
 	private final int MAP_HEIGHT;
 	private Map<Integer, Hex> map;
 	
-	public HexMap(int MAP_WIDTH, int MAP_HEIGHT, int CELL_SIZE, Layout l) {
+	public HexMap(int MAP_WIDTH, int MAP_HEIGHT, int CELL_SIZE) {
 		this.MAP_WIDTH = MAP_WIDTH;
 		this.MAP_HEIGHT = MAP_HEIGHT;
 		

@@ -17,40 +17,39 @@ public class Layout {
 
 	public static Orientation POINTY_TOP = new Orientation(Math.sqrt(3.0), Math.sqrt(3.0) / 2.0, 0.0, 3.0 / 2.0, Math.sqrt(3.0) / 3.0, -1.0 / 3.0, 0.0, 2.0 / 3.0, 0.5);
 	
-	public Point hexToPixel(Layout l, HexCoordinate h) {
-		Orientation m = l.orientation;
-		double x = (m.f0 * h.q + m.f1 * h.r) * l.size.x;
-		double y = (m.f2 * h.q + m.f3 * h.r) * l.size.y;
-		return new Point(x + l.origin.x, y + l.origin.y);
+	public Point hexToPixel(HexCoordinate h) {
+		Orientation m = orientation;
+		double x = (m.f0 * h.q + m.f1 * h.r) * size.x;
+		double y = (m.f2 * h.q + m.f3 * h.r) * size.y;
+		return new Point(x + origin.x, y + origin.y);
 	}
 	
-	public HexCoordinate pixelToHex(Layout l, Point p) {
-		Orientation m = l.orientation;
-		Point pt = new Point((p.x - l.origin.x) / l.size.x, (p.y - l.origin.y) / l.size.y);
+	public HexCoordinate pixelToHex(Point p) {
+		Orientation m = orientation;
+		Point pt = new Point((p.x - origin.x) / size.x, (p.y - origin.y) / size.y);
 		double q = m.b0 * pt.x + m.b1 * pt.y;
 		double r = m.b2 * pt.x + m.b3 * pt.y;
 		return FractionalHex.hexRound(new FractionalHex(q, r, -q - r));
 	}
 	
-    public Point hexCornerOffset(Layout layout, int corner) {
-        Orientation m = layout.orientation;
-        Point size = layout.size;
+    public Point hexCornerOffset(int corner) {
+        Orientation m = orientation;
         double angle = 2.0 * Math.PI * (m.startAngle - corner) / 6;
         return new Point(size.x * Math.cos(angle), size.y * Math.sin(angle));
     }
 
-    public Point[] polygonCorners(Layout layout, HexCoordinate h) {
+    public Point[] polygonCorners(HexCoordinate h) {
         Point[] corners = new Point[POLYGON_POINTS];
-        Point center = hexToPixel(layout, h);
+        Point center = hexToPixel(h);
         for (int i = 0; i < POLYGON_POINTS; i++)
         {
-            Point offset = hexCornerOffset(layout, i);
+            Point offset = hexCornerOffset(i);
             corners[i] = new Point(center.x + offset.x, center.y + offset.y);
         }
         return corners;
     }
-    public Point getPolygonPositionEstimate(Layout layout, HexCoordinate h) {
-    		return hexToPixel(layout, h);
+    public Point getPolygonPositionEstimate(HexCoordinate h) {
+    		return hexToPixel(h);
     }
 }
 

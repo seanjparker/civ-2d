@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Toolkit;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -12,6 +11,7 @@ import javax.swing.JPanel;
 
 import com.proj.civ.input.KeyboardHandler;
 import com.proj.civ.input.MouseHandler;
+import com.proj.civ.instance.IData;
 
 @SuppressWarnings("serial")
 public class Main extends JPanel implements Runnable {
@@ -28,7 +28,6 @@ public class Main extends JPanel implements Runnable {
 
 	
 	private boolean running = false;
-	private int WIDTH, HEIGHT;
 	private int drawablefps = 0;
 	
 	public Main() {
@@ -52,28 +51,19 @@ public class Main extends JPanel implements Runnable {
 	}
 	
 	private void init() {
-		createAndSetupGUI();
+		game = new Game(1);
 		
 		f.setTitle(TITLE);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.setResizable(false);
 		f.addKeyListener(k);
-		f.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+		f.setPreferredSize(new Dimension(IData.WIDTH, IData.HEIGHT));
 		f.add(p);
 		f.pack();
 		
 		f.setLocationRelativeTo(null);
 		f.setVisible(true);
 	}
-	
-	private void createAndSetupGUI() {
-		WIDTH = Toolkit.getDefaultToolkit().getScreenSize().width * 3 / 4;
-		HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().height * 3 / 4;
-		int hr = ((WIDTH >> 4) + (HEIGHT >> 4)) >> 1; // Fits ~16 hexes on the screen based on the above size
-		
-		game = new Game(1, WIDTH, HEIGHT, hr); //players -- width -- height -- hex raduis
-	}
-	
 	
 	class MapPanel extends JPanel {
 		public MapPanel() {
@@ -84,7 +74,7 @@ public class Main extends JPanel implements Runnable {
 			addMouseWheelListener(m);
 		}
 		public Dimension getPreferredSize() {
-			return new Dimension(WIDTH, HEIGHT);
+			return new Dimension(IData.WIDTH, IData.HEIGHT);
 		}
 		
 		public void paintComponent(Graphics g) {
