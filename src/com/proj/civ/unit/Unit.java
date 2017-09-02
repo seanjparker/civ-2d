@@ -154,7 +154,11 @@ public class Unit extends IUnit {
 			} else if ((cu != null || mu != null) && ctu == null && mtu == null) { //Move civ or mil units to empty hex
 				moveUnitOnMap(fromHex, toHex, cu != null ? cu : mu, pathTotal);
 			}
+			//System.out.println(currentUnit.getName());
+			//System.out.println(ui.getFocusHex().toString());
 			ui.setFocusedUnitPath(null);
+			//System.out.println(currentUnit);
+			//System.out.println(ui.getFocusHex());
 		}
 	}
 	
@@ -169,15 +173,18 @@ public class Unit extends IUnit {
 		toHex.replaceUnit(u, tempUnit.getIsMilitary());
 		
 		//Move the unit on the map
-		hexMap.setHex(toHex, toHex);
-		hexMap.setHex(fromHex, fromHex);
+		hexMap.setHex(toHex);
+		hexMap.setHex(fromHex);
 		
 		//Add units to the civ
 		BaseCivilization c1 = civs.get(0);
 		c1.replaceUnit(u, tempUnit);
 		civs.set(0, c1);
 	}
-	private void swapUnitOnMap(Hex fromHex, Hex toHex, Unit currentFromUnit, Unit currentToUnit, double totalHexCost) {		
+	private void swapUnitOnMap(Hex fromHex, Hex toHex, Unit currentFromUnit, Unit currentToUnit, double totalHexCost) {	
+		fromHex.resetUnits();
+		toHex.resetUnits();
+		
 		currentToUnit.decreaseMovement(totalHexCost);
 		currentFromUnit.decreaseMovement(totalHexCost);
 		
@@ -193,8 +200,8 @@ public class Unit extends IUnit {
 		toHex.replaceUnit(tempFromUnit, currentFromUnit.getIsMilitary());
 		
 		//Move the units on the map
-		hexMap.setHex(toHex, toHex);
-		hexMap.setHex(fromHex, fromHex);
+		hexMap.setHex(toHex);
+		hexMap.setHex(fromHex);
 		
 		//Add units to the civ
 		BaseCivilization c1 = civs.get(0);
@@ -202,7 +209,6 @@ public class Unit extends IUnit {
 		c1.replaceUnit(currentToUnit, tempToUnit);
 		civs.set(0, c1);
 	}
-
 	private boolean sameOwner(Unit fromU, Unit toU) {
 		return fromU.getOwner().sameCivilization(toU.getOwner().getID());
 	}

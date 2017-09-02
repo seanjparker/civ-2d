@@ -1,7 +1,6 @@
 package com.proj.civ;
 
 import java.awt.Graphics2D;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -51,12 +50,13 @@ public class Game extends IData {
 	
 	public void draw(Graphics2D g) {
 		ui.drawHexGrid(g);
-		ui.drawUI(g);
-		ui.drawUnits(g, civs);
+		ui.drawUnits(g);
 		ui.drawSelectedHex(g);
-		ui.drawHexInspect(g);
 		ui.drawPath(g);
 		ui.drawFocusHex(g);
+		ui.drawHexInspect(g);
+		ui.drawUI(g);
+		ui.drawActionMenus(g);
 	}
 	
 	private void createCiv() {
@@ -146,7 +146,7 @@ public class Game extends IData {
 						List<PathHex> path = ui.getUnitPath();
 						if (path != null) {
 							return (path.stream().anyMatch(i -> i.getPassable() && i.isEqual(toHexPlace)))
-									|| (path.stream().filter(j -> j.isEqual(toHexPlace)).anyMatch(k -> k.getCanSwitch()));
+								|| (path.stream().filter(j -> j.isEqual(toHexPlace)).anyMatch(k -> k.getCanSwitch()));
 						}
 					}
 				}	

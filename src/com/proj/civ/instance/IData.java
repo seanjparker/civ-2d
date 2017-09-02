@@ -8,6 +8,7 @@ import com.proj.civ.datastruct.Layout;
 import com.proj.civ.datastruct.Point;
 import com.proj.civ.datastruct.map.HexMap;
 import com.proj.civ.display.GUI;
+import com.proj.civ.display.menu.ActionMenu;
 import com.proj.civ.map.civilization.BaseCivilization;
 import com.proj.civ.unit.Unit;
 
@@ -23,7 +24,11 @@ public class IData {
 	protected static final GUI ui = new GUI();
 	
 	protected static List<BaseCivilization> civs = new ArrayList<BaseCivilization>();
+	protected static List<ActionMenu> menus = new ArrayList<ActionMenu>();
 	
 	protected static Unit currentUnit = null;
+	
+	protected static int turnCounter = 0;
+	public static boolean nextTurnInProgress = false;
 	
 }

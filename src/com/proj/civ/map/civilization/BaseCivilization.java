@@ -12,6 +12,14 @@ public abstract class BaseCivilization {
 	
 	private final int ID;
 	private int numberOfCities = 0;
+	
+	private int sciencePT = 0;
+	private int goldTotal = 0;
+	private int goldPT = 0;
+	private int cultureTotal = 0;
+	private int cultureRequired = 0;
+	private int culturePT = 0;
+	
 	private int happiness = 0;
 	
 	private List<Unit> units;
@@ -53,18 +61,55 @@ public abstract class BaseCivilization {
 	public Color getColour() {
 		return this.civColour;
 	}
+	public String getSingularName() {
+		return this.NAME_SINGULAR;
+	}
+	public String getPluralName() {
+		return this.NAME_PLURAL;
+	}
 	
+	public int getSciencePT() {
+		return sciencePT;
+	}
+	public void setSciencePT(int sciencePT) {
+		this.sciencePT = sciencePT;
+	}
+	public int getGoldTotal() {
+		return goldTotal;
+	}
+	public void setGoldTotal(int goldTotal) {
+		this.goldTotal = goldTotal;
+	}
+	public int getGoldPT() {
+		return goldPT;
+	}
+	public void setGoldPT(int goldPT) {
+		this.goldPT = goldPT;
+	}
+	public int getCultureTotal() {
+		return cultureTotal;
+	}
+	public void setCultureTotal(int cultureTotal) {
+		this.cultureTotal = cultureTotal;
+	}
+	public int getCultureRequired() {
+		return cultureRequired;
+	}
+	public void setCultureRequired(int cultureRequired) {
+		this.cultureRequired = cultureRequired;
+	}
+	public int getCulturePT() {
+		return culturePT;
+	}
+	public void setCulturePT(int culturePT) {
+		this.culturePT = culturePT;
+	}
+
 	public void addUnit(Unit u) {
 		units.add(u);
 	}
 	public void replaceUnit(Unit oldUnit, Unit newUnit) {
 		units.remove(oldUnit);
 		units.add(newUnit);
-	}
-	public String getSingularName() {
-		return this.NAME_SINGULAR;
-	}
-	public String getPluralName() {
-		return this.NAME_PLURAL;
 	}
 }

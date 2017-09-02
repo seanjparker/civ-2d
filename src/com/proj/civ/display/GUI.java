@@ -16,6 +16,8 @@ import com.proj.civ.datastruct.Point;
 import com.proj.civ.datastruct.hex.Hex;
 import com.proj.civ.datastruct.hex.HexCoordinate;
 import com.proj.civ.datastruct.hex.PathHex;
+import com.proj.civ.display.menu.UnitActionMenu;
+import com.proj.civ.input.KeyboardHandler;
 import com.proj.civ.input.MouseHandler;
 import com.proj.civ.instance.IData;
 import com.proj.civ.map.civilization.BaseCivilization;
@@ -27,8 +29,6 @@ public class GUI extends IData {
 	private int focusX = 0, focusY = 0;
 	
 	private int scrollX, scrollY, scroll;
-	
-	private boolean ShiftPressed;
 	
 	private List<PathHex> pathToFollow;
 	
@@ -53,9 +53,6 @@ public class GUI extends IData {
 				int centreX = (-scrollX) + WIDTH / 2;
 				int centreY = (-scrollY) + HEIGHT / 2;
 				
-				//HexCoordinate h = layout.pixelToHex(layout, new Point(mouseX - scrollX, mouseY - scrollY));
-				//Hex h1 = hexMap.getHex(h);
-				
 				HexCoordinate hexc = layout.pixelToHex(new Point(centreX, centreY));
 				Hex h = hexMap.getHex(new HexCoordinate(hexc.q + dx, hexc.r + dy, hexc.s + dz));
 				
@@ -78,7 +75,6 @@ public class GUI extends IData {
 			}
 		}
 	}
-	
 	public void drawSelectedHex(Graphics2D g) {
 		int mouseX = MouseHandler.movedMX;
 		int mouseY = MouseHandler.movedMY;
@@ -96,20 +92,18 @@ public class GUI extends IData {
 			poly.reset();
 		}
 	}
-	
 	public void drawHexInspect(Graphics2D g) {
-		if (ShiftPressed) {
-			ShiftPressed = false;
-			
+		if (KeyboardHandler.ShiftPressed) {
 			int mouseX = MouseHandler.movedMX;
 			int mouseY = MouseHandler.movedMY;
 			
 			HexCoordinate h = layout.pixelToHex(new Point(mouseX - scrollX, mouseY - scrollY));
 			Hex h1 = hexMap.getHex(h);
 			
-			g.setFont(new Font("SansSerif", Font.BOLD, 16));
-			
 			if (h1 != null) {
+				g.setColor(Color.WHITE);
+				g.setFont(new Font("SansSerif", Font.BOLD, 16));
+				
 				FontMetrics m = g.getFontMetrics();
 				List<Feature> features = h1.getFeatures();
 				
@@ -177,21 +171,18 @@ public class GUI extends IData {
 			}
 		}
 	}
-	
 	private void drawYieldAmount(Graphics2D g, YieldType yield, Color c, Hex h, FontMetrics m, int x, int y, int xOff) {
 		String amount = Integer.toString(h.getYieldTotal(yield));
 		int widthX = m.stringWidth(amount);
 		g.setColor(c);
 		g.drawString(amount, x + widthX + xOff, y + m.getHeight());
 	}
-	
 	private void drawStringBuilderData(Graphics2D g, StringBuilder s, int x, int y, int yOff) {
 		g.setColor(Color.BLACK);
 		for (String l : s.toString().split("\n")) {
 			g.drawString(l, x, y += yOff);
 		}
-	}
-	
+	}	
 	public void drawPath(Graphics2D g) {
 		if (focusHex != null) {
 			if (pathToFollow != null) {
@@ -209,7 +200,6 @@ public class GUI extends IData {
 			}
 		}
 	}
-	
 	public void drawFocusHex(Graphics2D g) {
 		if (focusHex != null) {
 			if (hexMap.getHex(focusHex) != null) {	
@@ -225,15 +215,13 @@ public class GUI extends IData {
 			}
 		}
 	}
-	
-	public void drawUnits(Graphics2D g, List<BaseCivilization> cs) {
+	public void drawUnits(Graphics2D g) {
 		g.setColor(Color.BLACK);
 		g.setFont(new Font("SansSerif", Font.BOLD, 16));
 		
-		for (BaseCivilization c : cs) {
+		for (BaseCivilization c : civs) {
 			List<Unit> units = c.getUnits();
 			if (units.size() > 0) g = enableAntiAliasing(g);
-			
 			for (Unit u : units) {
 				Hex h = hexMap.getHex(u.getPosition());
 				Point p = layout.hexToPixel(h);
@@ -245,8 +233,7 @@ public class GUI extends IData {
 				drawUnit(g, u, x, y, HEX_RADIUS >> 1, textX, textY, name);
 			}
 		}
-	}
-	
+	}	
 	private void drawUnit(Graphics2D g, Unit u, int x, int y, int radius, int textX, int textY, String name) {
 		Color baseCol = u.getOwner().getColour();
 		Color cB = baseCol.brighter();
@@ -265,14 +252,40 @@ public class GUI extends IData {
 		g.setColor(Color.WHITE);
 		g.drawString(name.substring(0, 1), (x + radius / 2) - textX, (y + radius / 2) + textY / 4);
 	}
-
 	public void drawUI(Graphics2D g) {
-		//g.setColor(Color.BLACK);
+		g.setColor(Color.BLACK);
+		g.setFont(new Font("SansSerif", Font.BOLD, 16));
 		
+		int fontHeight = g.getFontMetrics().getHeight();
+		int yieldHeight = (int) (0.75 * fontHeight);
 		//Draw the top bar of the ui
-		//g.fillRect(0, 0, WIDTH, hSize >> 1);
+		g.fillRect(0, 0, WIDTH, fontHeight);
 		
-		//Draw the civ yield per turn
+		//Get the civ yield per turn
+		int civSciencePT = civs.get(0).getSciencePT();
+		int civGoldTotal = civs.get(0).getGoldTotal();
+		int civGoldPT = civs.get(0).getGoldPT();
+		int civCultureTotal = civs.get(0).getCultureTotal();
+		int civCulturePT = civs.get(0).getCulturePT();
+		int civCultureReq = civs.get(0).getCultureRequired();
+		
+		
+		//Draw the yields
+		g.setColor(new Color(91, 154, 255));
+		g.drawString("+" + Integer.toString(civSciencePT), 0, yieldHeight); //Science
+		
+		g.setColor(new Color(244, 244, 34));
+		g.drawString(Integer.toString(civGoldTotal) + "(+" + Integer.toString(civGoldPT) + ")", 100, yieldHeight); //Gold
+		
+		g.setColor(new Color(186, 16, 160));
+		g.drawString(Integer.toString(civCultureTotal) + "/" + Integer.toString(civCultureReq) + "(+" + Integer.toString(civCulturePT) + ")", 200, yieldHeight);
+		
+		//Draw the turn counter
+		g.setColor(Color.WHITE);
+		g.drawString("Turn: " + turnCounter, WIDTH - 100, yieldHeight);
+	}
+	public void drawActionMenus(Graphics2D g) {
+		menus.stream().filter(i -> i.getIsActive()).forEach(j -> j.draw(g));
 	}
 	
 	private Graphics2D enableAntiAliasing(Graphics2D g) {
@@ -295,6 +308,14 @@ public class GUI extends IData {
 		
 		scrollY = sY + scroll / 2;
 		scrollY -= scrollY % scroll;
+		
+		//Ensure the scroll is not outside bounds
+		if (scrollX < -getAdjustedWidth()) {
+			scrollX = -getAdjustedWidth();
+		}
+		if (scrollY < -getAdjustedHeight()) {
+			scrollY = -getAdjustedHeight();
+		}
 	}
 	
 	public void updateKeys(Set<Integer> keys) {
@@ -314,10 +335,22 @@ public class GUI extends IData {
 					scrollX -= scrollX > -(getAdjustedWidth()) ? scroll : 0;
 					break;
 				case KeyEvent.VK_SHIFT:
-					ShiftPressed = true;
+					KeyboardHandler.ShiftPressed = true;
 					break;
 				case KeyEvent.VK_ESCAPE:
 					setFocusedUnitPath(null);
+					break;
+				case KeyEvent.VK_N:
+					//Start the next turn
+					nextTurn();
+					break;
+				case KeyEvent.VK_K:
+					menus.add(new UnitActionMenu(true));
+					break;
+				case KeyEvent.VK_L:
+					if (menus.size() > 0) {
+						menus.remove(0);
+					}
 					break;
 				//case KeyEvent.VK_F:
 				//	farmToAdd = true;
@@ -325,6 +358,18 @@ public class GUI extends IData {
 				}
 			}
 			//System.out.println("ScrollX:" + scrollX + ", ScrollY:" + scrollY);
+		}
+	}
+	
+	private void nextTurn() { //Temp code
+		if (nextTurnInProgress == false) {
+			nextTurnInProgress = true;
+			for (BaseCivilization c : civs) {
+				for (Unit u : c.getUnits()) {
+					u.nextTurn();
+					turnCounter++;
+				}
+			}
 		}
 	}
 	

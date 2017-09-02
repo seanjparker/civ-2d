@@ -36,11 +36,11 @@ public class HexMap {
 		return ((h.q * HASH_CONSTANT_Q) + h.r) * HASH_CONSTANT_R + h.s;
 	}
 	
-	public void setHex(Hex h, Hex newH) {
-		map.replace(hash(h), newH);
+	public void setHex(Hex h) {
+		map.replace(hash(h), h);
 	}
-	public void setHex(HexCoordinate h, Hex newH) {
-		map.replace(hash(h), newH);
+	public void setHex(HexCoordinate hPos, Hex h) {
+		map.replace(hash(hPos), h);
 	}
 	
 	public Map<Integer, Hex> getMap() {

@@ -84,7 +84,7 @@ public class Main extends JPanel implements Runnable {
 		
 		protected void paintComponent(Graphics2D g) {
 			game.draw(g);
-			drawFPS(g);
+			//drawFPS(g);
 		}
 	}
  	
