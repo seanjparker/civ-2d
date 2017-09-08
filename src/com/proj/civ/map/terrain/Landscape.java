@@ -9,8 +9,8 @@ import java.awt.Color;
  */
 public enum Landscape {
 	COAST (new Yield(1, 0, 0, 0), new Color(131, 197, 219), "Coast"), // Low elevation, avg temperature
-	DESERT (new Yield(0, 0, 0, 0), new Color(239, 239, 155), "Desert"), // Low elevation, high temperature
-	GRASSLAND (new Yield(2, 0, 0, 0), new Color(152, 196, 64), "Grassland"), // Avg elevation, low-avg temperature
+	DESERT (new Yield(0, 0, 0, 0), new Color(242, 238, 125), "Desert"), // Low elevation, high temperature
+	GRASSLAND (new Yield(2, 0, 0, 0), new Color(85, 175, 43), "Grassland"), // Avg elevation, low-avg temperature
 	LAKE (new Yield(1, 0, 0, 1), new Color(90, 123, 168), "Lake"), //Low elevation
 	OCEAN (new Yield(1, 0, 0, 0), new Color(36, 36, 127), "Ocean"), //V.Low elevation
 	PLAINS (new Yield(1, 1, 0, 0), new Color(226, 217, 131), "Plains"), //Avg elevation, avg temperature

@@ -25,7 +25,6 @@ public class Main extends JPanel implements Runnable {
 	
 	private final String TITLE = "Civilization";
 	private final double FPS = 60.0;
-
 	
 	private boolean running = false;
 	private int drawablefps = 0;
@@ -41,7 +40,7 @@ public class Main extends JPanel implements Runnable {
 		Main m = new Main();
 		m.start();
 	}
-	
+
 	public synchronized void start() {
 		running = true;
 		gameThread = new Thread(this, "Game");

@@ -46,6 +46,13 @@ public class Game extends IData {
 			currentUnit.moveUnit(ui.getFocusHex(), ui.getScrollX(), ui.getScrollY());
 			MouseHandler.pressedMouse = false;
 		}
+		
+		if (currentUnit != null) {
+			currentUnit.getMenu().getMenuButtons().stream().filter(i -> i.getIsClickable()).forEach(j -> j.onPress());
+		}
+		if (ui.getMenuButton().getIsClickable()) {
+			ui.getMenuButton().onPress();
+		}
 	}
 	
 	public void draw(Graphics2D g) {
@@ -81,8 +88,8 @@ public class Game extends IData {
 		//Set the units in the hexes
 		Unit s = new Settler(civs.get(0), settler, true);
 		Unit w = new Warrior(civs.get(0), warrior, true);
-		s.init();
-		w.init();
+		s.addToMapAndCiv();
+		w.addToMapAndCiv();
 		
 		ui.setInitialScroll(settler);
 	}
@@ -116,21 +123,23 @@ public class Game extends IData {
 	public void createUnitPath() {
 		Hex focusHex = ui.getFocusHex();
 		if (focusHex != null) {
-			int toX = MouseHandler.movedMX;
-			int toY = MouseHandler.movedMY;
-			int scrollX = ui.getScrollX();
-			int scrollY = ui.getScrollY();
-			Hex endHex;
-			HexCoordinate tempTo = layout.pixelToHex(new Point(toX - scrollX, toY - scrollY));
-			if (!focusHex.isEqual(tempTo)) {
-				if (hexMap.getHex(tempTo) != null) {
-					//System.out.println(currentUnit.getName());
-					if ((hexToPath == null) || (!hexToPath.isEqual(tempTo))) {
-						hexToPath = tempTo;
-						endHex = hexMap.getHex(hexToPath);
-						pathToFollow = pf.findPath(hexMap.getMap(), focusHex, endHex);
-						List<PathHex> finalPath = currentUnit.validUnitMove(pathToFollow);
-						ui.setFocusedUnitPath(finalPath);
+			if (KeyboardHandler.MoveUnitPressed) {
+				int toX = MouseHandler.movedMX;
+				int toY = MouseHandler.movedMY;
+				int scrollX = ui.getScrollX();
+				int scrollY = ui.getScrollY();
+				Hex endHex;
+				HexCoordinate tempTo = layout.pixelToHex(new Point(toX - scrollX, toY - scrollY));
+				if (!focusHex.isEqual(tempTo)) {
+					if (hexMap.getHex(tempTo) != null) {
+						//System.out.println(currentUnit.getName());
+						if ((hexToPath == null) || (!hexToPath.isEqual(tempTo))) {
+							hexToPath = tempTo;
+							endHex = hexMap.getHex(hexToPath);
+							pathToFollow = pf.findPath(hexMap.getMap(), focusHex, endHex);
+							List<PathHex> finalPath = currentUnit.validUnitMove(pathToFollow);
+							ui.setFocusedUnitPath(finalPath);
+						}
 					}
 				}
 			}

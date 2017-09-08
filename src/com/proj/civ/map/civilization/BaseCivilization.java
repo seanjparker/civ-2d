@@ -44,6 +44,9 @@ public abstract class BaseCivilization {
 	public int getHappiness() {
 		return happiness;
 	}
+	public void decreaseHappinessByAmount(int happiness) {
+		this.happiness -= happiness;
+	}
 	public String createCity() {
 		String cityName = getNextCityName();
 		numberOfCities++;	
@@ -51,6 +54,9 @@ public abstract class BaseCivilization {
 	}
 	public boolean canCreateCity() {
 		return numberOfCities < cityNames.length;
+	}
+	public int getNumberOfCities() {
+		return numberOfCities;
 	}
 	public List<Unit> getUnits() {
 		return units;

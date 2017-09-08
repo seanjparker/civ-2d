@@ -16,7 +16,7 @@ import com.proj.civ.datastruct.Point;
 import com.proj.civ.datastruct.hex.Hex;
 import com.proj.civ.datastruct.hex.HexCoordinate;
 import com.proj.civ.datastruct.hex.PathHex;
-import com.proj.civ.display.menu.UnitActionMenu;
+import com.proj.civ.display.menu.button.UIButton;
 import com.proj.civ.input.KeyboardHandler;
 import com.proj.civ.input.MouseHandler;
 import com.proj.civ.instance.IData;
@@ -32,28 +32,32 @@ public class GUI extends IData {
 	
 	private List<PathHex> pathToFollow;
 	
-	private final Layout layout;
 	private final Polygon poly;
 	
 	private Hex focusHex = null;
 	
+	private UIButton nextTurn;
+	
 	public GUI() {
 		this.scroll = HEX_RADIUS >> 1;
 		
-		layout = new Layout(Layout.POINTY_TOP, new Point(HEX_RADIUS, HEX_RADIUS), new Point(HEX_RADIUS, HEX_RADIUS));
 		poly = new Polygon();
+		nextTurn = new UIButton("Next Turn", HEX_RADIUS * 4, HEX_RADIUS, WIDTH - (HEX_RADIUS * 4), HEIGHT - HEX_RADIUS, true);
 	}
 	
 	public void drawHexGrid(Graphics2D g) {
-		g.setStroke(new BasicStroke(1.0f));
+		g.setStroke(new BasicStroke(3.0f));
 		int bnd = 8;
+		
+		int centreX = (-scrollX) + WIDTH / 2;
+		int centreY = (-scrollY) + HEIGHT / 2;
+		
+		HexCoordinate hexc = layout.pixelToHex(new Point(centreX, centreY));
+		
 		for (int dx = -bnd; dx <= bnd; dx++) {
 			for (int dy = Math.max(-bnd, -dx - bnd); dy <= Math.min(bnd, -dx + bnd); dy++) {
 				int dz = -dx - dy;
-				int centreX = (-scrollX) + WIDTH / 2;
-				int centreY = (-scrollY) + HEIGHT / 2;
-				
-				HexCoordinate hexc = layout.pixelToHex(new Point(centreX, centreY));
+
 				Hex h = hexMap.getHex(new HexCoordinate(hexc.q + dx, hexc.r + dy, hexc.s + dz));
 				
 				if (h != null) {
@@ -61,15 +65,17 @@ public class GUI extends IData {
 					if ((p1.x + scrollX < -HEX_RADIUS) || (p1.x + scrollX > WIDTH + HEX_RADIUS) || (p1.y + scrollY < -HEX_RADIUS) || (p1.y + scrollY > HEIGHT + HEX_RADIUS)) {
 						continue;
 					}
-					
 					Point[] p2 = layout.polygonCorners(h);
 					for (int k = 0; k < p2.length; k++) {
 						poly.addPoint((int) (p2[k].x) + scrollX, (int) (p2[k].y) + scrollY);
-					}			
+					}		
+
 					g.setColor(h.getLandscape().getColour());
 					g.fillPolygon(poly);
-					g.setColor(Color.BLACK);
+					
+					g.setColor(new Color(80, 80, 80, 75));
 					g.drawPolygon(poly);
+
 					poly.reset();	
 				}
 			}
@@ -185,18 +191,20 @@ public class GUI extends IData {
 	}	
 	public void drawPath(Graphics2D g) {
 		if (focusHex != null) {
-			if (pathToFollow != null) {
-				for (PathHex h : pathToFollow) {
-					if (!h.equals(focusHex)) {
-						if (h.getPassable() || h.getCanSwitch()) {
-							g.setColor(Color.WHITE);
-						} else {
-							g.setColor(Color.RED);
+			if (KeyboardHandler.MoveUnitPressed) {
+				if (pathToFollow != null) {
+					for (PathHex h : pathToFollow) {
+						if (!h.equals(focusHex)) {
+							if (h.getPassable() || h.getCanSwitch()) {
+								g.setColor(Color.WHITE);
+							} else {
+								g.setColor(Color.RED);
+							}
+							Point hexCentre = layout.hexToPixel(h);
+							g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20, 20);
 						}
-						Point hexCentre = layout.hexToPixel(h);
-						g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20, 20);
-					}
-				}	
+					}	
+				}
 			}
 		}
 	}
@@ -254,38 +262,54 @@ public class GUI extends IData {
 	}
 	public void drawUI(Graphics2D g) {
 		g.setColor(Color.BLACK);
-		g.setFont(new Font("SansSerif", Font.BOLD, 16));
+		g.setFont(new Font("Lucida Sans", Font.BOLD, 16));
 		
 		int fontHeight = g.getFontMetrics().getHeight();
+		int fontWidth = g.getFont().getSize();
+		int textX = 0;
+		int offsetX = 100;
 		int yieldHeight = (int) (0.75 * fontHeight);
+		
 		//Draw the top bar of the ui
 		g.fillRect(0, 0, WIDTH, fontHeight);
 		
-		//Get the civ yield per turn
-		int civSciencePT = civs.get(0).getSciencePT();
-		int civGoldTotal = civs.get(0).getGoldTotal();
-		int civGoldPT = civs.get(0).getGoldPT();
-		int civCultureTotal = civs.get(0).getCultureTotal();
-		int civCulturePT = civs.get(0).getCulturePT();
-		int civCultureReq = civs.get(0).getCultureRequired();
-		
-		
-		//Draw the yields
-		g.setColor(new Color(91, 154, 255));
-		g.drawString("+" + Integer.toString(civSciencePT), 0, yieldHeight); //Science
-		
-		g.setColor(new Color(244, 244, 34));
-		g.drawString(Integer.toString(civGoldTotal) + "(+" + Integer.toString(civGoldPT) + ")", 100, yieldHeight); //Gold
-		
-		g.setColor(new Color(186, 16, 160));
-		g.drawString(Integer.toString(civCultureTotal) + "/" + Integer.toString(civCultureReq) + "(+" + Integer.toString(civCulturePT) + ")", 200, yieldHeight);
-		
 		//Draw the turn counter
 		g.setColor(Color.WHITE);
-		g.drawString("Turn: " + turnCounter, WIDTH - 100, yieldHeight);
+		g.drawString("Turn: " + turnCounter, WIDTH - offsetX, yieldHeight);
+		
+		if (civs.get(0).getNumberOfCities() > 0) {
+			//Get the civ yield per turn
+			int civSciencePT = civs.get(0).getSciencePT();
+			int civGoldTotal = civs.get(0).getGoldTotal();
+			int civGoldPT = civs.get(0).getGoldPT();
+			int civCultureTotal = civs.get(0).getCultureTotal();
+			int civCulturePT = civs.get(0).getCulturePT();
+			int civCultureReq = civs.get(0).getCultureRequired();
+			int civHappiness = civs.get(0).getHappiness();
+			
+			//Draw the yields
+			g.setColor(new Color(91, 154, 255));
+			g.drawString("+" + Integer.toString(civSciencePT), textX, yieldHeight); //Science
+			
+			g.setColor(new Color(244, 244, 34));
+			g.drawString(Integer.toString(civGoldTotal) + "(+" + Integer.toString(civGoldPT) + ")", textX += offsetX, yieldHeight); //Gold
+			
+			g.setColor(Color.YELLOW);
+			g.drawString("\u263A", textX += offsetX, yieldHeight);
+			g.setColor(civHappiness >= 0 ? Color.GREEN : Color.RED);
+			g.drawString("" + Math.abs(civHappiness), textX + fontWidth, yieldHeight);
+			
+			g.setColor(new Color(186, 16, 160));
+			g.drawString(Integer.toString(civCultureTotal) + "/" + Integer.toString(civCultureReq) + "(+" + Integer.toString(civCulturePT) + ")", textX += offsetX, yieldHeight);
+		}
+		
+		nextTurn.drawButton(g);
 	}
 	public void drawActionMenus(Graphics2D g) {
-		menus.stream().filter(i -> i.getIsActive()).forEach(j -> j.draw(g));
+		if (currentUnit != null) {
+			currentUnit.getMenu().draw(g);
+		}
+		//menus.stream().filter(i -> i.getIsActive()).forEach(j -> j.draw(g));
 	}
 	
 	private Graphics2D enableAntiAliasing(Graphics2D g) {
@@ -338,20 +362,15 @@ public class GUI extends IData {
 					KeyboardHandler.ShiftPressed = true;
 					break;
 				case KeyEvent.VK_ESCAPE:
+					KeyboardHandler.EscPressed = true;
 					setFocusedUnitPath(null);
 					break;
-				case KeyEvent.VK_N:
-					//Start the next turn
-					nextTurn();
+				case KeyEvent.VK_M:
+					KeyboardHandler.MoveUnitPressed = true;
 					break;
-				case KeyEvent.VK_K:
-					menus.add(new UnitActionMenu(true));
-					break;
-				case KeyEvent.VK_L:
-					if (menus.size() > 0) {
-						menus.remove(0);
-					}
-					break;
+				//case KeyEvent.VK_P:
+				//	civs.get(0).decreaseHappinessByAmount(1);
+				//	break;
 				//case KeyEvent.VK_F:
 				//	farmToAdd = true;
 				//	break;
@@ -361,16 +380,13 @@ public class GUI extends IData {
 		}
 	}
 	
-	private void nextTurn() { //Temp code
-		if (nextTurnInProgress == false) {
-			nextTurnInProgress = true;
-			for (BaseCivilization c : civs) {
-				for (Unit u : c.getUnits()) {
-					u.nextTurn();
-					turnCounter++;
-				}
+	public void nextTurn() { //Temp code
+		for (BaseCivilization c : civs) {
+			for (Unit u : c.getUnits()) {
+				u.nextTurn();
 			}
 		}
+		turnCounter++;
 	}
 	
 	/*
@@ -431,6 +447,9 @@ public class GUI extends IData {
 	}
 	public void resetFocusData() {
 		this.focusHex = null;
+		if (currentUnit != null) {
+			currentUnit.getMenu().close();
+		}
 		currentUnit = null;
 	}
 	public Hex getFocusHex() {
@@ -442,5 +461,10 @@ public class GUI extends IData {
 	}
 	public List<PathHex> getUnitPath() {
 		return pathToFollow;
+	}
+	
+	
+	public UIButton getMenuButton() {
+		return nextTurn;
 	}
 }

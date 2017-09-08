@@ -8,11 +8,16 @@ import com.proj.civ.datastruct.hex.Hex;
 import com.proj.civ.datastruct.hex.HexCoordinate;
 import com.proj.civ.datastruct.hex.PathHex;
 import com.proj.civ.datastruct.map.HexMap;
+import com.proj.civ.display.menu.Menu;
 import com.proj.civ.input.MouseHandler;
 import com.proj.civ.instance.IUnit;
 import com.proj.civ.map.civilization.BaseCivilization;
 
-public class Unit extends IUnit {
+public abstract class Unit extends IUnit {
+	protected Menu actionMenu;
+	
+	protected abstract void init();
+
  	public Unit(String name, BaseCivilization civOwner, HexCoordinate curPos, double movementPotential, int productionCost) {
  		this.name = name;
 		this.civOwner = civOwner;
@@ -29,7 +34,7 @@ public class Unit extends IUnit {
 		this.isSpawned = isSpawned;
 	}
 	
-	public void init() {
+	public void addToMapAndCiv() {
 		//Get the map hex for units
 		Hex hex = hexMap.getHex(curPos);
 
@@ -43,6 +48,8 @@ public class Unit extends IUnit {
 		BaseCivilization c1 = civs.get(0);
 		c1.addUnit(this);
 		civs.set(0, c1);
+		
+		init();
 	}
 	
 	public HexCoordinate getPosition() {
@@ -74,6 +81,10 @@ public class Unit extends IUnit {
 	}
 	public int getProductionCost() {
 		return productionCost;
+	}
+	
+	public Menu getMenu() {
+		return this.actionMenu;
 	}
 	
 	public void setIsSpawned() {
@@ -154,11 +165,7 @@ public class Unit extends IUnit {
 			} else if ((cu != null || mu != null) && ctu == null && mtu == null) { //Move civ or mil units to empty hex
 				moveUnitOnMap(fromHex, toHex, cu != null ? cu : mu, pathTotal);
 			}
-			//System.out.println(currentUnit.getName());
-			//System.out.println(ui.getFocusHex().toString());
 			ui.setFocusedUnitPath(null);
-			//System.out.println(currentUnit);
-			//System.out.println(ui.getFocusHex());
 		}
 	}
 	
@@ -255,4 +262,6 @@ public class Unit extends IUnit {
 		currentUnit.setMovementTempForMultiMove();
 		return finalPath;
 	}
+
+
 }
