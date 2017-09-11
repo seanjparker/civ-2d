@@ -5,7 +5,7 @@ import java.awt.Graphics2D;
 
 import com.proj.civ.input.MouseHandler;
 
-public class UnitMenuButton extends MenuButton{
+public class UnitMenuButton extends Button{
 
 	public UnitMenuButton(int bIndex, boolean isClickable) {
 		super(HEX_RADIUS, HEX_RADIUS * 4, bIndex, isClickable);

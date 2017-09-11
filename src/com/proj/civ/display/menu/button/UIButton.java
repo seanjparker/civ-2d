@@ -5,7 +5,7 @@ import java.awt.Graphics2D;
 
 import com.proj.civ.input.MouseHandler;
 
-public class UIButton extends MenuButton {
+public class UIButton extends Button {
 	
 	private String text;
 	
