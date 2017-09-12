@@ -1,6 +1,5 @@
 package com.proj.civ.display.menu.button;
 
-import java.awt.Image;
 import java.awt.Rectangle;
 
 import com.proj.civ.event.ButtonEventHandler;
@@ -19,10 +18,10 @@ public abstract class Button extends IData implements ButtonEventHandler {
 	public Button(int menuWidth, int menuHeight, int menuButtonIndex, boolean isClickable) {
 		this.buttonSizeX = (menuWidth / 4) * 3;
 		this.buttonSizeY = buttonSizeX;
-		this.bufferX = menuWidth / 2;
-		this.bufferY = bufferX / 2;
+		this.bufferX = menuWidth / 6;
+		this.bufferY = bufferX;
 		this.isClickable = isClickable;
-		this.xPos = bufferX - (buttonSizeX / 2);
+		this.xPos = bufferX;
 		this.yPos = (HEIGHT - menuHeight + bufferY) + (menuButtonIndex * (this.buttonSizeY + bufferY));
 		this.buttonIndex = menuButtonIndex;
 		
