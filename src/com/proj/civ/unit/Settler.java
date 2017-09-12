@@ -3,6 +3,7 @@ package com.proj.civ.unit;
 import com.proj.civ.datastruct.hex.HexCoordinate;
 import com.proj.civ.display.menu.UnitMenu;
 import com.proj.civ.display.menu.button.UnitMenuButton;
+import com.proj.civ.event.Events;
 import com.proj.civ.map.civilization.BaseCivilization;
 
 public class Settler extends Unit {
@@ -14,6 +15,7 @@ public class Settler extends Unit {
 	public void init() {
 		int b = 0;
 		actionMenu = new UnitMenu(false);
-		actionMenu.addButton(new UnitMenuButton(b++, true));
+		actionMenu.addButton(new UnitMenuButton(Events.FOUND_CITY, b++, true));
+		actionMenu.addButton(new UnitMenuButton(Events.MOVE, b++, true));
 	}
 }

@@ -17,6 +17,7 @@ import com.proj.civ.datastruct.hex.Hex;
 import com.proj.civ.datastruct.hex.HexCoordinate;
 import com.proj.civ.datastruct.hex.PathHex;
 import com.proj.civ.display.menu.button.UIButton;
+import com.proj.civ.event.Events;
 import com.proj.civ.input.KeyboardHandler;
 import com.proj.civ.input.MouseHandler;
 import com.proj.civ.instance.IData;
@@ -42,7 +43,7 @@ public class GUI extends IData {
 		this.scroll = HEX_RADIUS >> 1;
 		
 		poly = new Polygon();
-		nextTurn = new UIButton("Next Turn", HEX_RADIUS * 4, HEX_RADIUS, WIDTH - (HEX_RADIUS * 4), HEIGHT - HEX_RADIUS, true);
+		nextTurn = new UIButton(Events.NEXT_TURN, "Next Turn", HEX_RADIUS * 4, HEX_RADIUS, WIDTH - (HEX_RADIUS * 4), HEIGHT - HEX_RADIUS, true);
 	}
 	
 	public void drawHexGrid(Graphics2D g) {

@@ -3,27 +3,28 @@ package com.proj.civ.display.menu.button;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
+import com.proj.civ.event.Events;
 import com.proj.civ.input.MouseHandler;
 
-public class UIButton extends MenuButton {
+public class UIButton extends Button {
 	
 	private String text;
 	
-	public UIButton(int bWidth, int bHeight, int xPos, int yPos, boolean isClickable) {
+	public UIButton(Events e, int bWidth, int bHeight, int xPos, int yPos, boolean isClickable) {
 		super(bWidth, bHeight, xPos, yPos, isClickable);
+		this.e = e;
 	}
-	public UIButton(String text, int bWidth, int bHeight, int xPos, int yPos, boolean isClickable) {
+	public UIButton(Events e, String text, int bWidth, int bHeight, int xPos, int yPos, boolean isClickable) {
 		super(bWidth, bHeight, xPos, yPos, isClickable);
 		this.text = text;
+		this.e = e;
 	}
 
 	public void onPress() {
 		if (MouseHandler.pressedMouse) {
 			if (buttonBounds.intersects(MouseHandler.mX, MouseHandler.mY, BUTTON_CLICK_BUFFER, BUTTON_CLICK_BUFFER)) {
 				MouseHandler.pressedMouse = false;
-				
-				//Code for the button click action
-				ui.nextTurn();
+				performEvent();
 			}
 		}
 	}

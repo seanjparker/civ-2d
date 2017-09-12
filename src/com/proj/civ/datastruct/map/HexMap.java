@@ -32,8 +32,8 @@ public class HexMap {
 		map = tg.generateMap();
 	}
 	
-	public static <T extends HexCoordinate> int hash(T h) {
-		return ((h.q * HASH_CONSTANT_Q) + h.r) * HASH_CONSTANT_R + h.s;
+	public static <T extends HexCoordinate> int hash(T t) {
+		return ((t.q * HASH_CONSTANT_Q) + t.r) * HASH_CONSTANT_R + t.s;
 	}
 	
 	public void setHex(Hex h) {
@@ -54,8 +54,8 @@ public class HexMap {
 		return this.MAP_HEIGHT;
 	}
 	
-	public <T extends HexCoordinate> Hex getHex(T h) {
-		return map.get(hash(h));
+	public <T extends HexCoordinate> Hex getHex(T t) {
+		return map.get(hash(t));
 	}
 	
 	public static List<HexCoordinate> getAllInRange(HexCoordinate centre, int range) {
