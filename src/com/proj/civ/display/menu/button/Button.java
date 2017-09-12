@@ -10,38 +10,28 @@ public abstract class Button extends IData implements ButtonEventHandler {
 	protected final double BUTTON_CLICK_BUFFER = 1.0D;
 	
 	protected int bufferX, bufferY, buttonSizeX, buttonSizeY, xPos, yPos, buttonIndex;
-	protected boolean isClickable;
-	
+
 	protected Rectangle buttonBounds;
 	protected Events e = null;
 	
-	public Button(int menuWidth, int menuHeight, int menuButtonIndex, boolean isClickable) {
+	public Button(int menuWidth, int menuHeight, int menuButtonIndex) {
 		this.buttonSizeX = (menuWidth / 4) * 3;
 		this.buttonSizeY = buttonSizeX;
 		this.bufferX = menuWidth / 6;
 		this.bufferY = bufferX;
-		this.isClickable = isClickable;
 		this.xPos = bufferX;
 		this.yPos = (HEIGHT - menuHeight + bufferY) + (menuButtonIndex * (this.buttonSizeY + bufferY));
 		this.buttonIndex = menuButtonIndex;
 		
 		buttonBounds = new Rectangle(xPos, yPos, buttonSizeX, buttonSizeY);	
 	}
-	public Button(int buttonSizeX, int buttonSizeY, int xPos, int yPos, boolean isClickable) {
+	public Button(int buttonSizeX, int buttonSizeY, int xPos, int yPos) {
 		this.buttonSizeX = buttonSizeX;
 		this.buttonSizeY = buttonSizeY;
-		this.isClickable = isClickable;
 		this.xPos = xPos;
 		this.yPos = yPos;
 		
 		buttonBounds = new Rectangle(xPos, yPos, buttonSizeX, buttonSizeY);	
-	}
-	
-	public boolean getIsClickable() {
-		return isClickable;
-	}
-	public void setIsClickable(boolean isClickable) {
-		this.isClickable = isClickable;
 	}
 	
 	public void performEvent() {

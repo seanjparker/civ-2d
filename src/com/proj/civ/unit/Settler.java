@@ -15,9 +15,9 @@ public class Settler extends Unit {
 	public void init() {
 		int b = 0;
 		actionMenu = new UnitMenu(false);
-		actionMenu.addButton(new UnitMenuButton(Events.FOUND_CITY, b++, true));
-		actionMenu.addButton(new UnitMenuButton(Events.MOVE, b++, true));
-		actionMenu.addButton(new UnitMenuButton(Events.DO_NOTHING, b++, true));
-		actionMenu.addButton(new UnitMenuButton(Events.AUTO_EXPLORE, b++, true));
+		actionMenu.addButton(new UnitMenuButton(Events.FOUND_CITY, b++));
+		actionMenu.addButton(new UnitMenuButton(Events.MOVE, b++));
+		actionMenu.addButton(new UnitMenuButton(Events.DO_NOTHING, b++));
+		actionMenu.addButton(new UnitMenuButton(Events.AUTO_EXPLORE, b++));
 	}
 }

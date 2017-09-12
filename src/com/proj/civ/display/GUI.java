@@ -43,7 +43,7 @@ public class GUI extends IData {
 		this.scroll = HEX_RADIUS >> 1;
 		
 		poly = new Polygon();
-		nextTurn = new UIButton(Events.NEXT_TURN, "Next Turn", HEX_RADIUS * 4, HEX_RADIUS, WIDTH - (HEX_RADIUS * 4), HEIGHT - HEX_RADIUS, true);
+		nextTurn = new UIButton(Events.NEXT_TURN, "Next Turn", HEX_RADIUS * 4, HEX_RADIUS, WIDTH - (HEX_RADIUS * 4), HEIGHT - HEX_RADIUS);
 	}
 	
 	public void drawHexGrid(Graphics2D g) {

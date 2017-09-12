@@ -48,11 +48,9 @@ public class Game extends IData {
 		}
 		
 		if (currentUnit != null) {
-			currentUnit.getMenu().getMenuButtons().stream().filter(i -> i.getIsClickable()).forEach(j -> j.onPress());
+			currentUnit.getMenu().getMenuButtons().stream().forEach(j -> j.onPress());
 		}
-		if (ui.getMenuButton().getIsClickable()) {
-			ui.getMenuButton().onPress();
-		}
+		ui.getMenuButton().onPress();
 	}
 	
 	public void draw(Graphics2D g) {

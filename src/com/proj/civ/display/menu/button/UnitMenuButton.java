@@ -1,6 +1,5 @@
 package com.proj.civ.display.menu.button;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 
 import com.proj.civ.event.Events;
@@ -8,8 +7,8 @@ import com.proj.civ.input.MouseHandler;
 
 public class UnitMenuButton extends Button{
 
-	public UnitMenuButton(Events e, int bIndex, boolean isClickable) {
-		super(HEX_RADIUS, HEX_RADIUS * 4, bIndex, isClickable);
+	public UnitMenuButton(Events e, int bIndex) {
+		super(HEX_RADIUS, HEX_RADIUS * 4, bIndex);
 		this.e = e;
 	}
 

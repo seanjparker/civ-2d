@@ -10,12 +10,12 @@ public class UIButton extends Button {
 	
 	private String text;
 	
-	public UIButton(Events e, int bWidth, int bHeight, int xPos, int yPos, boolean isClickable) {
-		super(bWidth, bHeight, xPos, yPos, isClickable);
+	public UIButton(Events e, int bWidth, int bHeight, int xPos, int yPos) {
+		super(bWidth, bHeight, xPos, yPos);
 		this.e = e;
 	}
-	public UIButton(Events e, String text, int bWidth, int bHeight, int xPos, int yPos, boolean isClickable) {
-		super(bWidth, bHeight, xPos, yPos, isClickable);
+	public UIButton(Events e, String text, int bWidth, int bHeight, int xPos, int yPos) {
+		super(bWidth, bHeight, xPos, yPos);
 		this.text = text;
 		this.e = e;
 	}
@@ -31,7 +31,7 @@ public class UIButton extends Button {
 
 	public void drawButton(Graphics2D g) {
 		g.setColor(new Color(48, 119, 186));
-		g.fill3DRect(xPos, yPos, buttonSizeX, buttonSizeY, isClickable);
+		g.fill3DRect(xPos, yPos, buttonSizeX, buttonSizeY, true);
 		
 		g.setColor(Color.WHITE);
 		int textWidth = g.getFontMetrics().stringWidth(text);
