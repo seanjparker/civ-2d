@@ -1,5 +1,6 @@
 package com.proj.civ.display.menu.button;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 
 import com.proj.civ.event.Events;
