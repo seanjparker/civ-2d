@@ -1,4 +1,4 @@
-package com.proj.civ.datastruct;
+package com.proj.civ.data;
 
 public class Orientation {
 	public double f0, f1, f2, f3;

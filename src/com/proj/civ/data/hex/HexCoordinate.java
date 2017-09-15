@@ -1,4 +1,4 @@
-package com.proj.civ.datastruct.hex;
+package com.proj.civ.data.hex;
 
 import java.util.Random;
 

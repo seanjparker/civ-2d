@@ -1,7 +1,7 @@
-package com.proj.civ.datastruct;
+package com.proj.civ.data;
 
-import com.proj.civ.datastruct.hex.FractionalHex;
-import com.proj.civ.datastruct.hex.HexCoordinate;
+import com.proj.civ.data.hex.FractionalHex;
+import com.proj.civ.data.hex.HexCoordinate;
 
 public class Layout {
 	private final byte POLYGON_POINTS = 6;

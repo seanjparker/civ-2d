@@ -1,4 +1,4 @@
-package com.proj.civ.datastruct.hex;
+package com.proj.civ.data.hex;
 
 public class FractionalHex {
 	public final double q, r, s;

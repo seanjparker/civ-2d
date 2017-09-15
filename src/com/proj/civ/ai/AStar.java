@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.proj.civ.datastruct.hex.Hex;
-import com.proj.civ.datastruct.hex.HexCoordinate;
-import com.proj.civ.datastruct.map.HexMap;
+import com.proj.civ.data.hex.Hex;
+import com.proj.civ.data.hex.HexCoordinate;
+import com.proj.civ.data.map.HexMap;
 
 public class AStar {
 	

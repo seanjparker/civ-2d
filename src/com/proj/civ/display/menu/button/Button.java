@@ -5,6 +5,7 @@ import java.awt.Rectangle;
 import com.proj.civ.event.ButtonEventHandler;
 import com.proj.civ.event.Events;
 import com.proj.civ.instance.IData;
+import com.proj.civ.unit.Settler;
 
 public abstract class Button extends IData implements ButtonEventHandler {
 	protected final double BUTTON_CLICK_BUFFER = 1.0D;
@@ -38,13 +39,13 @@ public abstract class Button extends IData implements ButtonEventHandler {
 		if (e != null) {
 			switch (e) {
 			case FOUND_CITY:
-				System.out.println("Found City");
+				if (currentUnit instanceof Settler) ((Settler) currentUnit).foundCity();
 				break;
 			case MOVE:
-				System.out.println("Move");
+				currentUnit.toggleBeingMoved();
 				break;
 			case ATTACK:
-				System.out.println("Attack");
+				currentUnit.toggleBeingAttacked();
 				break;
 			case AUTO_EXPLORE:
 				System.out.println("Auto Explore");
@@ -56,10 +57,9 @@ public abstract class Button extends IData implements ButtonEventHandler {
 				System.out.println("Sleep");
 				break;
 			case DELETE:
-				System.out.println("Delete");
+				currentUnit.deleteBySelling();
 				break;
 			case NEXT_TURN:
-				System.out.println("Next Turn");
 				ui.nextTurn();
 				break;
 			case CIVILOPEDIA_OPEN:

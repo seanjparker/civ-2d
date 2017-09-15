@@ -1,6 +1,6 @@
 package com.proj.civ.unit;
 
-import com.proj.civ.datastruct.hex.HexCoordinate;
+import com.proj.civ.data.hex.HexCoordinate;
 import com.proj.civ.display.menu.UnitMenu;
 import com.proj.civ.display.menu.button.UnitMenuButton;
 import com.proj.civ.event.Events;
@@ -19,5 +19,13 @@ public class Settler extends Unit {
 		actionMenu.addButton(new UnitMenuButton(Events.MOVE, b++));
 		actionMenu.addButton(new UnitMenuButton(Events.DO_NOTHING, b++));
 		actionMenu.addButton(new UnitMenuButton(Events.AUTO_EXPLORE, b++));
+	}
+	
+	public void foundCity() {
+		if (civs.get(0).canCreateCity()) {
+			civs.get(0).createCity();
+			currentUnit.deleteFromMapAndCiv();
+			ui.resetFocusData();
+		}
 	}
 }

@@ -1,6 +1,6 @@
 package com.proj.civ.unit;
 
-import com.proj.civ.datastruct.hex.HexCoordinate;
+import com.proj.civ.data.hex.HexCoordinate;
 import com.proj.civ.display.menu.UnitMenu;
 import com.proj.civ.display.menu.button.UnitMenuButton;
 import com.proj.civ.event.Events;

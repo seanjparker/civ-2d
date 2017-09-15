@@ -1,6 +1,6 @@
 package com.proj.civ.instance;
 
-import com.proj.civ.datastruct.hex.HexCoordinate;
+import com.proj.civ.data.hex.HexCoordinate;
 import com.proj.civ.map.civilization.BaseCivilization;
 
 public class IUnit extends IData {
@@ -20,4 +20,7 @@ public class IUnit extends IData {
 	
 	protected HexCoordinate curPos;
 	protected BaseCivilization civOwner;
+	
+	protected boolean isMoving = false;
+	protected boolean isAttacking = false;
 }

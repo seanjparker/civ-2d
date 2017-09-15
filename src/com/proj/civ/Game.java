@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Random;
 
 import com.proj.civ.ai.Pathfinding;
-import com.proj.civ.datastruct.Point;
-import com.proj.civ.datastruct.hex.Hex;
-import com.proj.civ.datastruct.hex.HexCoordinate;
-import com.proj.civ.datastruct.hex.PathHex;
+import com.proj.civ.data.Point;
+import com.proj.civ.data.hex.Hex;
+import com.proj.civ.data.hex.HexCoordinate;
+import com.proj.civ.data.hex.PathHex;
 import com.proj.civ.input.KeyboardHandler;
 import com.proj.civ.input.MouseHandler;
 import com.proj.civ.instance.IData;
@@ -41,16 +41,17 @@ public class Game extends IData {
 		ui.setFocusHex();
 		setCurrentUnit();
 		createUnitPath();
-		
-		if (shouldMoveUnit()) {
-			currentUnit.moveUnit(ui.getFocusHex(), ui.getScrollX(), ui.getScrollY());
-			MouseHandler.pressedMouse = false;
-		}
-		
+
 		if (currentUnit != null) {
 			currentUnit.getMenu().getMenuButtons().stream().forEach(j -> j.onPress());
+			
+			if (shouldMoveUnit()) {
+				currentUnit.moveUnit(ui.getFocusHex(), ui.getScrollX(), ui.getScrollY());
+				MouseHandler.pressedMouse = false;
+			}
 		}
-		ui.getMenuButton().onPress();
+		
+		ui.getMenuButtons().forEach(i -> i.onPress());
 	}
 	
 	public void draw(Graphics2D g) {
@@ -121,22 +122,24 @@ public class Game extends IData {
 	public void createUnitPath() {
 		Hex focusHex = ui.getFocusHex();
 		if (focusHex != null) {
-			if (KeyboardHandler.MoveUnitPressed) {
-				int toX = MouseHandler.movedMX;
-				int toY = MouseHandler.movedMY;
-				int scrollX = ui.getScrollX();
-				int scrollY = ui.getScrollY();
-				Hex endHex;
-				HexCoordinate tempTo = layout.pixelToHex(new Point(toX - scrollX, toY - scrollY));
-				if (!focusHex.isEqual(tempTo)) {
-					if (hexMap.getHex(tempTo) != null) {
-						//System.out.println(currentUnit.getName());
-						if ((hexToPath == null) || (!hexToPath.isEqual(tempTo))) {
-							hexToPath = tempTo;
-							endHex = hexMap.getHex(hexToPath);
-							pathToFollow = pf.findPath(hexMap.getMap(), focusHex, endHex);
-							List<PathHex> finalPath = currentUnit.validUnitMove(pathToFollow);
-							ui.setFocusedUnitPath(finalPath);
+			if (currentUnit != null) {
+				if (currentUnit.isBeingMoved()) {
+					int toX = MouseHandler.movedMX;
+					int toY = MouseHandler.movedMY;
+					int scrollX = ui.getScrollX();
+					int scrollY = ui.getScrollY();
+					Hex endHex;
+					HexCoordinate tempTo = layout.pixelToHex(new Point(toX - scrollX, toY - scrollY));
+					if (!focusHex.isEqual(tempTo)) {
+						if (hexMap.getHex(tempTo) != null) {
+							//System.out.println(currentUnit.getName());
+							if ((hexToPath == null) || (!hexToPath.isEqual(tempTo))) {
+								hexToPath = tempTo;
+								endHex = hexMap.getHex(hexToPath);
+								pathToFollow = pf.findPath(hexMap.getMap(), focusHex, endHex);
+								List<PathHex> finalPath = currentUnit.validUnitMove(pathToFollow);
+								ui.setFocusedUnitPath(finalPath);
+							}
 						}
 					}
 				}
@@ -148,7 +151,7 @@ public class Game extends IData {
 		if (fromHex != null) {
 			if (MouseHandler.pressedMouse) {
 				HexCoordinate toHexPlace = layout.pixelToHex(ui.getHexPosFromMouse());
-				if (fromHex != null) {
+				if (toHexPlace != null) {
 					if (!fromHex.isEqual(toHexPlace)) {
 						List<PathHex> path = ui.getUnitPath();
 						if (path != null) {

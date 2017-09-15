@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.proj.civ.unit.Unit;
 
-public abstract class BaseCivilization {
+public class BaseCivilization {
 	private final String NAME_SINGULAR;
 	private final String NAME_PLURAL;
 	
@@ -14,6 +14,7 @@ public abstract class BaseCivilization {
 	private int numberOfCities = 0;
 	
 	private int sciencePT = 0;
+	private int scienceTotal = 0;
 	private int goldTotal = 0;
 	private int goldPT = 0;
 	private int cultureTotal = 0;
@@ -36,7 +37,9 @@ public abstract class BaseCivilization {
 		this.NAME_PLURAL = namePlural;
 	}
 	
-	public abstract boolean sameCivilization(int id);
+	public boolean sameCivilization(int id) {
+		return ID == id;
+	}
 	
 	private String getNextCityName() {
 		return canCreateCity() ? cityNames[numberOfCities]: null;
@@ -49,6 +52,9 @@ public abstract class BaseCivilization {
 	}
 	public String createCity() {
 		String cityName = getNextCityName();
+		if (numberOfCities == 0) { //First city to be founded
+			
+		}
 		numberOfCities++;	
 		return cityName;
 	}
@@ -117,5 +123,8 @@ public abstract class BaseCivilization {
 	public void replaceUnit(Unit oldUnit, Unit newUnit) {
 		units.remove(oldUnit);
 		units.add(newUnit);
+	}
+	public void deleteUnit(Unit u) {
+		units.remove(u);
 	}
 }

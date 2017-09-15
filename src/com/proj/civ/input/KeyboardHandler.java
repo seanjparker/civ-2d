@@ -9,7 +9,6 @@ public class KeyboardHandler implements KeyListener {
 	public Set<Integer> pressedSet = new HashSet<Integer>();
 	public static boolean ShiftPressed;
 	public static boolean EscPressed;
-	public static boolean MoveUnitPressed;
 	
 	@Override
 	public void keyPressed(KeyEvent k) {
@@ -23,9 +22,6 @@ public class KeyboardHandler implements KeyListener {
 		}
 		if (k.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			EscPressed = false;
-		}
-		if (k.getKeyCode() == KeyEvent.VK_M) {
-			MoveUnitPressed = false;
 		}
 		pressedSet.remove(k.getKeyCode());
 	}

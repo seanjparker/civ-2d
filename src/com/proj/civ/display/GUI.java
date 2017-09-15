@@ -8,14 +8,15 @@ import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import com.proj.civ.datastruct.Layout;
-import com.proj.civ.datastruct.Point;
-import com.proj.civ.datastruct.hex.Hex;
-import com.proj.civ.datastruct.hex.HexCoordinate;
-import com.proj.civ.datastruct.hex.PathHex;
+import com.proj.civ.data.Point;
+import com.proj.civ.data.hex.Hex;
+import com.proj.civ.data.hex.HexCoordinate;
+import com.proj.civ.data.hex.PathHex;
+import com.proj.civ.display.menu.button.Button;
 import com.proj.civ.display.menu.button.UIButton;
 import com.proj.civ.event.Events;
 import com.proj.civ.input.KeyboardHandler;
@@ -33,19 +34,20 @@ public class GUI extends IData {
 	
 	private List<PathHex> pathToFollow;
 	
-	private final Polygon poly;
+	private Polygon poly;
 	
 	private Hex focusHex = null;
 	
-	private UIButton nextTurn;
+	private List<Button> UIButtons;
 	
 	public GUI() {
 		this.scroll = HEX_RADIUS >> 1;
 		
 		poly = new Polygon();
-		nextTurn = new UIButton(Events.NEXT_TURN, "Next Turn", HEX_RADIUS * 4, HEX_RADIUS, WIDTH - (HEX_RADIUS * 4), HEIGHT - HEX_RADIUS);
+		UIButtons = new ArrayList<Button>();
+		UIButtons.add(new UIButton(Events.NEXT_TURN, "Next Turn", HEX_RADIUS * 4, HEX_RADIUS, WIDTH - (HEX_RADIUS * 4), HEIGHT - HEX_RADIUS));
 	}
-	
+
 	public void drawHexGrid(Graphics2D g) {
 		g.setStroke(new BasicStroke(3.0f));
 		int bnd = 8;
@@ -72,7 +74,7 @@ public class GUI extends IData {
 					}		
 
 					g.setColor(h.getLandscape().getColour());
-					g.fillPolygon(poly);
+					g.fillPolygon(poly); 
 					
 					g.setColor(new Color(80, 80, 80, 75));
 					g.drawPolygon(poly);
@@ -192,19 +194,21 @@ public class GUI extends IData {
 	}	
 	public void drawPath(Graphics2D g) {
 		if (focusHex != null) {
-			if (KeyboardHandler.MoveUnitPressed) {
-				if (pathToFollow != null) {
-					for (PathHex h : pathToFollow) {
-						if (!h.equals(focusHex)) {
-							if (h.getPassable() || h.getCanSwitch()) {
-								g.setColor(Color.WHITE);
-							} else {
-								g.setColor(Color.RED);
+			if (currentUnit != null) {
+				if (currentUnit.isBeingMoved()) {
+					if (pathToFollow != null) {
+						for (PathHex h : pathToFollow) {
+							if (!h.equals(focusHex)) {
+								if (h.getPassable() || h.getCanSwitch()) {
+									g.setColor(Color.WHITE);
+								} else {
+									g.setColor(Color.RED);
+								}
+								Point hexCentre = layout.hexToPixel(h);
+								g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20, 20);
 							}
-							Point hexCentre = layout.hexToPixel(h);
-							g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20, 20);
-						}
-					}	
+						}	
+					}
 				}
 			}
 		}
@@ -304,13 +308,12 @@ public class GUI extends IData {
 			g.drawString(Integer.toString(civCultureTotal) + "/" + Integer.toString(civCultureReq) + "(+" + Integer.toString(civCulturePT) + ")", textX += offsetX, yieldHeight);
 		}
 		
-		nextTurn.drawButton(g);
+		UIButtons.stream().forEach(i -> i.drawButton(g));
 	}
 	public void drawActionMenus(Graphics2D g) {
 		if (currentUnit != null) {
 			currentUnit.getMenu().draw(g);
 		}
-		//menus.stream().filter(i -> i.getIsActive()).forEach(j -> j.draw(g));
 	}
 	
 	private Graphics2D enableAntiAliasing(Graphics2D g) {
@@ -365,9 +368,6 @@ public class GUI extends IData {
 				case KeyEvent.VK_ESCAPE:
 					KeyboardHandler.EscPressed = true;
 					setFocusedUnitPath(null);
-					break;
-				case KeyEvent.VK_M:
-					KeyboardHandler.MoveUnitPressed = true;
 					break;
 				//case KeyEvent.VK_P:
 				//	civs.get(0).decreaseHappinessByAmount(1);
@@ -441,8 +441,10 @@ public class GUI extends IData {
 			focusY = MouseHandler.mY;
 			HexCoordinate tempFocusHex = layout.pixelToHex(new Point(focusX - scrollX, focusY - scrollY));
 			Hex mapHex = hexMap.getHex(tempFocusHex);
-			if ((!mapHex.canSetMilitary() || !mapHex.canSetCivilian())) {
-				focusHex = new Hex(tempFocusHex.q, tempFocusHex.r, tempFocusHex.s);		
+			if (mapHex != null) {
+				if ((!mapHex.canSetMilitary() || !mapHex.canSetCivilian())) {
+					focusHex = new Hex(tempFocusHex.q, tempFocusHex.r, tempFocusHex.s);		
+				}
 			}
 		}
 	}
@@ -464,8 +466,7 @@ public class GUI extends IData {
 		return pathToFollow;
 	}
 	
-	
-	public UIButton getMenuButton() {
-		return nextTurn;
+	public List<Button> getMenuButtons() {
+		return UIButtons;
 	}
 }

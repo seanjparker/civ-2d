@@ -19,9 +19,4 @@ public class America extends BaseCivilization {
 						"Houston"	
 				});
 	}
-
-	@Override
-	public boolean sameCivilization(int id) {
-		return super.getID() == id;
-	}
 }

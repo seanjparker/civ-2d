@@ -3,11 +3,11 @@ package com.proj.civ.unit;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.proj.civ.datastruct.Point;
-import com.proj.civ.datastruct.hex.Hex;
-import com.proj.civ.datastruct.hex.HexCoordinate;
-import com.proj.civ.datastruct.hex.PathHex;
-import com.proj.civ.datastruct.map.HexMap;
+import com.proj.civ.data.Point;
+import com.proj.civ.data.hex.Hex;
+import com.proj.civ.data.hex.HexCoordinate;
+import com.proj.civ.data.hex.PathHex;
+import com.proj.civ.data.map.HexMap;
 import com.proj.civ.display.menu.Menu;
 import com.proj.civ.input.MouseHandler;
 import com.proj.civ.instance.IUnit;
@@ -51,6 +51,24 @@ public abstract class Unit extends IUnit {
 		
 		init();
 	}
+	public void deleteFromMapAndCiv() {
+		//Get the map hex for units
+		Hex hex = hexMap.getHex(curPos);
+
+		//Set the units in the hexes
+		hex.replaceUnit(null, isMilitary);
+		
+		//Update the hexes in the map
+		hexMap.setHex(curPos, hex);
+		
+		//Add units to the civ
+		BaseCivilization c1 = civs.get(0);
+		c1.deleteUnit(this);
+		civs.set(0, c1);
+	}
+	public void deleteBySelling() {
+		
+	}
 	
 	public HexCoordinate getPosition() {
 		return curPos;
@@ -81,6 +99,25 @@ public abstract class Unit extends IUnit {
 	}
 	public int getProductionCost() {
 		return productionCost;
+	}
+	
+	public boolean isBeingMoved() {
+		return isMoving;
+	}
+	public void toggleBeingMoved() {
+		this.isMoving = !this.isMoving;
+	}
+	public void setBeingMoved(boolean moved) {
+		this.isMoving = moved;
+	}
+	public boolean isBeingAttacked() {
+		return isAttacking;
+	}
+	public void toggleBeingAttacked() {
+		this.isMoving = !this.isMoving;
+	}
+	public void setBeingAttacked(boolean attack) {
+		this.isMoving = attack;
 	}
 	
 	public Menu getMenu() {
@@ -262,6 +299,4 @@ public abstract class Unit extends IUnit {
 		currentUnit.setMovementTempForMultiMove();
 		return finalPath;
 	}
-
-
 }

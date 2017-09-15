@@ -1,4 +1,4 @@
-package com.proj.civ.datastruct;
+package com.proj.civ.data;
 
 public class Point {
 	public final double x;

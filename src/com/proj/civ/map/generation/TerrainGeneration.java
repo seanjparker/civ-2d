@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import com.proj.civ.datastruct.hex.Hex;
-import com.proj.civ.datastruct.map.HexMap;
+import com.proj.civ.data.hex.Hex;
+import com.proj.civ.data.map.HexMap;
 import com.proj.civ.map.terrain.Feature;
 import com.proj.civ.map.terrain.Landscape;
 

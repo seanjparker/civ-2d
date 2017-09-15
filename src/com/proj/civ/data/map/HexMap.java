@@ -1,12 +1,12 @@
-package com.proj.civ.datastruct.map;
+package com.proj.civ.data.map;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.proj.civ.datastruct.hex.Hex;
-import com.proj.civ.datastruct.hex.HexCoordinate;
+import com.proj.civ.data.hex.Hex;
+import com.proj.civ.data.hex.HexCoordinate;
 import com.proj.civ.map.generation.TerrainGeneration;
 
 public class HexMap {

@@ -17,6 +17,8 @@ public class UnitMenu extends Menu {
 	@Override
 	public void close() {
 		setActive(false);
+		currentUnit.setBeingMoved(false);
+		currentUnit.setBeingAttacked(false);
 	}
 	@Override
 	public void draw(Graphics2D g) {
