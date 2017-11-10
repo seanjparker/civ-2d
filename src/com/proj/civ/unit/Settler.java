@@ -23,7 +23,8 @@ public class Settler extends Unit {
 	
 	public void foundCity() {
 		if (civs.get(0).canCreateCity()) {
-			civs.get(0).createCity();
+			civs.get(0).createCity(curPos);
+			
 			currentUnit.deleteFromMapAndCiv();
 			ui.resetFocusData();
 		}

@@ -10,8 +10,8 @@ import com.proj.civ.map.terrain.Feature;
 import com.proj.civ.map.terrain.Landscape;
 
 public class TerrainGeneration {
-	private final int OCTAVES = 6;
-	private final double FEATURE_SIZE = 25.0;
+	private final int OCTAVES = 2;
+	private final double FEATURE_SIZE = 15.0;
 	private final Random rnd;
 	
 	private int width, height;
@@ -33,31 +33,18 @@ public class TerrainGeneration {
 	}
 	
 	public Map<Integer, Hex> generateMap() {
-		//TODO: Fix an issue where on larger maps some hexes are generated as voids
-
 		Map<Integer, Hex> map = new HashMap<Integer, Hex>();
 		double[][] eHMap = new double[hexWidth][hexHeight];
 		double[][] eTMap = new double[hexWidth][hexHeight];
 		double[] e = generateElevation();
 		double[] t = generateTemperature();
-		//double eT = 0;
-		//double tT = 0;
-		for (int i = 0; i < e.length; i++) { //Calculate an avergae noise value for a section of the map
-			//eT = e[i];
-			//tT = t[i];
+
+		for (int i = 0; i < e.length; i++) { //Calculate an average noise value for a section of the map
 			int x = i % hexWidth;
 			int y = i / hexWidth;
 			eHMap[x][y] = e[i];
 			eTMap[x][y] = t[i];
-			
-			//if (i % 400 == 0) {
-			//	int x = ((i / 400) % hexWidth);
-			//	int y = ((i / 400) / hexWidth);
-			//	eHMap[x][y] = eTotal;
-			//	eTMap[x][y] = tTotal;
-			//	eTotal = 0;
-			//	tTotal = 0;
-			//}
+
 		}
 		
 		

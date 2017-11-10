@@ -52,9 +52,7 @@ public class AStar {
 			closedSet.add(current);
 			for (int i = 0; i < HexCoordinate.NEIGHBOURS; i++) { //Iterate through all the neighbours of the current hex
 				final Hex neighbour = map.get(HexMap.hash(current.neighbor(i)));
-				if (map.containsValue(neighbour) 
-						&& neighbour.getFeatures().stream().allMatch(x -> x.getPassable())
-						) { //Does the list contain the neighbour
+				if (map.containsValue(neighbour) && neighbour.getFeatures().stream().allMatch(x -> x.getPassable())) { //Does the list contain the neighbour
 					
 					if (closedSet.contains(neighbour)) {
 						continue;
@@ -74,7 +72,7 @@ public class AStar {
 					final int estimatedFScore = gScore.get(neighbour) + heuristicCost(neighbour, end);
 					fScore.put(neighbour, estimatedFScore);
 						 
-					//Sort the set, based on the defined comparator
+					//Sort the set, based on the defined hex comparator
 					Collections.sort(openSet, comparator);
 				}
 			}

@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.proj.civ.data.hex.HexCoordinate;
+import com.proj.civ.map.cities.City;
 import com.proj.civ.unit.Unit;
 
 public class BaseCivilization {
@@ -26,15 +28,19 @@ public class BaseCivilization {
 	private List<Unit> units;
 	private String[] cityNames;
 	
+	private List<City> cities;
+	
 	private Color civColour;
 	
 	public BaseCivilization(String nameSingular, String namePlural, Color civColour, String[] cityNames) {
 		this.ID = nameSingular.hashCode() ^ namePlural.hashCode();
+		//System.out.println(nameSingular + " ID is " + this.ID);
 		this.units = new ArrayList<Unit>();
 		this.civColour = civColour;
 		this.cityNames = cityNames;
 		this.NAME_SINGULAR = nameSingular;
 		this.NAME_PLURAL = namePlural;
+		this.cities = new ArrayList<City>();
 	}
 	
 	public boolean sameCivilization(int id) {
@@ -50,11 +56,9 @@ public class BaseCivilization {
 	public void decreaseHappinessByAmount(int happiness) {
 		this.happiness -= happiness;
 	}
-	public String createCity() {
+	public String createCity(HexCoordinate hexPos) {
 		String cityName = getNextCityName();
-		if (numberOfCities == 0) { //First city to be founded
-			
-		}
+		cities.add(new City(cityName, hexPos));
 		numberOfCities++;	
 		return cityName;
 	}
@@ -66,6 +70,9 @@ public class BaseCivilization {
 	}
 	public List<Unit> getUnits() {
 		return units;
+	}
+	public List<City> getCities() {
+		return cities;
 	}
 	public int getID() {
 		return this.ID;

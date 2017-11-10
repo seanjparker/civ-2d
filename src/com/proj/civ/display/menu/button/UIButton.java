@@ -1,6 +1,7 @@
 package com.proj.civ.display.menu.button;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 
 import com.proj.civ.event.Events;
@@ -33,11 +34,11 @@ public class UIButton extends Button {
 		g.setColor(new Color(48, 119, 186));
 		g.fill3DRect(xPos, yPos, buttonSizeX, buttonSizeY, true);
 		
+		g.setFont(new Font("SansSerif", Font.BOLD, TEXT_SIZE * 2));
 		g.setColor(Color.WHITE);
 		int textWidth = g.getFontMetrics().stringWidth(text);
-		int textHeight = g.getFontMetrics().getHeight();
 		
-		g.drawString(text, xPos + (buttonSizeX / 2) - (textWidth / 2), yPos + (buttonSizeY / 2) - (textHeight / 4));
+		g.drawString(text, xPos + (buttonSizeX / 2) - (textWidth / 2), yPos + (buttonSizeY / 2));
 	}
 
 }

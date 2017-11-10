@@ -13,6 +13,7 @@ import com.proj.civ.input.KeyboardHandler;
 import com.proj.civ.input.MouseHandler;
 import com.proj.civ.instance.IData;
 import com.proj.civ.map.civilization.America;
+import com.proj.civ.map.civilization.England;
 import com.proj.civ.unit.Settler;
 import com.proj.civ.unit.Unit;
 import com.proj.civ.unit.Warrior;
@@ -55,7 +56,10 @@ public class Game extends IData {
 	}
 	
 	public void draw(Graphics2D g) {
+		//ui.drawTest(g);
+		
 		ui.drawHexGrid(g);
+		ui.drawCities(g);
 		ui.drawUnits(g);
 		ui.drawSelectedHex(g);
 		ui.drawPath(g);
@@ -63,6 +67,7 @@ public class Game extends IData {
 		ui.drawHexInspect(g);
 		ui.drawUI(g);
 		ui.drawActionMenus(g);
+		
 	}
 	
 	private void createCiv() {
@@ -106,14 +111,12 @@ public class Game extends IData {
 	}
 
 	private void setCurrentUnit() {
-		if (ui.getFocusHex() != null) {
-			if (currentUnit == null) {
-				List<Unit> civUnits = civs.get(0).getUnits();
-				Hex currentHex = hexMap.getHex(ui.getFocusHex());
-				for (Unit u : civUnits) {
-					if (u.getPosition().isEqual(currentHex.getPosition())) {
-						currentUnit = u;
-					}
+		if (ui.getFocusHex() != null && currentUnit == null) {
+			List<Unit> civUnits = civs.get(0).getUnits();
+			Hex currentHex = hexMap.getHex(ui.getFocusHex());
+			for (Unit u : civUnits) {
+				if (u.getPosition().isEqual(currentHex.getPosition())) {
+					currentUnit = u;
 				}
 			}
 		}
@@ -121,46 +124,34 @@ public class Game extends IData {
 	
 	public void createUnitPath() {
 		Hex focusHex = ui.getFocusHex();
-		if (focusHex != null) {
-			if (currentUnit != null) {
-				if (currentUnit.isBeingMoved()) {
-					int toX = MouseHandler.movedMX;
-					int toY = MouseHandler.movedMY;
-					int scrollX = ui.getScrollX();
-					int scrollY = ui.getScrollY();
-					Hex endHex;
-					HexCoordinate tempTo = layout.pixelToHex(new Point(toX - scrollX, toY - scrollY));
-					if (!focusHex.isEqual(tempTo)) {
-						if (hexMap.getHex(tempTo) != null) {
-							//System.out.println(currentUnit.getName());
-							if ((hexToPath == null) || (!hexToPath.isEqual(tempTo))) {
-								hexToPath = tempTo;
-								endHex = hexMap.getHex(hexToPath);
-								pathToFollow = pf.findPath(hexMap.getMap(), focusHex, endHex);
-								List<PathHex> finalPath = currentUnit.validUnitMove(pathToFollow);
-								ui.setFocusedUnitPath(finalPath);
-							}
-						}
-					}
-				}
+		if (focusHex != null && currentUnit != null && currentUnit.isBeingMoved()) {
+			int toX = MouseHandler.movedMX;
+			int toY = MouseHandler.movedMY;
+			int scrollX = ui.getScrollX();
+			int scrollY = ui.getScrollY();
+			Hex endHex;
+			HexCoordinate tempTo = layout.pixelToHex(new Point(toX - scrollX, toY - scrollY));
+			boolean canCreatePath = (!focusHex.isEqual(tempTo) && hexMap.getHex(tempTo) != null) && (hexToPath == null) || (!hexToPath.isEqual(tempTo));
+			if (canCreatePath) {
+				hexToPath = tempTo;
+				endHex = hexMap.getHex(hexToPath);
+				pathToFollow = pf.findPath(hexMap.getMap(), focusHex, endHex);
+				List<PathHex> finalPath = currentUnit.validUnitMove(pathToFollow);
+				ui.setFocusedUnitPath(finalPath);
 			}
 		}
 	}
 	private boolean shouldMoveUnit() {
 		HexCoordinate fromHex = ui.getFocusHex();
-		if (fromHex != null) {
-			if (MouseHandler.pressedMouse) {
-				HexCoordinate toHexPlace = layout.pixelToHex(ui.getHexPosFromMouse());
-				if (toHexPlace != null) {
-					if (!fromHex.isEqual(toHexPlace)) {
-						List<PathHex> path = ui.getUnitPath();
-						if (path != null) {
-							return (path.stream().anyMatch(i -> i.getPassable() && i.isEqual(toHexPlace)))
-								|| (path.stream().filter(j -> j.isEqual(toHexPlace)).anyMatch(k -> k.getCanSwitch()));
-						}
-					}
-				}	
-			} 
+		if (fromHex != null && MouseHandler.pressedMouse) {
+			HexCoordinate toHexPlace = layout.pixelToHex(ui.getHexPosFromMouse());
+			if (toHexPlace != null && !fromHex.isEqual(toHexPlace)) {
+				List<PathHex> path = ui.getUnitPath();
+				if (path != null) {
+					return (path.stream().anyMatch(i -> i.getPassable() && i.isEqual(toHexPlace)))
+							|| (path.stream().filter(j -> j.isEqual(toHexPlace)).anyMatch(k -> k.getCanSwitch()));
+				}
+			}
 		}
 		return false;
 	}

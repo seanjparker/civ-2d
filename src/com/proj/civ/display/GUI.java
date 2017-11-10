@@ -22,6 +22,7 @@ import com.proj.civ.event.Events;
 import com.proj.civ.input.KeyboardHandler;
 import com.proj.civ.input.MouseHandler;
 import com.proj.civ.instance.IData;
+import com.proj.civ.map.cities.City;
 import com.proj.civ.map.civilization.BaseCivilization;
 import com.proj.civ.map.terrain.Feature;
 import com.proj.civ.map.terrain.YieldType;
@@ -29,25 +30,51 @@ import com.proj.civ.unit.Unit;
 
 public class GUI extends IData {
 	private int focusX = 0, focusY = 0;
-	
 	private int scrollX, scrollY, scroll;
 	
 	private List<PathHex> pathToFollow;
 	
 	private Polygon poly;
-	
 	private Hex focusHex = null;
-	
 	private List<Button> UIButtons;
 	
 	public GUI() {
 		this.scroll = HEX_RADIUS >> 1;
 		
 		poly = new Polygon();
+		HexCoordinate h = layout.pixelToHex(new Point(0, 0));
+		Point[] pts = layout.polygonCorners(h);
+		for (int k = 0; k < pts.length; k++) {
+			poly.addPoint((int) pts[k].x, (int) pts[k].y);
+		}			
+		
+		//mMap = new Minimap();
+		//mMap.generateMinimap();
+		
+		
+		
 		UIButtons = new ArrayList<Button>();
 		UIButtons.add(new UIButton(Events.NEXT_TURN, "Next Turn", HEX_RADIUS * 4, HEX_RADIUS, WIDTH - (HEX_RADIUS * 4), HEIGHT - HEX_RADIUS));
 	}
-
+	
+	/*
+	public void drawTest(Graphics2D g) {
+		Polygon poly1 = new Polygon();
+		HexCoordinate h = layout.pixelToHex(new Point(100, 100));
+		Point[] p = layout.polygonCorners(h);
+		for (int k = 0; k < p.length; k++) {
+			poly1.addPoint((int) p[k].x, (int) p[k].y);
+		}
+		
+		Polygon poly2 = new Polygon(poly1.xpoints, poly1.ypoints, poly1.npoints);
+		poly2.translate(50, 50);
+		g.setColor(Color.RED);
+		g.drawPolygon(poly1);
+		g.setColor(Color.BLUE);
+		g.drawPolygon(poly2);
+	}
+	*/
+	
 	public void drawHexGrid(Graphics2D g) {
 		g.setStroke(new BasicStroke(3.0f));
 		int bnd = 8;
@@ -68,17 +95,17 @@ public class GUI extends IData {
 					if ((p1.x + scrollX < -HEX_RADIUS) || (p1.x + scrollX > WIDTH + HEX_RADIUS) || (p1.y + scrollY < -HEX_RADIUS) || (p1.y + scrollY > HEIGHT + HEX_RADIUS)) {
 						continue;
 					}
+					
 					Point[] p2 = layout.polygonCorners(h);
 					for (int k = 0; k < p2.length; k++) {
 						poly.addPoint((int) (p2[k].x) + scrollX, (int) (p2[k].y) + scrollY);
-					}		
+					}
 
 					g.setColor(h.getLandscape().getColour());
 					g.fillPolygon(poly); 
 					
 					g.setColor(new Color(80, 80, 80, 75));
 					g.drawPolygon(poly);
-
 					poly.reset();	
 				}
 			}
@@ -100,6 +127,25 @@ public class GUI extends IData {
 			g.drawPolygon(poly);
 			poly.reset();
 		}
+		/*
+		int mouseX = MouseHandler.movedMX;
+		int mouseY = MouseHandler.movedMY;
+		
+		g.setStroke(new BasicStroke(3.5f));
+			
+		HexCoordinate s = layout.pixelToHex(new Point(mouseX, mouseY));
+		if (hexMap.getHex(s) != null) {	
+			//Point[] p = layout.polygonCorners(s);
+			Point pnt = layout.hexToPixel(s);
+			Polygon translatedPoly = new Polygon(poly.xpoints, poly.ypoints, poly.npoints);
+			translatedPoly.translate((int) pnt.x, (int) pnt.y);
+			
+			//System.out.println("Drawing @ (" + poly.xpoints[0] + ", " + poly.ypoints[0] + ") -- offset poly @ (" + translatedPoly.xpoints[0] + ", " + translatedPoly.ypoints[0] + ")");
+
+			g.setColor(Color.WHITE);
+			g.drawPolygon(translatedPoly);
+		}
+		*/
 	}
 	public void drawHexInspect(Graphics2D g) {
 		if (KeyboardHandler.ShiftPressed) {
@@ -111,7 +157,7 @@ public class GUI extends IData {
 			
 			if (h1 != null) {
 				g.setColor(Color.WHITE);
-				g.setFont(new Font("SansSerif", Font.BOLD, 16));
+				g.setFont(new Font("SansSerif", Font.BOLD, TEXT_SIZE));
 				
 				FontMetrics m = g.getFontMetrics();
 				List<Feature> features = h1.getFeatures();
@@ -163,9 +209,10 @@ public class GUI extends IData {
 				if (units != null) hexBox.append(sbUnits.toString());
 				
 				
-				boolean flip = ((mouseX - rectW < 0) || mouseY - rectH < 0);
-				int startX = flip ? mouseX + padding: mouseX - rectW + padding;
-				int startY = flip ? mouseY : mouseY - rectH;
+				boolean flipX = mouseX - rectW < 0;
+				boolean flipY =  mouseY - rectH < 0;
+				int startX = flipX ? mouseX + padding: mouseX - rectW + padding;
+				int startY = flipY ? mouseY : mouseY - rectH;
 				
 				//Draw rectangle at the mouse
 				g.fillRoundRect(startX - padding, startY, rectW, rectH, rectW / rectArcRatio, rectH / rectArcRatio);
@@ -193,44 +240,50 @@ public class GUI extends IData {
 		}
 	}	
 	public void drawPath(Graphics2D g) {
-		if (focusHex != null) {
-			if (currentUnit != null) {
-				if (currentUnit.isBeingMoved()) {
-					if (pathToFollow != null) {
-						for (PathHex h : pathToFollow) {
-							if (!h.equals(focusHex)) {
-								if (h.getPassable() || h.getCanSwitch()) {
-									g.setColor(Color.WHITE);
-								} else {
-									g.setColor(Color.RED);
-								}
-								Point hexCentre = layout.hexToPixel(h);
-								g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20, 20);
+		boolean unitAndHexValid = focusHex != null && currentUnit != null;
+		if (unitAndHexValid) {
+			if (currentUnit.isBeingMoved()) {
+				if (pathToFollow != null) {
+					for (PathHex h : pathToFollow) {
+						if (!h.equals(focusHex)) {
+							if (h.getPassable() || h.getCanSwitch()) {
+								g.setColor(Color.WHITE);
+							} else {
+								g.setColor(Color.RED);
 							}
-						}	
-					}
+							Point hexCentre = layout.hexToPixel(h);
+							g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20, 20);
+						}
+					}	
 				}
 			}
 		}
 	}
 	public void drawFocusHex(Graphics2D g) {
-		if (focusHex != null) {
-			if (hexMap.getHex(focusHex) != null) {	
-				g.setStroke(new BasicStroke(5.0f));
-				
-				Point[] p = layout.polygonCorners(focusHex);
-				for (int k = 0; k < p.length; k++) {
-					poly.addPoint((int) (p[k].x) + scrollX, (int) (p[k].y) + scrollY);
-				}
-				g.setColor(Color.WHITE);
-				g.drawPolygon(poly);
-				poly.reset();
+		if (focusHex != null && hexMap.getHex(focusHex) != null) {
+			g.setStroke(new BasicStroke(5.0f));
+
+			Point[] p = layout.polygonCorners(focusHex);
+			for (int k = 0; k < p.length; k++) {
+				poly.addPoint((int) (p[k].x) + scrollX, (int) (p[k].y) + scrollY);
+
+			}
+			g.setColor(Color.WHITE);
+			g.drawPolygon(poly);
+			poly.reset();
+		}
+	}
+	public void drawCities(Graphics2D g) {
+		for (BaseCivilization civ : civs) {
+			for (City city : civ.getCities()) {
+				g.setColor(civ.getColour());
+				city.draw(g, scrollX, scrollY);
 			}
 		}
 	}
 	public void drawUnits(Graphics2D g) {
 		g.setColor(Color.BLACK);
-		g.setFont(new Font("SansSerif", Font.BOLD, 16));
+		g.setFont(new Font("SansSerif", Font.BOLD, TEXT_SIZE));
 		
 		for (BaseCivilization c : civs) {
 			List<Unit> units = c.getUnits();
@@ -267,7 +320,7 @@ public class GUI extends IData {
 	}
 	public void drawUI(Graphics2D g) {
 		g.setColor(Color.BLACK);
-		g.setFont(new Font("Lucida Sans", Font.BOLD, 16));
+		g.setFont(new Font("Lucida Sans", Font.BOLD, TEXT_SIZE));
 		
 		int fontHeight = g.getFontMetrics().getHeight();
 		int fontWidth = g.getFont().getSize();
@@ -300,14 +353,14 @@ public class GUI extends IData {
 			g.drawString(Integer.toString(civGoldTotal) + "(+" + Integer.toString(civGoldPT) + ")", textX += offsetX, yieldHeight); //Gold
 			
 			g.setColor(Color.YELLOW);
-			g.drawString("\u263A", textX += offsetX, yieldHeight);
+			g.drawString("\u263B", textX += offsetX, yieldHeight);
 			g.setColor(civHappiness >= 0 ? Color.GREEN : Color.RED);
 			g.drawString("" + Math.abs(civHappiness), textX + fontWidth, yieldHeight);
 			
 			g.setColor(new Color(186, 16, 160));
 			g.drawString(Integer.toString(civCultureTotal) + "/" + Integer.toString(civCultureReq) + "(+" + Integer.toString(civCulturePT) + ")", textX += offsetX, yieldHeight);
 		}
-		
+		//Draw all buttons in all open menus
 		UIButtons.stream().forEach(i -> i.drawButton(g));
 	}
 	public void drawActionMenus(Graphics2D g) {

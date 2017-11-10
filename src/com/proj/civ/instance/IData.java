@@ -17,6 +17,7 @@ public class IData {
 	protected static final int HEX_RADIUS = ((WIDTH >> 4) + (HEIGHT >> 4)) >> 1;
 	protected static final int W_HEXES = 40;
 	protected static final int H_HEXES = 25;
+	protected static final int TEXT_SIZE = HEX_RADIUS >> 2; //Should be 16
 	
 	protected static final HexMap hexMap = new HexMap(W_HEXES, H_HEXES, HEX_RADIUS);
 	protected static final Layout layout = new Layout(Layout.POINTY_TOP, new Point(HEX_RADIUS, HEX_RADIUS), new Point(HEX_RADIUS, HEX_RADIUS));
