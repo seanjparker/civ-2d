@@ -46,12 +46,7 @@ public class GUI extends IData {
 		Point[] pts = layout.polygonCorners(h);
 		for (int k = 0; k < pts.length; k++) {
 			poly.addPoint((int) pts[k].x, (int) pts[k].y);
-		}			
-		
-		//mMap = new Minimap();
-		//mMap.generateMinimap();
-		
-		
+		}
 		
 		UIButtons = new ArrayList<Button>();
 		UIButtons.add(new UIButton(Events.NEXT_TURN, "Next Turn", HEX_RADIUS * 4, HEX_RADIUS, WIDTH - (HEX_RADIUS * 4), HEIGHT - HEX_RADIUS));

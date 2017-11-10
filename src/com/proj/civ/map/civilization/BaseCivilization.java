@@ -56,13 +56,16 @@ public class BaseCivilization {
 	public void decreaseHappinessByAmount(int happiness) {
 		this.happiness -= happiness;
 	}
-	public String createCity(HexCoordinate hexPos) {
-		String cityName = getNextCityName();
-		cities.add(new City(cityName, hexPos));
-		numberOfCities++;	
-		return cityName;
+	public boolean createCity(HexCoordinate hexPos) {
+		if (canCreateCity()) {
+			String cityName = getNextCityName();
+			cities.add(new City(cityName, hexPos));
+			numberOfCities++;
+			return true;
+		}
+		return false;
 	}
-	public boolean canCreateCity() {
+	private boolean canCreateCity() {
 		return numberOfCities < cityNames.length;
 	}
 	public int getNumberOfCities() {
