@@ -18,3 +18,5 @@ If this directory appears and the `./create-civ` command outputted `Done!` then 
 ```
 ./run-civ
 ```
+
+The command `./create-civ` need only be ran once, after that, to run the program, perform the `./run-civ` command

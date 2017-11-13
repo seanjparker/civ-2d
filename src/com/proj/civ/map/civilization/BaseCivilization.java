@@ -34,7 +34,6 @@ public class BaseCivilization {
 	
 	public BaseCivilization(String nameSingular, String namePlural, Color civColour, String[] cityNames) {
 		this.ID = nameSingular.hashCode() ^ namePlural.hashCode();
-		//System.out.println(nameSingular + " ID is " + this.ID);
 		this.units = new ArrayList<Unit>();
 		this.civColour = civColour;
 		this.cityNames = cityNames;
@@ -48,7 +47,7 @@ public class BaseCivilization {
 	}
 	
 	private String getNextCityName() {
-		return canCreateCity() ? cityNames[numberOfCities]: null;
+		return canCreateCity() ? cityNames[numberOfCities] : null;
 	}
 	public int getHappiness() {
 		return happiness;
@@ -59,7 +58,9 @@ public class BaseCivilization {
 	public boolean createCity(HexCoordinate hexPos) {
 		if (canCreateCity()) {
 			String cityName = getNextCityName();
-			cities.add(new City(cityName, hexPos));
+			City cityToAdd = new City(cityName, hexPos);
+			cities.add(cityToAdd);
+			updateResourceYields(cityToAdd);
 			numberOfCities++;
 			return true;
 		}
@@ -70,6 +71,11 @@ public class BaseCivilization {
 	}
 	public int getNumberOfCities() {
 		return numberOfCities;
+	}
+	private void updateResourceYields(City c) {
+		this.sciencePT += c.getScience();
+		this.goldPT += c.getGold();
+		this.culturePT += c.getCulture();
 	}
 	public List<Unit> getUnits() {
 		return units;
@@ -93,38 +99,20 @@ public class BaseCivilization {
 	public int getSciencePT() {
 		return sciencePT;
 	}
-	public void setSciencePT(int sciencePT) {
-		this.sciencePT = sciencePT;
-	}
 	public int getGoldTotal() {
 		return goldTotal;
-	}
-	public void setGoldTotal(int goldTotal) {
-		this.goldTotal = goldTotal;
 	}
 	public int getGoldPT() {
 		return goldPT;
 	}
-	public void setGoldPT(int goldPT) {
-		this.goldPT = goldPT;
-	}
 	public int getCultureTotal() {
 		return cultureTotal;
-	}
-	public void setCultureTotal(int cultureTotal) {
-		this.cultureTotal = cultureTotal;
 	}
 	public int getCultureRequired() {
 		return cultureRequired;
 	}
-	public void setCultureRequired(int cultureRequired) {
-		this.cultureRequired = cultureRequired;
-	}
 	public int getCulturePT() {
 		return culturePT;
-	}
-	public void setCulturePT(int culturePT) {
-		this.culturePT = culturePT;
 	}
 
 	public void addUnit(Unit u) {

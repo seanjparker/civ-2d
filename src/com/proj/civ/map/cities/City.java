@@ -10,6 +10,12 @@ import com.proj.civ.data.hex.HexCoordinate;
 import com.proj.civ.instance.IData;
 
 public class City extends IData {
+	private final int FOOD_INITIAL = 1;
+	private final int GOLD_INITIAL = 3;
+	private final int PROD_INITIAL = 1;
+	private final int SCIE_INITIAL = 4;
+	private final int CULT_INITIAL = 1;
+	
 	
 	private String cityName;
 	private HexCoordinate cityPos;
@@ -19,6 +25,13 @@ public class City extends IData {
 	public City(String cityName, HexCoordinate cityPos) {
 		this.cityName = cityName;
 		this.cityPos = cityPos;
+		
+		this.cityFood = FOOD_INITIAL;
+		this.cityGold = GOLD_INITIAL;
+		this.cityProduction = PROD_INITIAL;
+		this.cityScience = SCIE_INITIAL;
+		this.cityCulture = CULT_INITIAL;
+		
 	}
 	
 	public void draw(Graphics2D g, int scrollX, int scrollY) {

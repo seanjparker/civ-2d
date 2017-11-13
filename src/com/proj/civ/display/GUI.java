@@ -235,21 +235,14 @@ public class GUI extends IData {
 		}
 	}	
 	public void drawPath(Graphics2D g) {
-		boolean unitAndHexValid = focusHex != null && currentUnit != null;
+		boolean unitAndHexValid = focusHex != null && currentUnit != null && currentUnit.isBeingMoved() && pathToFollow != null;
 		if (unitAndHexValid) {
-			if (currentUnit.isBeingMoved()) {
-				if (pathToFollow != null) {
-					for (PathHex h : pathToFollow) {
-						if (!h.equals(focusHex)) {
-							if (h.getPassable() || h.getCanSwitch()) {
-								g.setColor(Color.WHITE);
-							} else {
-								g.setColor(Color.RED);
-							}
-							Point hexCentre = layout.hexToPixel(h);
-							g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20, 20);
-						}
-					}	
+			for (PathHex h : pathToFollow) {
+				if (!h.equals(focusHex)) {
+					boolean unitMoveable = h.getPassable() || h.getCanSwitch();
+					g.setColor(unitMoveable ? Color.WHITE : Color.RED);
+					Point hexCentre = layout.hexToPixel(h);
+					g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20, 20);
 				}
 			}
 		}
@@ -489,10 +482,9 @@ public class GUI extends IData {
 			focusY = MouseHandler.mY;
 			HexCoordinate tempFocusHex = layout.pixelToHex(new Point(focusX - scrollX, focusY - scrollY));
 			Hex mapHex = hexMap.getHex(tempFocusHex);
-			if (mapHex != null) {
-				if ((!mapHex.canSetMilitary() || !mapHex.canSetCivilian())) {
-					focusHex = new Hex(tempFocusHex.q, tempFocusHex.r, tempFocusHex.s);		
-				}
+			boolean shouldSetFocusHex = mapHex != null && (!mapHex.canSetMilitary() || !mapHex.canSetCivilian());
+			if (shouldSetFocusHex) {
+				focusHex = new Hex(tempFocusHex.q, tempFocusHex.r, tempFocusHex.s);	
 			}
 		}
 	}
