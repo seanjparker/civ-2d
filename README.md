@@ -8,7 +8,6 @@ The run the program
 2. Open terminal/console, change directory to top level of the civ-2d folder and run the following commands:
 
 ```
-chmod a+x *-civ
 ./create-civ
 ```
 Once the `./create-civ` is executed, a new directory should appear alongside `src` and `gfx` which is called `bin`
