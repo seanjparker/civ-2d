@@ -1,7 +1,0 @@
-#!/bin/bash
-
-if [ -d "bin" ]; then
-  java -cp bin com.proj.civ/Main
-else
-  echo "Please run    ./create-civ     then try again"
-fi
