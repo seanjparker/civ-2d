@@ -3,7 +3,7 @@
 A 2D version of Civilisation coded in Java using only the standard libraries.
 
 ## Prerequisites
-Building the Civilisation source requires Java (version 8 or later).
+Building the Civilisation source requires Java (JDK v1.8 or later).
 
 Once installed, you can then build and run the program using the commands from the following section.
 
