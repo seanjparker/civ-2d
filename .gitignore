@@ -1,3 +1,5 @@
+#Ignore
+
 # Compiled class file
 *.class
 
@@ -29,3 +31,8 @@
 hs_err_pid*
 /bin/
 .DS_Store
+
+#Allow
+!/lib/lwjgl/*
+!/lib/lwjgl-opengl/*
+!/lib/lwjgl-glfw/*
