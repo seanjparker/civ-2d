@@ -3,7 +3,6 @@ package civ.core.display.menu.button;
 import java.awt.Graphics2D;
 import civ.core.display.GUI;
 import civ.core.event.Events;
-import civ.core.input.MouseHandler;
 
 public class UnitMenuButton extends Button {
 
@@ -19,13 +18,13 @@ public class UnitMenuButton extends Button {
   }
 
   public void onPress() {
-    if (MouseHandler.pressedMouse) {
-      if (buttonBounds.intersects(MouseHandler.mX, MouseHandler.mY, BUTTON_CLICK_BUFFER,
-          BUTTON_CLICK_BUFFER)) {
-        MouseHandler.pressedMouse = false;
-        performEvent();
-      }
-    }
+//    if (MouseHandler.pressedMouse) {
+//      if (buttonBounds.intersects(MouseHandler.mX, MouseHandler.mY, BUTTON_CLICK_BUFFER,
+//          BUTTON_CLICK_BUFFER)) {
+//        MouseHandler.pressedMouse = false;
+//        performEvent();
+//      }
+//    }
   }
 
 }

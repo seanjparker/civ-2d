@@ -10,7 +10,6 @@ import civ.core.data.hex.PathHex;
 import civ.core.data.map.HexMap;
 import civ.core.display.GUI;
 import civ.core.display.menu.Menu;
-import civ.core.input.MouseHandler;
 import civ.core.instance.IUnit;
 import civ.core.map.civilization.BaseCivilization;
 
@@ -86,8 +85,8 @@ public class Unit extends IUnit {
   public void moveUnit(GUI ui, HexMap map, List<BaseCivilization> civs, Hex focusHex, int scrollX, int scrollY) {
     Hex fromHex = map.getHex(focusHex);
     if (!fromHex.canSetCivilian() || !fromHex.canSetMilitary()) {
-      int mouseX = MouseHandler.movedMX;
-      int mouseY = MouseHandler.movedMY;
+      int mouseX = 0;//MouseHandler.movedMX;
+      int mouseY = 0;//MouseHandler.movedMY;
 
       HexCoordinate h = Layout.pixelToHex(new Point(mouseX - scrollX, mouseY - scrollY));
       Hex toHex = map.getHex(h);

@@ -1,16 +1,12 @@
 package civ.core.display.menu.button;
 
 import java.awt.Rectangle;
-import java.util.List;
-import civ.core.data.map.HexMap;
 import civ.core.display.GUI;
-import civ.core.event.ButtonEventHandler;
 import civ.core.event.Events;
-import civ.core.map.civilization.BaseCivilization;
 import civ.core.unit.Settler;
 import civ.core.unit.Unit;
 
-public abstract class Button implements ButtonEventHandler {
+public abstract class Button {
   protected final double BUTTON_CLICK_BUFFER = 1.0D;
 
   protected int bufferX, bufferY, buttonSizeX, buttonSizeY, xPos, yPos, buttonIndex;

@@ -21,8 +21,6 @@ import civ.core.data.map.HexMap;
 import civ.core.display.menu.button.Button;
 import civ.core.display.menu.button.UIButton;
 import civ.core.event.Events;
-import civ.core.input.KeyboardHandler;
-import civ.core.input.MouseHandler;
 import civ.core.map.cities.City;
 import civ.core.map.civilization.BaseCivilization;
 import civ.core.map.terrain.Feature;
@@ -105,8 +103,8 @@ public class GUI {
   }
 
   public void drawSelectedHex(Graphics2D g) {
-    int mouseX = MouseHandler.movedMX;
-    int mouseY = MouseHandler.movedMY;
+    int mouseX = 0;//MouseHandler.movedMX;
+    int mouseY = 0;//MouseHandler.movedMY;
 
     g.setStroke(new BasicStroke(3.5f));
 
@@ -138,11 +136,12 @@ public class GUI {
   }
 
   public void drawHexInspect(Graphics2D g) {
-    if (KeyboardHandler.ShiftPressed) {
-      int mouseX = MouseHandler.movedMX;
-      int mouseY = MouseHandler.movedMY;
+    if(true) {//if (KeyboardHandler.ShiftPressed) {
+      //int mouseX = MouseHandler.movedMX;
+      //int mouseY = MouseHandler.movedMY;
 
-      HexCoordinate h = Layout.pixelToHex(new Point(mouseX - scrollX, mouseY - scrollY));
+     // HexCoordinate h = Layout.pixelToHex(new Point(mouseX - scrollX, mouseY - scrollY));
+     HexCoordinate h = Layout.pixelToHex(new Point(0 - scrollX, 0 - scrollY));
       Hex h1 = hexMap.getHex(h);
 
       if (h1 != null) {
@@ -200,10 +199,10 @@ public class GUI {
         if (units != null)
           hexBox.append(sbUnits.toString());
 
-        boolean flipX = mouseX - rectW < 0;
-        boolean flipY = mouseY - rectH < 0;
-        int startX = flipX ? mouseX + padding : mouseX - rectW + padding;
-        int startY = flipY ? mouseY : mouseY - rectH;
+        boolean flipX = false;//mouseX - rectW < 0;
+        boolean flipY = false;//mouseY - rectH < 0;
+        int startX = 0;//flipX ? mouseX + padding : mouseX - rectW + padding;
+        int startY = 0;//flipY ? mouseY : mouseY - rectH;
 
         // Draw rectangle at the mouse
         g.fillRoundRect(startX - padding, startY, rectW, rectH, rectW / rectArcRatio,
@@ -363,7 +362,7 @@ public class GUI {
           + Integer.toString(civCulturePT) + ")", textX += offsetX, yieldHeight);
     }
     // Draw all buttons in all open menus
-    UIButtons.stream().forEach(i -> i.drawButton(g));
+    //UIButtons.stream().forEach(i -> i.drawButton(g));
   }
 
   public void drawActionMenus(Graphics2D g) {
@@ -418,10 +417,10 @@ public class GUI {
             scrollX -= scrollX > -(getAdjustedWidth()) ? scroll : 0;
             break;
           case KeyEvent.VK_SHIFT:
-            KeyboardHandler.ShiftPressed = true;
+            //KeyboardHandler.ShiftPressed = true;
             break;
           case KeyEvent.VK_ESCAPE:
-            KeyboardHandler.EscPressed = true;
+            //KeyboardHandler.EscPressed = true;
             setFocusedUnitPath(null);
             break;
           // case KeyEvent.VK_P:
@@ -471,7 +470,7 @@ public class GUI {
    */
 
   public Point getHexPosFromMouse() {
-    return new Point(MouseHandler.mX - scrollX, MouseHandler.mY - scrollY);
+    return new Point(0,0);//MouseHandler.mX - scrollX, MouseHandler.mY - scrollY);
   }
 
   public int getScrollX() {
@@ -483,17 +482,17 @@ public class GUI {
   }
 
   public void setFocusHex() {
-    if (MouseHandler.pressedMouse && (focusHex == null)) {
-      focusX = MouseHandler.mX;
-      focusY = MouseHandler.mY;
-      HexCoordinate tempFocusHex = Layout.pixelToHex(new Point(focusX - scrollX, focusY - scrollY));
-      Hex mapHex = hexMap.getHex(tempFocusHex);
-      boolean shouldSetFocusHex =
-          mapHex != null && (!mapHex.canSetMilitary() || !mapHex.canSetCivilian());
-      if (shouldSetFocusHex) {
-        focusHex = new Hex(tempFocusHex.q, tempFocusHex.r, tempFocusHex.s);
-      }
-    }
+//    if (MouseHandler.pressedMouse && (focusHex == null)) {
+//      focusX = MouseHandler.mX;
+//      focusY = MouseHandler.mY;
+//      HexCoordinate tempFocusHex = Layout.pixelToHex(new Point(focusX - scrollX, focusY - scrollY));
+//      Hex mapHex = hexMap.getHex(tempFocusHex);
+//      boolean shouldSetFocusHex =
+//          mapHex != null && (!mapHex.canSetMilitary() || !mapHex.canSetCivilian());
+//      if (shouldSetFocusHex) {
+//        focusHex = new Hex(tempFocusHex.q, tempFocusHex.r, tempFocusHex.s);
+//      }
+//    }
   }
 
   public void resetFocusData() {

@@ -36,7 +36,7 @@ public class UnitMenu extends Menu {
   public void draw(Graphics2D g) {
     g.setColor(new Color(100, 100, 100));
     g.fill3DRect(0, windowHeight - menuHeight, menuWidth, menuHeight, true);
-    super.getMenuButtons().forEach(i -> i.drawButton(g));
+    //super.getMenuButtons().forEach(i -> i.drawButton(g));
   }
 
 }

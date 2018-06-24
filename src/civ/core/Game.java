@@ -11,8 +11,6 @@ import civ.core.data.hex.HexCoordinate;
 import civ.core.data.hex.PathHex;
 import civ.core.data.map.HexMap;
 import civ.core.display.GUI;
-import civ.core.input.KeyboardHandler;
-import civ.core.input.MouseHandler;
 import civ.core.map.civilization.America;
 import civ.core.map.civilization.BaseCivilization;
 import civ.core.unit.Settler;
@@ -42,25 +40,25 @@ public class Game {
     createCiv();
   }
 
-  public void update(KeyboardHandler k) {
-    if (k.pressedSet.size() > 0) {
-      ui.updateKeys(k.pressedSet);
-    }
-
-    ui.setFocusHex();
-    setCurrentUnit();
-    createUnitPath();
-
-    if (currentUnit != null) {
-      currentUnit.getMenu().getMenuButtons().stream().forEach(j -> j.onPress());
-
-      if (shouldMoveUnit()) {
-        currentUnit.moveUnit(ui, hexMap, civs, ui.getFocusHex(), ui.getScrollX(), ui.getScrollY());
-        MouseHandler.pressedMouse = false;
-      }
-    }
-
-    ui.getMenuButtons().forEach(i -> i.onPress());
+  public void update() {
+//    if (k.pressedSet.size() > 0) {
+//      ui.updateKeys(k.pressedSet);
+//    }
+//
+//    ui.setFocusHex();
+//    setCurrentUnit();
+//    createUnitPath();
+//
+//    if (currentUnit != null) {
+//      currentUnit.getMenu().getMenuButtons().stream().forEach(j -> j.onPress());
+//
+//      if (shouldMoveUnit()) {
+//        currentUnit.moveUnit(ui, hexMap, civs, ui.getFocusHex(), ui.getScrollX(), ui.getScrollY());
+//        MouseHandler.pressedMouse = false;
+//      }
+//    }
+//
+//    ui.getMenuButtons().forEach(i -> i.onPress());
   }
 
   public void draw(Graphics2D g) {
@@ -130,12 +128,12 @@ public class Game {
   public void createUnitPath() {
     Hex focusHex = ui.getFocusHex();
     if (focusHex != null && currentUnit != null && currentUnit.isBeingMoved()) {
-      int toX = MouseHandler.movedMX;
-      int toY = MouseHandler.movedMY;
+      int toX = 0;//MouseHandler.movedMX;
+      int toY = 0;//MouseHandler.movedMY;
       int scrollX = ui.getScrollX();
       int scrollY = ui.getScrollY();
       Hex endHex;
-      HexCoordinate tempTo = Layout.pixelToHex(new Point(toX - scrollX, toY - scrollY));
+      HexCoordinate tempTo = null;//Layout.pixelToHex(new Point(toX - scrollX, toY - scrollY));
       boolean canCreatePath =
           (!focusHex.isEqual(tempTo) && hexMap.getHex(tempTo) != null) && (hexToPath == null)
               || (!hexToPath.isEqual(tempTo));
@@ -151,7 +149,7 @@ public class Game {
 
   private boolean shouldMoveUnit() {
     HexCoordinate fromHex = ui.getFocusHex();
-    if (fromHex != null && MouseHandler.pressedMouse) {
+    if(true) {//if (fromHex != null && MouseHandler.pressedMouse) {
       HexCoordinate toHexPlace = Layout.pixelToHex(ui.getHexPosFromMouse());
       if (toHexPlace != null && !fromHex.isEqual(toHexPlace)) {
         List<PathHex> path = ui.getUnitPath();

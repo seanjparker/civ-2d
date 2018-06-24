@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import civ.core.event.Events;
-import civ.core.input.MouseHandler;
 
 public class UIButton extends Button {
 
@@ -23,13 +22,13 @@ public class UIButton extends Button {
   }
 
   public void onPress() {
-    if (MouseHandler.pressedMouse) {
-      if (buttonBounds.intersects(MouseHandler.mX, MouseHandler.mY, BUTTON_CLICK_BUFFER,
-          BUTTON_CLICK_BUFFER)) {
-        MouseHandler.pressedMouse = false;
-        performEvent();
-      }
-    }
+//    if (MouseHandler.pressedMouse) {
+//      if (buttonBounds.intersects(MouseHandler.mX, MouseHandler.mY, BUTTON_CLICK_BUFFER,
+//          BUTTON_CLICK_BUFFER)) {
+//        MouseHandler.pressedMouse = false;
+//        performEvent();
+//      }
+//    }
   }
 
   public void drawButton(Graphics2D g) {

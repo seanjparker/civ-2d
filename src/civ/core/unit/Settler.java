@@ -22,9 +22,9 @@ public class Settler extends Unit {
   }
 
   public void foundCity() {
-    if (civs.get(0).createCity(curPos)) {
-      this.deleteFromMapAndCiv(map, civs);
-      ui.resetFocusData();
-    }
+//    if (civs.get(0).createCity(curPos)) {
+//      this.deleteFromMapAndCiv(map, civs);
+//      ui.resetFocusData();
+//    }
   }
 }
