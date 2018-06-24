@@ -8,17 +8,18 @@ import civ.core.input.MouseHandler;
 
 public class UIButton extends Button {
 
-  private String text;
+  private String TEXT;
+  private int TEXT_SIZE;
 
-  public UIButton(Events e, int bWidth, int bHeight, int xPos, int yPos) {
-    super(bWidth, bHeight, xPos, yPos);
+  public UIButton(Events e, int[] buttonSize, int[] position) {
+    super(buttonSize, position);
     this.e = e;
   }
 
-  public UIButton(Events e, String text, int bWidth, int bHeight, int xPos, int yPos) {
-    super(bWidth, bHeight, xPos, yPos);
-    this.text = text;
-    this.e = e;
+  public UIButton(final Events e, String text, int textSize, int bWidth, int bHeight, int xPos, int yPos) {
+    this(e, new int[] {bWidth, bHeight}, new int[] {xPos, yPos});
+    this.TEXT = text;
+    this.TEXT_SIZE = textSize;
   }
 
   public void onPress() {
@@ -37,9 +38,9 @@ public class UIButton extends Button {
 
     g.setFont(new Font("SansSerif", Font.BOLD, TEXT_SIZE * 2));
     g.setColor(Color.WHITE);
-    int textWidth = g.getFontMetrics().stringWidth(text);
+    int textWidth = g.getFontMetrics().stringWidth(TEXT);
 
-    g.drawString(text, xPos + (buttonSizeX / 2) - (textWidth / 2), yPos + (buttonSizeY / 2));
+    g.drawString(TEXT, xPos + (buttonSizeX / 2) - (textWidth / 2), yPos + (buttonSizeY / 2));
   }
 
 }

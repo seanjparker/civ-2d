@@ -14,7 +14,7 @@ public class Settler extends Unit {
 
   public void init() {
     int b = 0;
-    actionMenu = new UnitMenu(false);
+    actionMenu = new UnitMenu(false, this);
     actionMenu.addButton(new UnitMenuButton(Events.FOUND_CITY, b++));
     actionMenu.addButton(new UnitMenuButton(Events.MOVE, b++));
     actionMenu.addButton(new UnitMenuButton(Events.DO_NOTHING, b++));
@@ -23,7 +23,7 @@ public class Settler extends Unit {
 
   public void foundCity() {
     if (civs.get(0).createCity(curPos)) {
-      currentUnit.deleteFromMapAndCiv();
+      this.deleteFromMapAndCiv(map, civs);
       ui.resetFocusData();
     }
   }

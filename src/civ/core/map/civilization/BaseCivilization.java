@@ -33,7 +33,7 @@ public class BaseCivilization {
 
   public BaseCivilization(String nameSingular, String namePlural, Color civColour,
       String[] cityNames) {
-    this.ID = nameSingular.hashCode() ^ namePlural.hashCode();
+    this.ID = nameSingular.hashCode() + namePlural.hashCode();
     this.units = new ArrayList<Unit>();
     this.civColour = civColour;
     this.cityNames = cityNames;

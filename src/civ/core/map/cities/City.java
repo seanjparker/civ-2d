@@ -3,11 +3,12 @@ package civ.core.map.cities;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import civ.core.data.Layout;
 import civ.core.data.Point;
 import civ.core.data.hex.HexCoordinate;
-import civ.core.instance.IData;
+import civ.core.display.GUI;
 
-public class City extends IData {
+public class City {
   private final int FOOD_INITIAL = 1;
   private final int GOLD_INITIAL = 3;
   private final int PROD_INITIAL = 1;
@@ -33,10 +34,10 @@ public class City extends IData {
   }
 
   public void draw(Graphics2D g, int scrollX, int scrollY) {
-    int citySize = HEX_RADIUS;
+    int citySize = GUI.getHexRadius();
     int citySizeOffset = citySize >> 1;
 
-    Point pos = layout.hexToPixel(cityPos);
+    Point pos = Layout.hexToPixel(cityPos);
 
     int xCentre = (int) (pos.x + scrollX);
     int yCentre = (int) (pos.y + scrollY) - citySizeOffset;
@@ -46,7 +47,7 @@ public class City extends IData {
     g.fillOval(xCentre - citySizeOffset, yCentre, citySize, citySize);
 
     g.setColor(Color.WHITE);
-    g.setFont(new Font("SansSerif", Font.BOLD, TEXT_SIZE));
+    g.setFont(new Font("SansSerif", Font.BOLD, GUI.getTextSize()));
     g.drawString(cityName, xCentre - cityNameCentreOffset, yCentre);
   }
 

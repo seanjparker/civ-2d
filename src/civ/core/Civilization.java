@@ -10,12 +10,12 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import civ.core.display.GUI;
 import civ.core.input.KeyboardHandler;
 import civ.core.input.MouseHandler;
-import civ.core.instance.IData;
 
 @SuppressWarnings("serial")
-public class Civilisation extends JPanel implements Runnable {
+public class Civilization extends JPanel implements Runnable {
 
   private JFrame f;
   private JPanel p;
@@ -27,7 +27,6 @@ public class Civilisation extends JPanel implements Runnable {
   private final double FPS = 60.0;
 
   private boolean running = false;
-  private int drawablefps = 0;
 
   public static void main(String[] args) {
     
@@ -54,13 +53,13 @@ public class Civilisation extends JPanel implements Runnable {
     EventQueue.invokeLater(new Runnable() {
       @Override
       public void run() {
-       new Civilisation().start();
+       new Civilization().start();
       }
       
     });
   }
   
-  public Civilisation() {
+  public Civilization() {
     f = new JFrame();
     m = new MouseHandler();
     k = new KeyboardHandler();
@@ -75,7 +74,7 @@ public class Civilisation extends JPanel implements Runnable {
     new Thread(this, "Game").start();
   }
 
-  private void init() {
+  private void init(GUI ui) {
 
     game = new Game(1);
 
@@ -83,7 +82,7 @@ public class Civilisation extends JPanel implements Runnable {
     f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     f.setResizable(false);
     f.addKeyListener(k);
-    f.setPreferredSize(new Dimension(IData.WIDTH, IData.HEIGHT));
+    f.setPreferredSize(new Dimension(GUI.getWindowWidth(), GUI.getWindowHeight()));
     f.add(p);
     f.pack();
 
@@ -101,7 +100,7 @@ public class Civilisation extends JPanel implements Runnable {
     }
 
     public Dimension getPreferredSize() {
-      return new Dimension(IData.WIDTH, IData.HEIGHT);
+      return new Dimension(GUI.getWindowWidth(), GUI.getWindowHeight());
     }
 
     public void paintComponent(Graphics g) {
@@ -128,7 +127,6 @@ public class Civilisation extends JPanel implements Runnable {
 
     final double ns = 1000000000.0 / FPS;
     double delta = 0;
-    int fps = 0;
 
     while (running) {
       long now = System.nanoTime();
@@ -139,13 +137,10 @@ public class Civilisation extends JPanel implements Runnable {
         delta--;
 
         render();
-        fps++;
       }
 
       if ((System.currentTimeMillis() - timer) > 1000) {
         timer += 1000;
-        drawablefps = fps;
-        fps = 0;
       }
     }
   }

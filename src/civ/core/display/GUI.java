@@ -7,60 +7,64 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import civ.core.data.Layout;
 import civ.core.data.Point;
 import civ.core.data.hex.Hex;
 import civ.core.data.hex.HexCoordinate;
 import civ.core.data.hex.PathHex;
+import civ.core.data.map.HexMap;
 import civ.core.display.menu.button.Button;
 import civ.core.display.menu.button.UIButton;
 import civ.core.event.Events;
 import civ.core.input.KeyboardHandler;
 import civ.core.input.MouseHandler;
-import civ.core.instance.IData;
 import civ.core.map.cities.City;
 import civ.core.map.civilization.BaseCivilization;
 import civ.core.map.terrain.Feature;
 import civ.core.map.terrain.YieldType;
 import civ.core.unit.Unit;
 
-public class GUI extends IData {
+public class GUI {
+  private final static int WIDTH = Toolkit.getDefaultToolkit().getScreenSize().width * 3 / 4;
+  private final static int HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().height * 3 / 4;
+  private final static int HEX_RADIUS = ((WIDTH >> 4) + (HEIGHT >> 4)) >> 1;
+  private final static int W_HEXES = 40;
+  private final static int H_HEXES = 25;
+  private final static int TEXT_SIZE = HEX_RADIUS >> 2;
+  
+  private final HexMap hexMap = new HexMap(W_HEXES, H_HEXES, HEX_RADIUS);
+  
   private int focusX = 0, focusY = 0;
   private int scrollX, scrollY, scroll;
 
-  private List<PathHex> pathToFollow;
-
   private Polygon poly;
   private Hex focusHex = null;
+  private Unit currentUnit;
+  private Integer turnCounter;
+  
+  private List<PathHex> pathToFollow;
   private List<Button> UIButtons;
+  private List<BaseCivilization> civs;
 
-  public GUI() {
+  public GUI(List<BaseCivilization> civs, Unit currentUnit, Integer turnCounter) {
     this.scroll = HEX_RADIUS >> 1;
 
     poly = new Polygon();
-    HexCoordinate h = layout.pixelToHex(new Point(0, 0));
-    Point[] pts = layout.polygonCorners(h);
+    HexCoordinate h = Layout.pixelToHex(new Point(0, 0));
+    Point[] pts = Layout.polygonCorners(h);
     for (int k = 0; k < pts.length; k++) {
       poly.addPoint((int) pts[k].x, (int) pts[k].y);
     }
 
     UIButtons = new ArrayList<Button>();
-    UIButtons.add(new UIButton(Events.NEXT_TURN, "Next Turn", HEX_RADIUS * 4, HEX_RADIUS,
+    UIButtons.add(new UIButton(Events.NEXT_TURN, "Next Turn", TEXT_SIZE, HEX_RADIUS * 4, HEX_RADIUS,
         WIDTH - (HEX_RADIUS * 4), HEIGHT - HEX_RADIUS));
   }
-
-  /*
-   * public void drawTest(Graphics2D g) { Polygon poly1 = new Polygon(); HexCoordinate h =
-   * layout.pixelToHex(new Point(100, 100)); Point[] p = layout.polygonCorners(h); for (int k = 0; k
-   * < p.length; k++) { poly1.addPoint((int) p[k].x, (int) p[k].y); }
-   *
-   * Polygon poly2 = new Polygon(poly1.xpoints, poly1.ypoints, poly1.npoints); poly2.translate(50,
-   * 50); g.setColor(Color.RED); g.drawPolygon(poly1); g.setColor(Color.BLUE); g.drawPolygon(poly2);
-   * }
-   */
 
   public void drawHexGrid(Graphics2D g) {
     g.setStroke(new BasicStroke(3.0f));
@@ -69,7 +73,7 @@ public class GUI extends IData {
     int centreX = (-scrollX) + WIDTH / 2;
     int centreY = (-scrollY) + HEIGHT / 2;
 
-    HexCoordinate hexc = layout.pixelToHex(new Point(centreX, centreY));
+    HexCoordinate hexc = Layout.pixelToHex(new Point(centreX, centreY));
 
     for (int dx = -bnd; dx <= bnd; dx++) {
       for (int dy = Math.max(-bnd, -dx - bnd); dy <= Math.min(bnd, -dx + bnd); dy++) {
@@ -78,13 +82,13 @@ public class GUI extends IData {
         Hex h = hexMap.getHex(new HexCoordinate(hexc.q + dx, hexc.r + dy, hexc.s + dz));
 
         if (h != null) {
-          Point p1 = layout.getPolygonPositionEstimate(h);
+          Point p1 = Layout.getPolygonPositionEstimate(h);
           if ((p1.x + scrollX < -HEX_RADIUS) || (p1.x + scrollX > WIDTH + HEX_RADIUS)
               || (p1.y + scrollY < -HEX_RADIUS) || (p1.y + scrollY > HEIGHT + HEX_RADIUS)) {
             continue;
           }
 
-          Point[] p2 = layout.polygonCorners(h);
+          Point[] p2 = Layout.polygonCorners(h);
           for (int k = 0; k < p2.length; k++) {
             poly.addPoint((int) (p2[k].x) + scrollX, (int) (p2[k].y) + scrollY);
           }
@@ -106,9 +110,9 @@ public class GUI extends IData {
 
     g.setStroke(new BasicStroke(3.5f));
 
-    HexCoordinate s = layout.pixelToHex(new Point(mouseX - scrollX, mouseY - scrollY));
+    HexCoordinate s = Layout.pixelToHex(new Point(mouseX - scrollX, mouseY - scrollY));
     if (hexMap.getHex(s) != null) {
-      Point[] p = layout.polygonCorners(s);
+      Point[] p = Layout.polygonCorners(s);
       for (int k = 0; k < p.length; k++) {
         poly.addPoint((int) (p[k].x) + scrollX, (int) (p[k].y) + scrollY);
       }
@@ -121,8 +125,8 @@ public class GUI extends IData {
      *
      * g.setStroke(new BasicStroke(3.5f));
      *
-     * HexCoordinate s = layout.pixelToHex(new Point(mouseX, mouseY)); if (hexMap.getHex(s) != null)
-     * { //Point[] p = layout.polygonCorners(s); Point pnt = layout.hexToPixel(s); Polygon
+     * HexCoordinate s = Layout.pixelToHex(new Point(mouseX, mouseY)); if (hexMap.getHex(s) != null)
+     * { //Point[] p = Layout.polygonCorners(s); Point pnt = Layout.hexToPixel(s); Polygon
      * translatedPoly = new Polygon(poly.xpoints, poly.ypoints, poly.npoints);
      * translatedPoly.translate((int) pnt.x, (int) pnt.y);
      *
@@ -138,7 +142,7 @@ public class GUI extends IData {
       int mouseX = MouseHandler.movedMX;
       int mouseY = MouseHandler.movedMY;
 
-      HexCoordinate h = layout.pixelToHex(new Point(mouseX - scrollX, mouseY - scrollY));
+      HexCoordinate h = Layout.pixelToHex(new Point(mouseX - scrollX, mouseY - scrollY));
       Hex h1 = hexMap.getHex(h);
 
       if (h1 != null) {
@@ -241,7 +245,7 @@ public class GUI extends IData {
         if (!h.equals(focusHex)) {
           boolean unitMoveable = h.getPassable() || h.getCanSwitch();
           g.setColor(unitMoveable ? Color.WHITE : Color.RED);
-          Point hexCentre = layout.hexToPixel(h);
+          Point hexCentre = Layout.hexToPixel(h);
           g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20,
               20);
         }
@@ -253,7 +257,7 @@ public class GUI extends IData {
     if (focusHex != null && hexMap.getHex(focusHex) != null) {
       g.setStroke(new BasicStroke(5.0f));
 
-      Point[] p = layout.polygonCorners(focusHex);
+      Point[] p = Layout.polygonCorners(focusHex);
       for (int k = 0; k < p.length; k++) {
         poly.addPoint((int) (p[k].x) + scrollX, (int) (p[k].y) + scrollY);
 
@@ -283,7 +287,7 @@ public class GUI extends IData {
         g = enableAntiAliasing(g);
       for (Unit u : units) {
         Hex h = hexMap.getHex(u.getPosition());
-        Point p = layout.hexToPixel(h);
+        Point p = Layout.hexToPixel(h);
         String name = u.getName().substring(0, 1);
         int textX = (name.length() * g.getFontMetrics().charWidth(name.charAt(0))) >> 1;
         int textY = g.getFontMetrics().getHeight();
@@ -376,7 +380,7 @@ public class GUI extends IData {
   }
 
   public void setInitialScroll(HexCoordinate h) {
-    Point p = layout.hexToPixel(new Hex(h.q, h.r, h.s));
+    Point p = Layout.hexToPixel(new Hex(h.q, h.r, h.s));
     int sX = Math.min(((int) -p.x + (WIDTH >> 2)), HEX_RADIUS); // Ensure the units are shown
                                                                 // on-screen
     int sY = Math.min(((int) -p.y + (HEIGHT >> 2)), 0);
@@ -443,7 +447,7 @@ public class GUI extends IData {
 
   /*
    * public void addFarm() { if (farmToAdd) { farmToAdd = false; int mX = MouseHandler.movedMX; int
-   * mY = MouseHandler.movedMY; FractionalHex fh = Layout.pixelToHex(layout, new Point(mX - scrollX,
+   * mY = MouseHandler.movedMY; FractionalHex fh = Layout.pixelToHex(Layout, new Point(mX - scrollX,
    * mY - scrollY)); Hex h = FractionalHex.hexRound(fh); int hexKey = HexMap.hash(h); Improvement i
    * = new Farm(); Hex mapHex = map.get(hexKey); mapHex.setImprovement(i); map.put(hexKey, mapHex);
    * } }
@@ -482,7 +486,7 @@ public class GUI extends IData {
     if (MouseHandler.pressedMouse && (focusHex == null)) {
       focusX = MouseHandler.mX;
       focusY = MouseHandler.mY;
-      HexCoordinate tempFocusHex = layout.pixelToHex(new Point(focusX - scrollX, focusY - scrollY));
+      HexCoordinate tempFocusHex = Layout.pixelToHex(new Point(focusX - scrollX, focusY - scrollY));
       Hex mapHex = hexMap.getHex(tempFocusHex);
       boolean shouldSetFocusHex =
           mapHex != null && (!mapHex.canSetMilitary() || !mapHex.canSetCivilian());
@@ -494,9 +498,8 @@ public class GUI extends IData {
 
   public void resetFocusData() {
     this.focusHex = null;
-    if (currentUnit != null) {
+    if (currentUnit != null)
       currentUnit.getMenu().close();
-    }
     currentUnit = null;
   }
 
@@ -516,5 +519,24 @@ public class GUI extends IData {
 
   public List<Button> getMenuButtons() {
     return UIButtons;
+  }
+  
+  public static int getWindowWidth() {
+    return WIDTH;
+  }
+  public static int getWindowHeight() {
+    return HEIGHT;
+  }
+  public static int getMapSizeWide() {
+    return W_HEXES;
+  }
+  public static int getMapSizeHeight() {
+    return H_HEXES;
+  }
+  public static int getHexRadius() {
+    return HEX_RADIUS;
+  }
+  public static int getTextSize() {
+    return TEXT_SIZE;
   }
 }

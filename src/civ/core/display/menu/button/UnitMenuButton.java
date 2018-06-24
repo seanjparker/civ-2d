@@ -1,13 +1,14 @@
 package civ.core.display.menu.button;
 
 import java.awt.Graphics2D;
+import civ.core.display.GUI;
 import civ.core.event.Events;
 import civ.core.input.MouseHandler;
 
 public class UnitMenuButton extends Button {
 
   public UnitMenuButton(Events e, int bIndex) {
-    super(HEX_RADIUS, HEX_RADIUS * 4, bIndex);
+    super(GUI.getWindowHeight(), GUI.getHexRadius(), GUI.getHexRadius() * 4, bIndex);
     this.e = e;
   }
 
