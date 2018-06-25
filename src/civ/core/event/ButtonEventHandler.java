@@ -1,9 +1,11 @@
 package civ.core.event;
 
 import java.awt.Graphics2D;
+import civ.core.event.callback.EventCallbackI;
 
 public interface ButtonEventHandler {
-  public abstract void onPress();
-
-  public abstract void drawButton(Graphics2D g);
+  
+  void onPress();
+  void drawButton(Graphics2D g);
+  
 }

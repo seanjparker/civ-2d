@@ -1,11 +1,13 @@
 package civ.core.display.menu.button;
 
+import static civ.core.instance.IData.WINDOW_HEIGHT;
+import static civ.core.instance.IData.currentUnit;
+import static civ.core.instance.IData.ui;
 import java.awt.Rectangle;
 import civ.core.event.ButtonEventHandler;
 import civ.core.event.Events;
+import civ.core.event.callback.EventCallbackI;
 import civ.core.unit.Settler;
-
-import static civ.core.instance.IData.*;
 
 public abstract class Button implements ButtonEventHandler {
   protected final double BUTTON_CLICK_BUFFER = 1.0D;
@@ -36,8 +38,10 @@ public abstract class Button implements ButtonEventHandler {
     buttonBounds = new Rectangle(xPos, yPos, buttonSizeX, buttonSizeY);
   }
 
-  public void performEvent() {
-    if (e != null) {
+  protected void performEvent(EventCallbackI funCall) {
+    if (funCall != null) {
+      funCall.invoke();
+      /*
       switch (e) {
         case FOUND_CITY:
           if (currentUnit instanceof Settler)
@@ -82,6 +86,7 @@ public abstract class Button implements ButtonEventHandler {
         default:
           break;
       }
+      */
     }
   }
 }

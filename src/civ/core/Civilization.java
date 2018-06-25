@@ -1,7 +1,10 @@
 package civ.core;
 
+import static civ.core.instance.IData.WINDOW_HEIGHT;
+import static civ.core.instance.IData.WINDOW_WIDTH;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -13,10 +16,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import civ.core.input.KeyboardHandler;
 import civ.core.input.MouseHandler;
 
-import static civ.core.instance.IData.*;
-
-@SuppressWarnings("serial")
-public class Civilisation extends JPanel implements Runnable {
+public class Civilization extends JPanel implements Runnable {
 
   private JFrame f;
   private JPanel p;
@@ -24,13 +24,14 @@ public class Civilisation extends JPanel implements Runnable {
   private MouseHandler m;
   private KeyboardHandler k;
 
-  private final static String TITLE = "Civilisation";
-  private final double TARGET_UPS = 60.0;
+  private final static String TITLE = "Civilization";
+  private final double TARGET_UPS = 60.0D;
   private final double ONE_NANO = 1E9D;
 
   private boolean running = false;
 
   public static void main(String[] args) {
+    
     String lcOSName = System.getProperty("os.name");
     boolean IS_MAC = lcOSName.contains("OS X");
     if (IS_MAC) {
@@ -50,10 +51,16 @@ public class Civilisation extends JPanel implements Runnable {
       e.printStackTrace();
     }
     
-    new Civilisation().start();
+    EventQueue.invokeLater(new Runnable() {
+      @Override
+      public void run() {
+       new Civilization().start();
+      }
+      
+    });
   }
-  
-  public Civilisation() {
+
+  public Civilization() {
     f = new JFrame();
     m = new MouseHandler();
     k = new KeyboardHandler();
@@ -69,7 +76,6 @@ public class Civilisation extends JPanel implements Runnable {
   }
 
   private void init() {
-
     game = new Game(1);
 
     f.setTitle(TITLE);
@@ -79,7 +85,6 @@ public class Civilisation extends JPanel implements Runnable {
     f.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
     f.add(p);
     f.pack();
-
     f.setLocationRelativeTo(null);
     f.setVisible(true);
   }
@@ -102,6 +107,7 @@ public class Civilisation extends JPanel implements Runnable {
       
       BufferedImage bufferedImage = new BufferedImage(WINDOW_WIDTH, WINDOW_HEIGHT, BufferedImage.TYPE_INT_ARGB);
       Graphics2D g2d = bufferedImage.createGraphics();
+      
       game.draw(g2d);
 
       Graphics2D g2dComponent = (Graphics2D) g;
@@ -138,11 +144,9 @@ public class Civilisation extends JPanel implements Runnable {
         
         delta--;
       }
-      
 
       if ((System.currentTimeMillis() - timer) > 1000) {
         timer += 1000;
-        System.out.println("FPS = " + fps);
         fps = 0;
       }
     }

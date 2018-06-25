@@ -71,7 +71,9 @@ public class GUI {
     int centreY = (-scrollY) + WINDOW_HEIGHT / 2;
 
     HexCoordinate hexc = layout.pixelToHex(new Point(centreX, centreY));
-
+    Point p1 = null;
+    Point[] p2 = null;
+    
     for (int dx = -bnd; dx <= bnd; dx++) {
       for (int dy = Math.max(-bnd, -dx - bnd); dy <= Math.min(bnd, -dx + bnd); dy++) {
         int dz = -dx - dy;
@@ -79,13 +81,13 @@ public class GUI {
         Hex h = hexMap.getHex(new HexCoordinate(hexc.q + dx, hexc.r + dy, hexc.s + dz));
 
         if (h != null) {
-          Point p1 = layout.getPolygonPositionEstimate(h);
+          p1 = layout.getPolygonPositionEstimate(h);
           if ((p1.x + scrollX < -HEX_RADIUS) || (p1.x + scrollX > WINDOW_WIDTH + HEX_RADIUS)
               || (p1.y + scrollY < -HEX_RADIUS) || (p1.y + scrollY > WINDOW_HEIGHT + HEX_RADIUS)) {
             continue;
           }
 
-          Point[] p2 = layout.polygonCorners(h);
+          p2 = layout.polygonCorners(h);
           for (int k = 0; k < p2.length; k++) {
             poly.addPoint((int) (p2[k].x) + scrollX, (int) (p2[k].y) + scrollY);
           }

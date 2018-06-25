@@ -28,7 +28,7 @@ public class UIButton extends Button {
       if (buttonBounds.intersects(MouseHandler.mX, MouseHandler.mY, BUTTON_CLICK_BUFFER,
           BUTTON_CLICK_BUFFER)) {
         MouseHandler.pressedMouse = false;
-        performEvent();
+        performEvent(this.e.getFunctionCall());
       }
     }
   }
