@@ -3,22 +3,23 @@ package civ.core.event;
 import java.awt.Image;
 import javax.swing.ImageIcon;
 import civ.core.event.callback.EventCallbackI;
-
+import civ.core.unit.Settler;
 import static civ.core.instance.IData.*;
 
 public enum Events {
 
   // Unit events
   FOUND_CITY(new ImageIcon("./gfx/buttons/FOUND_CITY.png").getImage(), () -> {
-    
+    if (currentUnit instanceof Settler)
+      ((Settler) currentUnit).foundCity();
   }),
 
   MOVE(new ImageIcon("./gfx/buttons/MOVE.png").getImage(), () -> {
-    System.out.println("Move");
+    currentUnit.toggleBeingMoved();
   }),
 
   ATTACK(new ImageIcon("./gfx/buttons/ATTACK.png").getImage(), () -> {
-    System.out.println("Attack");
+    currentUnit.toggleBeingAttacked();
   }),
 
   AUTO_EXPLORE(new ImageIcon("./gfx/buttons/AUTO_EXPLORE.png").getImage(), () -> {
@@ -34,7 +35,7 @@ public enum Events {
   }),
 
   DELETE(new ImageIcon("./gfx/buttons/DELETE.png").getImage(), () -> {
-    System.out.println("Delete");
+    currentUnit.deleteBySelling();
   }),
 
   // Other button events
