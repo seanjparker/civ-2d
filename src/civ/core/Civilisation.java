@@ -2,9 +2,9 @@ package civ.core;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -12,7 +12,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import civ.core.input.KeyboardHandler;
 import civ.core.input.MouseHandler;
-import civ.core.instance.IData;
+
+import static civ.core.instance.IData.*;
 
 @SuppressWarnings("serial")
 public class Civilisation extends JPanel implements Runnable {
@@ -24,13 +25,12 @@ public class Civilisation extends JPanel implements Runnable {
   private KeyboardHandler k;
 
   private final static String TITLE = "Civilisation";
-  private final double FPS = 60.0;
+  private final double TARGET_UPS = 60.0;
+  private final double ONE_NANO = 1E9D;
 
   private boolean running = false;
-  private int drawablefps = 0;
 
   public static void main(String[] args) {
-    
     String lcOSName = System.getProperty("os.name");
     boolean IS_MAC = lcOSName.contains("OS X");
     if (IS_MAC) {
@@ -50,14 +50,7 @@ public class Civilisation extends JPanel implements Runnable {
       e.printStackTrace();
     }
     
-    
-    EventQueue.invokeLater(new Runnable() {
-      @Override
-      public void run() {
-       new Civilisation().start();
-      }
-      
-    });
+    new Civilisation().start();
   }
   
   public Civilisation() {
@@ -83,7 +76,7 @@ public class Civilisation extends JPanel implements Runnable {
     f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     f.setResizable(false);
     f.addKeyListener(k);
-    f.setPreferredSize(new Dimension(IData.WIDTH, IData.HEIGHT));
+    f.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
     f.add(p);
     f.pack();
 
@@ -101,16 +94,18 @@ public class Civilisation extends JPanel implements Runnable {
     }
 
     public Dimension getPreferredSize() {
-      return new Dimension(IData.WIDTH, IData.HEIGHT);
+      return new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT);
     }
 
     public void paintComponent(Graphics g) {
       super.paintComponent(g);
-      paintComponent((Graphics2D) g);
-    }
+      
+      BufferedImage bufferedImage = new BufferedImage(WINDOW_WIDTH, WINDOW_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+      Graphics2D g2d = bufferedImage.createGraphics();
+      game.draw(g2d);
 
-    protected void paintComponent(Graphics2D g) {
-      game.draw(g);
+      Graphics2D g2dComponent = (Graphics2D) g;
+      g2dComponent.drawImage(bufferedImage, null, 0, 0);  
     }
   }
 
@@ -126,7 +121,7 @@ public class Civilisation extends JPanel implements Runnable {
     long lastTime = System.nanoTime();
     long timer = System.currentTimeMillis();
 
-    final double ns = 1000000000.0 / FPS;
+    final double ns = ONE_NANO / TARGET_UPS;
     double delta = 0;
     int fps = 0;
 
@@ -134,17 +129,20 @@ public class Civilisation extends JPanel implements Runnable {
       long now = System.nanoTime();
       delta += (now - lastTime) / ns;
       lastTime = now;
+      
       while (delta >= 1) {
         update();
-        delta--;
-
+        
         render();
         fps++;
+        
+        delta--;
       }
+      
 
       if ((System.currentTimeMillis() - timer) > 1000) {
         timer += 1000;
-        drawablefps = fps;
+        System.out.println("FPS = " + fps);
         fps = 0;
       }
     }

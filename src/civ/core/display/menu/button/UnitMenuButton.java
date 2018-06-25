@@ -4,6 +4,8 @@ import java.awt.Graphics2D;
 import civ.core.event.Events;
 import civ.core.input.MouseHandler;
 
+import static civ.core.instance.IData.*;
+
 public class UnitMenuButton extends Button {
 
   public UnitMenuButton(Events e, int bIndex) {

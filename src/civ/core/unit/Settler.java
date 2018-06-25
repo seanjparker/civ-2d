@@ -6,6 +6,8 @@ import civ.core.display.menu.button.UnitMenuButton;
 import civ.core.event.Events;
 import civ.core.map.civilization.BaseCivilization;
 
+import static civ.core.instance.IData.*;
+
 public class Settler extends Unit {
 
   public Settler(BaseCivilization civOwner, HexCoordinate curPos, boolean isSpawned) {

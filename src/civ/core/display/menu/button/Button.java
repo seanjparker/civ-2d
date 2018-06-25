@@ -3,10 +3,11 @@ package civ.core.display.menu.button;
 import java.awt.Rectangle;
 import civ.core.event.ButtonEventHandler;
 import civ.core.event.Events;
-import civ.core.instance.IData;
 import civ.core.unit.Settler;
 
-public abstract class Button extends IData implements ButtonEventHandler {
+import static civ.core.instance.IData.*;
+
+public abstract class Button implements ButtonEventHandler {
   protected final double BUTTON_CLICK_BUFFER = 1.0D;
 
   protected int bufferX, bufferY, buttonSizeX, buttonSizeY, xPos, yPos, buttonIndex;
@@ -20,7 +21,7 @@ public abstract class Button extends IData implements ButtonEventHandler {
     this.bufferX = menuWidth / 6;
     this.bufferY = bufferX;
     this.xPos = bufferX;
-    this.yPos = (HEIGHT - menuHeight + bufferY) + (menuButtonIndex * (this.buttonSizeY + bufferY));
+    this.yPos = (WINDOW_HEIGHT - menuHeight + bufferY) + (menuButtonIndex * (this.buttonSizeY + bufferY));
     this.buttonIndex = menuButtonIndex;
 
     buttonBounds = new Rectangle(xPos, yPos, buttonSizeX, buttonSizeY);

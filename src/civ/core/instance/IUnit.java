@@ -3,7 +3,7 @@ package civ.core.instance;
 import civ.core.data.hex.HexCoordinate;
 import civ.core.map.civilization.BaseCivilization;
 
-public class IUnit extends IData {
+public class IUnit {
   protected String name;
 
   protected double movement;

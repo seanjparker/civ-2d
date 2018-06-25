@@ -5,9 +5,10 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import civ.core.data.Point;
 import civ.core.data.hex.HexCoordinate;
-import civ.core.instance.IData;
 
-public class City extends IData {
+import static civ.core.instance.IData.*;
+
+public class City {
   private final int FOOD_INITIAL = 1;
   private final int GOLD_INITIAL = 3;
   private final int PROD_INITIAL = 1;

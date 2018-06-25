@@ -12,6 +12,8 @@ import civ.core.input.MouseHandler;
 import civ.core.instance.IUnit;
 import civ.core.map.civilization.BaseCivilization;
 
+import static civ.core.instance.IData.*;
+
 public abstract class Unit extends IUnit {
   protected Menu actionMenu;
 

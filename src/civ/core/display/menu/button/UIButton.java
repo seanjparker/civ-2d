@@ -6,6 +6,8 @@ import java.awt.Graphics2D;
 import civ.core.event.Events;
 import civ.core.input.MouseHandler;
 
+import static civ.core.instance.IData.*;
+
 public class UIButton extends Button {
 
   private String text;

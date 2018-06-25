@@ -11,9 +11,9 @@ import civ.core.map.civilization.BaseCivilization;
 import civ.core.unit.Unit;
 
 public class IData {
-  public static final int WIDTH = Toolkit.getDefaultToolkit().getScreenSize().width * 3 / 4;
-  public static final int HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().height * 3 / 4;
-  public static final int HEX_RADIUS = ((WIDTH >> 4) + (HEIGHT >> 4)) >> 1;
+  public static final int WINDOW_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().width * 3 / 4;
+  public static final int WINDOW_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().height * 3 / 4;
+  public static final int HEX_RADIUS = ((WINDOW_WIDTH >> 4) + (WINDOW_HEIGHT >> 4)) >> 1;
   public static final int W_HEXES = 40;
   public static final int H_HEXES = 25;
   public static final int TEXT_SIZE = HEX_RADIUS >> 2; // Should be 16

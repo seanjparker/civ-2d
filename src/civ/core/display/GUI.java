@@ -20,14 +20,15 @@ import civ.core.display.menu.button.UIButton;
 import civ.core.event.Events;
 import civ.core.input.KeyboardHandler;
 import civ.core.input.MouseHandler;
-import civ.core.instance.IData;
 import civ.core.map.cities.City;
 import civ.core.map.civilization.BaseCivilization;
 import civ.core.map.terrain.Feature;
 import civ.core.map.terrain.YieldType;
 import civ.core.unit.Unit;
 
-public class GUI extends IData {
+import static civ.core.instance.IData.*;
+
+public class GUI {
   private int focusX = 0, focusY = 0;
   private int scrollX, scrollY, scroll;
 
@@ -49,7 +50,7 @@ public class GUI extends IData {
 
     UIButtons = new ArrayList<Button>();
     UIButtons.add(new UIButton(Events.NEXT_TURN, "Next Turn", HEX_RADIUS * 4, HEX_RADIUS,
-        WIDTH - (HEX_RADIUS * 4), HEIGHT - HEX_RADIUS));
+        WINDOW_WIDTH - (HEX_RADIUS * 4), WINDOW_HEIGHT - HEX_RADIUS));
   }
 
   /*
@@ -66,8 +67,8 @@ public class GUI extends IData {
     g.setStroke(new BasicStroke(3.0f));
     int bnd = 8;
 
-    int centreX = (-scrollX) + WIDTH / 2;
-    int centreY = (-scrollY) + HEIGHT / 2;
+    int centreX = (-scrollX) + WINDOW_WIDTH / 2;
+    int centreY = (-scrollY) + WINDOW_HEIGHT / 2;
 
     HexCoordinate hexc = layout.pixelToHex(new Point(centreX, centreY));
 
@@ -79,8 +80,8 @@ public class GUI extends IData {
 
         if (h != null) {
           Point p1 = layout.getPolygonPositionEstimate(h);
-          if ((p1.x + scrollX < -HEX_RADIUS) || (p1.x + scrollX > WIDTH + HEX_RADIUS)
-              || (p1.y + scrollY < -HEX_RADIUS) || (p1.y + scrollY > HEIGHT + HEX_RADIUS)) {
+          if ((p1.x + scrollX < -HEX_RADIUS) || (p1.x + scrollX > WINDOW_WIDTH + HEX_RADIUS)
+              || (p1.y + scrollY < -HEX_RADIUS) || (p1.y + scrollY > WINDOW_HEIGHT + HEX_RADIUS)) {
             continue;
           }
 
@@ -237,11 +238,12 @@ public class GUI extends IData {
     boolean unitAndHexValid = focusHex != null && currentUnit != null && currentUnit.isBeingMoved()
         && pathToFollow != null;
     if (unitAndHexValid) {
+      Point hexCentre = null;
       for (PathHex h : pathToFollow) {
         if (!h.equals(focusHex)) {
           boolean unitMoveable = h.getPassable() || h.getCanSwitch();
           g.setColor(unitMoveable ? Color.WHITE : Color.RED);
-          Point hexCentre = layout.hexToPixel(h);
+          hexCentre = layout.hexToPixel(h);
           g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20,
               20);
         }
@@ -325,11 +327,11 @@ public class GUI extends IData {
     int yieldHeight = (int) (0.75 * fontHeight);
 
     // Draw the top bar of the ui
-    g.fillRect(0, 0, WIDTH, fontHeight);
+    g.fillRect(0, 0, WINDOW_WIDTH, fontHeight);
 
     // Draw the turn counter
     g.setColor(Color.WHITE);
-    g.drawString("Turn: " + turnCounter, WIDTH - offsetX, yieldHeight);
+    g.drawString("Turn: " + turnCounter, WINDOW_WIDTH - offsetX, yieldHeight);
 
     if (civs.get(0).getNumberOfCities() > 0) {
       // Get the civ yield per turn
@@ -377,9 +379,9 @@ public class GUI extends IData {
 
   public void setInitialScroll(HexCoordinate h) {
     Point p = layout.hexToPixel(new Hex(h.q, h.r, h.s));
-    int sX = Math.min(((int) -p.x + (WIDTH >> 2)), HEX_RADIUS); // Ensure the units are shown
+    int sX = Math.min(((int) -p.x + (WINDOW_WIDTH >> 2)), HEX_RADIUS); // Ensure the units are shown
                                                                 // on-screen
-    int sY = Math.min(((int) -p.y + (HEIGHT >> 2)), 0);
+    int sY = Math.min(((int) -p.y + (WINDOW_HEIGHT >> 2)), 0);
 
     // Round the values to a multiple of the scroll value
     scrollX = sX + scroll / 2;
@@ -450,11 +452,11 @@ public class GUI extends IData {
    */
 
   private int getAdjustedWidth() {
-    return (int) ((Math.sqrt(3) * HEX_RADIUS * W_HEXES) - WIDTH);
+    return (int) ((Math.sqrt(3) * HEX_RADIUS * W_HEXES) - WINDOW_WIDTH);
   }
 
   private int getAdjustedHeight() {
-    return (int) ((H_HEXES * HEX_RADIUS * 3 / 2) - HEIGHT + HEX_RADIUS);
+    return (int) ((H_HEXES * HEX_RADIUS * 3 / 2) - WINDOW_HEIGHT + HEX_RADIUS);
   }
 
   /*

@@ -3,6 +3,8 @@ package civ.core.display.menu;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
+import static civ.core.instance.IData.*;
+
 public class UnitMenu extends Menu {
   public final int menuWidth = HEX_RADIUS;
   public final int menuHeight = HEX_RADIUS * 4;
@@ -26,7 +28,7 @@ public class UnitMenu extends Menu {
   @Override
   public void draw(Graphics2D g) {
     g.setColor(new Color(100, 100, 100));
-    g.fill3DRect(0, HEIGHT - menuHeight, menuWidth, menuHeight, true);
+    g.fill3DRect(0, WINDOW_HEIGHT - menuHeight, menuWidth, menuHeight, true);
     super.getMenuButtons().forEach(i -> i.drawButton(g));
   }
 

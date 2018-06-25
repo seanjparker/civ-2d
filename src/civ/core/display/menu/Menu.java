@@ -4,9 +4,8 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
 import civ.core.display.menu.button.Button;
-import civ.core.instance.IData;
 
-public abstract class Menu extends IData {
+public abstract class Menu {
   private String menuName;
   private boolean isActive;
   private List<Button> buttons;
