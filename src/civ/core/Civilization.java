@@ -10,15 +10,18 @@ import java.nio.*;
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
 public class Civilization {
   private final String TITLE = "Civilization";
-  private final double TARGET_UPS = 30D;
+  private final double TARGET_UPS = 60D;
   
   private long window; // The window handle
   boolean resizable = true; // Whether or not the window is resizable
+  boolean vsyncEnabled = false; // Whether frame rate is fixed to 60 fps
 
   public void run() {
     System.out.println("LWJGL " + Version.getVersion() + "");
@@ -61,7 +64,7 @@ public class Civilization {
     glfwWindowHint(GLFW_RESIZABLE, resizable ? GLFW_TRUE : GLFW_FALSE); // the window will be resizable
 
     // Create the window
-    window = glfwCreateWindow(300, 300, TITLE, NULL, NULL);
+    window = glfwCreateWindow(800, 500, TITLE, NULL, NULL);
     if (window == NULL)
       throw new RuntimeException("Failed to create the GLFW window");
 
@@ -91,7 +94,7 @@ public class Civilization {
     // Make the OpenGL context current
     glfwMakeContextCurrent(window);
     // Enable v-sync
-    glfwSwapInterval(1);
+    glfwSwapInterval(vsyncEnabled ? 1 : 0);
 
     // Make the window visible
     glfwShowWindow(window);
@@ -108,8 +111,8 @@ public class Civilization {
   }
 
   private void loop() {    
-    Timer t = new Timer();
-    t.init();
+    Timer timer = new Timer();
+    timer.init();
     
     double delta;
     double accumulator = 0D;
@@ -122,20 +125,20 @@ public class Civilization {
       // invoked during this call.
       glfwPollEvents();
       
-      delta = t.getDelta();
+      delta = timer.getDelta();
       accumulator += delta;
       
       //input();
       
       while (accumulator >= interval) {
         update();
-        t.incrementUPS();
+        timer.incrementUPS();
         accumulator -= interval;
       }
       
       render();
-      t.incrementFPS();
-      t.update();
+      timer.incrementFPS();
+      timer.update();
      
       glfwSwapBuffers(window); // swap the color buffers
     }
@@ -144,12 +147,20 @@ public class Civilization {
   private void render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
     
-    //glBegin(GL_POLYGON);
-    //for(int i = 0; i < 6; ++i) {
-    //    glVertex2d(Math.sin(i/6.0*2*Math.PI),
-    //               Math.cos(i/6.0*2*Math.PI));
-   // }
-    //glEnd();
+    int vao = glGenVertexArrays();
+    glBindVertexArray(vao);
+    
+    try (MemoryStack stack = MemoryStack.stackPush()) {
+      FloatBuffer vertices = stack.mallocFloat(3 * 6);
+      vertices.put(-0.6f).put(-0.4f).put(0f).put(1f).put(0f).put(0f);
+      vertices.put(0.6f).put(-0.4f).put(0f).put(0f).put(1f).put(0f);
+      vertices.put(0f).put(0.6f).put(0f).put(0f).put(0f).put(1f);
+      vertices.flip();
+
+      int vbo = glGenBuffers();
+      glBindBuffer(GL_ARRAY_BUFFER, vbo);
+      glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
+    }
     
   }
   

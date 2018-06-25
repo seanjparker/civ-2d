@@ -97,7 +97,7 @@ public class Timer {
    */
   public void update() {
       if (timeCount > 1f) {
-        System.out.println("FPS =" + fpsCount + "| UPS =" + upsCount);
+        System.out.println("FPS = " + fpsCount + "| UPS = " + upsCount);
         fps = fpsCount;
         fpsCount = 0;
 
