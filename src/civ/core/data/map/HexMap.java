@@ -32,7 +32,7 @@ public class HexMap {
   }
 
   public static <T extends HexCoordinate> int hash(T t) {
-    return ((t.q * HASH_CONSTANT_Q) + t.r) * HASH_CONSTANT_R + t.s;
+    return ((t.q * HASH_CONSTANT_Q) + t.r) * HASH_CONSTANT_R;
   }
 
   public void setHex(Hex h) {
