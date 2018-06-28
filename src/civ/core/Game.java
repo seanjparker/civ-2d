@@ -55,7 +55,7 @@ public class Game {
   }
 
   public void draw(Graphics2D g) {
-    // ui.drawTest(g);
+    //ui.drawTest(g);
 
     ui.drawHexGrid(g);
     ui.drawCities(g);

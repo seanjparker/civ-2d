@@ -1,5 +1,6 @@
 package civ.core.display;
 
+import static civ.core.instance.IData.*;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -26,8 +27,6 @@ import civ.core.map.terrain.Feature;
 import civ.core.map.terrain.YieldType;
 import civ.core.unit.Unit;
 
-import static civ.core.instance.IData.*;
-
 public class GUI {
   private int focusX = 0, focusY = 0;
   private int scrollX, scrollY, scroll;
@@ -37,6 +36,12 @@ public class GUI {
   private Polygon poly;
   private Hex focusHex = null;
   private List<Button> UIButtons;
+  
+  private final Color HEX_OUTLINE_COLOUR = new Color(80, 80, 80, 75);
+  private final RenderingHints RH_AA_ON =
+      new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+  private final RenderingHints RH_AA_OFF =
+      new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 
   public GUI() {
     this.scroll = HEX_RADIUS >> 1;
@@ -53,17 +58,32 @@ public class GUI {
         WINDOW_WIDTH - (HEX_RADIUS * 4), WINDOW_HEIGHT - HEX_RADIUS));
   }
 
-  /*
-   * public void drawTest(Graphics2D g) { Polygon poly1 = new Polygon(); HexCoordinate h =
-   * layout.pixelToHex(new Point(100, 100)); Point[] p = layout.polygonCorners(h); for (int k = 0; k
-   * < p.length; k++) { poly1.addPoint((int) p[k].x, (int) p[k].y); }
-   *
-   * Polygon poly2 = new Polygon(poly1.xpoints, poly1.ypoints, poly1.npoints); poly2.translate(50,
-   * 50); g.setColor(Color.RED); g.drawPolygon(poly1); g.setColor(Color.BLUE); g.drawPolygon(poly2);
-   * }
-   */
+  
+    public void drawTest(Graphics2D g) {
+      Polygon poly1 = new Polygon();
+      HexCoordinate h = layout.pixelToHex(new Point(100, 100));
+      Point[] p = layout.polygonCorners(h);
+      for (int k = 0; k < p.length; k++) {
+        poly1.addPoint((int) p[k].x, (int) p[k].y); 
+      }
+      Polygon poly2 = new Polygon(poly1.xpoints, poly1.ypoints, poly1.npoints);
+      int lastTranslateX = 0;//-(int)(HEX_RADIUS * Math.sqrt(3));
+      int lastTranslateY = (int)(HEX_RADIUS * 2);
+      poly2.translate(lastTranslateX, lastTranslateY);
+      g.setColor(Color.RED);
+      g.drawPolygon(poly1);
+      g.setColor(Color.BLUE);
+      g.drawPolygon(poly2);
+      
+      poly2.translate(-lastTranslateX, -lastTranslateY);
+      g.setColor(Color.GREEN);
+      g.setStroke(new BasicStroke(4.0f));
+      g.drawPolygon(poly2);
+    }
+   
 
   public void drawHexGrid(Graphics2D g) {
+    long currentTime = System.nanoTime();
     g.setStroke(new BasicStroke(3.0f));
     int bnd = 8;
 
@@ -74,19 +94,21 @@ public class GUI {
     Point p1 = null;
     Point[] p2 = null;
     
+    Hex h = null;
+    
     for (int dx = -bnd; dx <= bnd; dx++) {
       for (int dy = Math.max(-bnd, -dx - bnd); dy <= Math.min(bnd, -dx + bnd); dy++) {
         int dz = -dx - dy;
 
-        Hex h = hexMap.getHex(new HexCoordinate(hexc.q + dx, hexc.r + dy, hexc.s + dz));
-
+        h = hexMap.getHex(new HexCoordinate(hexc.q + dx, hexc.r + dy, hexc.s + dz));
+        
         if (h != null) {
           p1 = layout.getPolygonPositionEstimate(h);
           if ((p1.x + scrollX < -HEX_RADIUS) || (p1.x + scrollX > WINDOW_WIDTH + HEX_RADIUS)
               || (p1.y + scrollY < -HEX_RADIUS) || (p1.y + scrollY > WINDOW_HEIGHT + HEX_RADIUS)) {
             continue;
           }
-
+          
           p2 = layout.polygonCorners(h);
           for (int k = 0; k < p2.length; k++) {
             poly.addPoint((int) (p2[k].x) + scrollX, (int) (p2[k].y) + scrollY);
@@ -95,12 +117,13 @@ public class GUI {
           g.setColor(h.getLandscape().getColour());
           g.fillPolygon(poly);
 
-          g.setColor(new Color(80, 80, 80, 75));
+          g.setColor(HEX_OUTLINE_COLOUR);
           g.drawPolygon(poly);
           poly.reset();
         }
       }
     }
+    System.out.println((System.nanoTime() - currentTime));
   }
 
   public void drawSelectedHex(Graphics2D g) {
@@ -209,12 +232,17 @@ public class GUI {
             rectH / rectArcRatio);
 
         // Write text in the box about hex yeild
-        drawYieldAmount(g, YieldType.FOOD, Color.GREEN, h1, m, startX, startY, 0);
-        drawYieldAmount(g, YieldType.PRODUCTION, new Color(150, 75, 5), h1, m, startX, startY,
-            xOff);
-        drawYieldAmount(g, YieldType.SCIENCE, Color.BLUE, h1, m, startX, startY, xOff * 2);
-        drawYieldAmount(g, YieldType.GOLD, new Color(244, 244, 34), h1, m, startX, startY,
-            xOff * 3);
+        drawYieldAmount(g, YieldType.FOOD, 
+            Color.GREEN, h1, m, startX, startY, 0);
+        
+        drawYieldAmount(g, YieldType.PRODUCTION, 
+            new Color(150, 75, 5), h1, m, startX, startY, xOff);
+        
+        drawYieldAmount(g, YieldType.SCIENCE, 
+            Color.BLUE, h1, m, startX, startY, xOff * 2);
+        
+        drawYieldAmount(g, YieldType.GOLD, 
+            new Color(244, 244, 34), h1, m, startX, startY, xOff * 3);
 
         drawStringBuilderData(g, hexBox, startX, startY + yOff, yOff);
       }
@@ -237,8 +265,11 @@ public class GUI {
   }
 
   public void drawPath(Graphics2D g) {
-    boolean unitAndHexValid = focusHex != null && currentUnit != null && currentUnit.isBeingMoved()
+    boolean unitAndHexValid = focusHex != null 
+        && currentUnit != null
+        && currentUnit.isBeingMoved()
         && pathToFollow != null;
+    
     if (unitAndHexValid) {
       Point hexCentre = null;
       for (PathHex h : pathToFollow) {
@@ -246,8 +277,8 @@ public class GUI {
           boolean unitMoveable = h.getPassable() || h.getCanSwitch();
           g.setColor(unitMoveable ? Color.WHITE : Color.RED);
           hexCentre = layout.hexToPixel(h);
-          g.drawOval((int) (hexCentre.x + scrollX) - 10, (int) (hexCentre.y + scrollY) - 10, 20,
-              20);
+          g.drawOval((int) (hexCentre.x + scrollX) - 10, 
+              (int) (hexCentre.y + scrollY) - 10, 20, 20);
         }
       }
     }
@@ -280,15 +311,17 @@ public class GUI {
   public void drawUnits(Graphics2D g) {
     g.setColor(Color.BLACK);
     g.setFont(new Font("SansSerif", Font.BOLD, TEXT_SIZE));
-
+    Hex h = null;
+    Point p = null;
+    String name = null;
+    
     for (BaseCivilization c : civs) {
       List<Unit> units = c.getUnits();
-      if (units.size() > 0)
-        g = enableAntiAliasing(g);
+      if (units.size() > 0) enableAntiAliasing(g);
       for (Unit u : units) {
-        Hex h = hexMap.getHex(u.getPosition());
-        Point p = layout.hexToPixel(h);
-        String name = u.getName().substring(0, 1);
+        h = hexMap.getHex(u.getPosition());
+        p = layout.hexToPixel(h);
+        name = u.getName().substring(0, 1);
         int textX = (name.length() * g.getFontMetrics().charWidth(name.charAt(0))) >> 1;
         int textY = g.getFontMetrics().getHeight();
         int x = (int) (p.x + scrollX - (HEX_RADIUS >> 2));
@@ -296,10 +329,11 @@ public class GUI {
         drawUnit(g, u, x, y, HEX_RADIUS >> 1, textX, textY, name);
       }
     }
+    disableAntiAliasing(g);
   }
 
-  private void drawUnit(Graphics2D g, Unit u, int x, int y, int radius, int textX, int textY,
-      String name) {
+  private void drawUnit(Graphics2D g, Unit u, int x, int y, 
+      int radius, int textX, int textY, String name) {
     Color baseCol = u.getOwner().getColour();
     Color cB = baseCol.brighter();
     Color cD = baseCol.darker();
@@ -346,37 +380,37 @@ public class GUI {
       int civHappiness = civs.get(0).getHappiness();
 
       // Draw the yields
-      g.setColor(new Color(91, 154, 255));
+      g.setColor(new Color(91, 154, 255)); //Blue for science
       g.drawString("+" + Integer.toString(civSciencePT), textX, yieldHeight); // Science
 
-      g.setColor(new Color(244, 244, 34));
+      g.setColor(new Color(244, 244, 34)); //Dark Yellow for Gold
       g.drawString(Integer.toString(civGoldTotal) + "(+" + Integer.toString(civGoldPT) + ")",
           textX += offsetX, yieldHeight); // Gold
 
-      g.setColor(Color.YELLOW);
+      g.setColor(Color.YELLOW); //Brighter yellow for happiness
       g.drawString("\u263B", textX += offsetX, yieldHeight);
-      g.setColor(civHappiness >= 0 ? Color.GREEN : Color.RED);
+      
+      g.setColor(civHappiness >= 0 ? Color.GREEN : Color.RED); //Happiness colour setting depending on civ happiness
       g.drawString("" + Math.abs(civHappiness), textX + fontWidth, yieldHeight);
 
-      g.setColor(new Color(186, 16, 160));
-      g.drawString(Integer.toString(civCultureTotal) + "/" + Integer.toString(civCultureReq) + "(+"
-          + Integer.toString(civCulturePT) + ")", textX += offsetX, yieldHeight);
+      g.setColor(new Color(186, 16, 160)); //Purple for culture
+      g.drawString(Integer.toString(civCultureTotal) + "/" + Integer.toString(civCultureReq) +
+          "(+"+ Integer.toString(civCulturePT) + ")", textX += offsetX, yieldHeight);
     }
     // Draw all buttons in all open menus
     UIButtons.stream().forEach(i -> i.drawButton(g));
   }
 
   public void drawActionMenus(Graphics2D g) {
-    if (currentUnit != null) {
+    if (currentUnit != null)
       currentUnit.getMenu().draw(g);
-    }
   }
 
-  private Graphics2D enableAntiAliasing(Graphics2D g) {
-    RenderingHints rh =
-        new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-    g.setRenderingHints(rh);
-    return g;
+  private void enableAntiAliasing(Graphics2D g) {
+    g.setRenderingHints(RH_AA_ON);
+  }
+  private void disableAntiAliasing(Graphics2D g) {
+    g.setRenderingHints(RH_AA_OFF);
   }
 
   public void setInitialScroll(HexCoordinate h) {
@@ -437,11 +471,9 @@ public class GUI {
   }
 
   public void nextTurn() { // Temp code
-    for (BaseCivilization c : civs) {
-      for (Unit u : c.getUnits()) {
+    for (BaseCivilization c : civs)
+      for (Unit u : c.getUnits())
         u.nextTurn();
-      }
-    }
     turnCounter++;
   }
 
