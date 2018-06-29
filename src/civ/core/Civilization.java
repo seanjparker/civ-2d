@@ -126,13 +126,15 @@ public class Civilization extends JPanel implements Runnable {
   public void run() {
     long lastTime = System.nanoTime();
     long timer = System.currentTimeMillis();
-
+    long now = 0;
+    
     final double ns = ONE_NANO / TARGET_UPS;
     double delta = 0;
+    
     int fps = 0;
 
     while (running) {
-      long now = System.nanoTime();
+      now = System.nanoTime();
       delta += (now - lastTime) / ns;
       lastTime = now;
       

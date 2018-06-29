@@ -63,7 +63,7 @@ public class Hex extends HexCoordinate {
   }
 
   public HexCoordinate direction(int direction) {
-    return DIRECTIONS[direction];
+    return DIRECTIONS[(6 + (direction % 6)) % 6];
   }
 
   public Hex neighbor(int direction) {
@@ -117,11 +117,10 @@ public class Hex extends HexCoordinate {
   }
 
   public void removeFeature(Feature Feature) {
-    if (this.Features.contains(Feature)) {
+    if (this.Features.contains(Feature))
       this.Features.remove(Feature);
-    } else {
+    else
       System.out.println("Cannot remove feature, does not exist");
-    }
   }
 
   public Hex setImprovement(Improvement i) {
@@ -151,9 +150,8 @@ public class Hex extends HexCoordinate {
 
   public double getMovementTotal() {
     double t = 1.0D;
-    if (this.getFeatures().size() > 0) {
+    if (this.getFeatures().size() > 0)
       t = this.getFeatures().stream().mapToDouble(x -> x.getMovement()).sum();
-    }
     return t;
   }
 
@@ -186,15 +184,13 @@ public class Hex extends HexCoordinate {
   }
 
   public void setCivilianUnit(Unit u) {
-    if (canSetCivilian()) {
+    if (canSetCivilian())
       this.hexUnits[CIV_UNIT] = u;
-    }
   }
 
   public void setMilitaryUnit(Unit u) {
-    if (canSetMilitary()) {
+    if (canSetMilitary())
       this.hexUnits[MIL_UNIT] = u;
-    }
   }
 
   public void resetUnits() {
@@ -203,10 +199,9 @@ public class Hex extends HexCoordinate {
   }
 
   public void replaceUnit(Unit u, boolean isMilitary) {
-    if (isMilitary) {
+    if (isMilitary)
       this.hexUnits[MIL_UNIT] = u;
-    } else {
+    else
       this.hexUnits[CIV_UNIT] = u;
-    }
   }
 }

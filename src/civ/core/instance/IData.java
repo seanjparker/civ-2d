@@ -1,6 +1,5 @@
 package civ.core.instance;
 
-import java.awt.Color;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +14,8 @@ public class IData {
   public static final int WINDOW_WIDTH = Toolkit.getDefaultToolkit().getScreenSize().width * 3 / 4;
   public static final int WINDOW_HEIGHT = Toolkit.getDefaultToolkit().getScreenSize().height * 3 / 4;
   public static final int HEX_RADIUS = ((WINDOW_WIDTH >> 4) + (WINDOW_HEIGHT >> 4)) >> 1;
-  public static final int W_HEXES = 400;
-  public static final int H_HEXES = 250;
+  public static final int W_HEXES = 40;
+  public static final int H_HEXES = 25;
   public static final int TEXT_SIZE = HEX_RADIUS >> 2; // Should be 16
 
   public static final HexMap hexMap = new HexMap(W_HEXES, H_HEXES, HEX_RADIUS);

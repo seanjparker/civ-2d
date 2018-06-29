@@ -63,12 +63,14 @@ public class GUI {
       Polygon poly1 = new Polygon();
       HexCoordinate h = layout.pixelToHex(new Point(100, 100));
       Point[] p = layout.polygonCorners(h);
+      
       for (int k = 0; k < p.length; k++) {
         poly1.addPoint((int) p[k].x, (int) p[k].y); 
       }
       Polygon poly2 = new Polygon(poly1.xpoints, poly1.ypoints, poly1.npoints);
-      int lastTranslateX = 0;//-(int)(HEX_RADIUS * Math.sqrt(3));
-      int lastTranslateY = (int)(HEX_RADIUS * 2);
+      
+      int lastTranslateX = -(int)(HEX_RADIUS * Math.sqrt(3));
+      int lastTranslateY = (int)HEX_RADIUS;
       poly2.translate(lastTranslateX, lastTranslateY);
       g.setColor(Color.RED);
       g.drawPolygon(poly1);
@@ -83,7 +85,6 @@ public class GUI {
    
 
   public void drawHexGrid(Graphics2D g) {
-    long currentTime = System.nanoTime();
     g.setStroke(new BasicStroke(3.0f));
     int bnd = 8;
 
@@ -123,7 +124,6 @@ public class GUI {
         }
       }
     }
-    System.out.println((System.nanoTime() - currentTime));
   }
 
   public void drawSelectedHex(Graphics2D g) {
