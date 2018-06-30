@@ -13,7 +13,7 @@ public abstract class Menu {
   public Menu(String menuName, boolean isActive) {
     this.menuName = menuName;
     this.isActive = isActive;
-    this.buttons = new ArrayList<Button>();
+    this.buttons = new ArrayList<>();
   }
 
   public abstract void open();

@@ -5,18 +5,22 @@ import java.util.Random;
 public class HexCoordinate {
   public static final int NEIGHBOURS = 6;
 
-  public final int q, r, s;
+  public final int q;
+  public final int r;
+  public final int s;
 
+  public final Random rnd;
+  
   public HexCoordinate(int q, int r, int s) {
     this.q = q;
     this.r = r;
     this.s = s;
+    
+    rnd = new Random();
   }
 
   public HexCoordinate(int q, int r) {
-    this.q = q;
-    this.r = r;
-    this.s = -q - r;
+    this(q, r, -q - r);
   }
 
   public boolean isEqual(HexCoordinate b) {
@@ -28,8 +32,7 @@ public class HexCoordinate {
   }
 
   public HexCoordinate getRandomNeighbour() {
-    Random r = new Random();
-    return add(Hex.DIRECTIONS[r.nextInt(NEIGHBOURS - 1)]);
+    return add(Hex.DIRECTIONS[rnd.nextInt(NEIGHBOURS - 1)]);
   }
 
   public HexCoordinate getPosition() {

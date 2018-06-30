@@ -4,7 +4,10 @@ import civ.core.data.hex.FractionalHex;
 import civ.core.data.hex.HexCoordinate;
 
 public class Layout {
-  private final byte POLYGON_POINTS = 6;
+  public static final Orientation POINTY_TOP = new Orientation(Math.sqrt(3.0), Math.sqrt(3.0) / 2.0, 0.0,
+      3.0 / 2.0, Math.sqrt(3.0) / 3.0, -1.0 / 3.0, 0.0, 2.0 / 3.0, 0.5);
+
+  private static final byte POLYGON_POINTS = 6;
   public final Orientation orientation;
   public final Point size;
   public final Point origin;
@@ -14,10 +17,6 @@ public class Layout {
     this.size = size;
     this.origin = origin;
   }
-
-  public static Orientation POINTY_TOP = new Orientation(Math.sqrt(3.0), Math.sqrt(3.0) / 2.0, 0.0,
-      3.0 / 2.0, Math.sqrt(3.0) / 3.0, -1.0 / 3.0, 0.0, 2.0 / 3.0, 0.5);
-
   public Point hexToPixel(HexCoordinate h) {
     double x = (orientation.f0 * h.q + orientation.f1 * h.r) * size.x;
     double y = (orientation.f2 * h.q + orientation.f3 * h.r) * size.y;

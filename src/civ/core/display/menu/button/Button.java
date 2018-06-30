@@ -7,9 +7,15 @@ import civ.core.event.Events;
 import civ.core.event.callback.EventCallbackI;
 
 public abstract class Button implements ButtonEventHandler {
-  protected final double BUTTON_CLICK_BUFFER = 1.0D;
+  protected static final double BUTTON_CLICK_BUFFER = 1.0D;
 
-  protected int bufferX, bufferY, buttonSizeX, buttonSizeY, xPos, yPos, buttonIndex;
+  protected int bufferX;
+  protected int bufferY;
+  protected int buttonSizeX;
+  protected int buttonSizeY;
+  protected int xPos;
+  protected int yPos;
+  protected int buttonIndex;
 
   protected Rectangle buttonBounds;
   protected Events e = null;

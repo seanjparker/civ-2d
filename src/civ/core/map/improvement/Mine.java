@@ -5,7 +5,7 @@ import java.util.List;
 import civ.core.map.terrain.Feature;
 
 public class Mine extends Improvement {
-  private List<Feature> validFeatures = new ArrayList<Feature>();
+  private List<Feature> validFeatures = new ArrayList<>();
 
   public Mine() {
     super(0, 1, 0, 0, "Mine");

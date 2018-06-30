@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -17,24 +18,25 @@ import civ.core.input.KeyboardHandler;
 import civ.core.input.MouseHandler;
 
 public class Civilization extends JPanel implements Runnable {
-
+  private static final long serialVersionUID = -5800474980111119057L;
+  
   private JFrame f;
   private JPanel p;
-  private Game game;
-  private MouseHandler m;
-  private KeyboardHandler k;
+  private transient Game game;
+  private transient MouseHandler m;
+  private transient KeyboardHandler k;
 
-  private final static String TITLE = "Civilization";
-  private final double TARGET_UPS = 60.0D;
-  private final double ONE_NANO = 1E9D;
+  private static final String TITLE = "Civilization";
+  private static final double TARGET_UPS = 60.0D;
+  private static final double ONE_NANO = 1E9D;
 
   private boolean running = false;
 
   public static void main(String[] args) {
     
     String lcOSName = System.getProperty("os.name");
-    boolean IS_MAC = lcOSName.contains("OS X");
-    if (IS_MAC) {
+    boolean isMac = lcOSName.contains("OS X");
+    if (isMac) {
       //place menu items on the mac toolbar
       System.setProperty("apple.laf.useScreenMenuBar", "true");
 
@@ -51,13 +53,7 @@ public class Civilization extends JPanel implements Runnable {
       e.printStackTrace();
     }
     
-    EventQueue.invokeLater(new Runnable() {
-      @Override
-      public void run() {
-       new Civilization().start();
-      }
-      
-    });
+    EventQueue.invokeLater(() -> new Civilization().start());
   }
 
   public Civilization() {
@@ -90,6 +86,8 @@ public class Civilization extends JPanel implements Runnable {
   }
 
   class MapPanel extends JPanel {
+    private static final long serialVersionUID = -5681252766728523060L;
+
     public MapPanel() {
       setBorder(BorderFactory.createEmptyBorder());
       setBackground(Color.BLACK);
@@ -97,19 +95,20 @@ public class Civilization extends JPanel implements Runnable {
       addMouseMotionListener(m);
       addMouseWheelListener(m);
     }
-
+    
+    @Override
     public Dimension getPreferredSize() {
       return new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT);
     }
-
+    
+    @Override
     public void paintComponent(Graphics g) {
       super.paintComponent(g);
       
       BufferedImage bufferedImage = new BufferedImage(WINDOW_WIDTH, WINDOW_HEIGHT, BufferedImage.TYPE_INT_ARGB);
       Graphics2D g2d = bufferedImage.createGraphics();
-      
+      g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
       game.draw(g2d);
-
       Graphics2D g2dComponent = (Graphics2D) g;
       g2dComponent.drawImage(bufferedImage, null, 0, 0);  
     }
@@ -120,7 +119,7 @@ public class Civilization extends JPanel implements Runnable {
   }
 
   private void update() {
-    game.update(this.k);
+    game.update();
   }
 
   public void run() {
@@ -130,8 +129,6 @@ public class Civilization extends JPanel implements Runnable {
     
     final double ns = ONE_NANO / TARGET_UPS;
     double delta = 0;
-    
-    int fps = 0;
 
     while (running) {
       now = System.nanoTime();
@@ -142,15 +139,12 @@ public class Civilization extends JPanel implements Runnable {
         update();
         
         render();
-        fps++;
         
         delta--;
       }
 
-      if ((System.currentTimeMillis() - timer) > 1000) {
+      if ((System.currentTimeMillis() - timer) > 1000)
         timer += 1000;
-        fps = 0;
-      }
     }
   }
 }

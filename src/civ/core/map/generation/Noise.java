@@ -2,11 +2,10 @@ package civ.core.map.generation;
 
 // OpenSimplex by Kurt Spencer
 public class Noise {
-  private static final double STRETCH_CONSTANT_2D = -0.211324865405187; // (1/Math.sqrt(2+1)-1)/2;
-  private static final double SQUISH_CONSTANT_2D = 0.366025403784439; // (Math.sqrt(2+1)-1)/2;
+  private static final double STRETCH_CONSTANT_2D = -0.211324865405187; // this is  = 1 / sqrt(2) / 2;
+  private static final double SQUISH_CONSTANT_2D = 0.366025403784439; // this is = Math.sqrt(3)-1 / 2;
   private static final double NORM_CONSTANT_2D = 47;
-
-  private final double REDISTRIBUTION_FACTOR = 4.0;
+  private static final double REDISTRIBUTION_FACTOR = 4.0;
 
   private short[] perm;
 
@@ -122,8 +121,10 @@ public class Noise {
     double dy0 = y - yb;
 
     // We'll be defining these inside the next block and using them afterwards.
-    double dx_ext, dy_ext;
-    int xsv_ext, ysv_ext;
+    double dxExt;
+    double dyExt;
+    int xsvExt;
+    int ysvExt;
 
     double value = 0;
 
@@ -149,41 +150,41 @@ public class Noise {
       double zins = 1 - inSum;
       if (zins > xins || zins > yins) { // (0,0) is one of the closest two triangular vertices
         if (xins > yins) {
-          xsv_ext = xsb + 1;
-          ysv_ext = ysb - 1;
-          dx_ext = dx0 - 1;
-          dy_ext = dy0 + 1;
+          xsvExt = xsb + 1;
+          ysvExt = ysb - 1;
+          dxExt = dx0 - 1;
+          dyExt = dy0 + 1;
         } else {
-          xsv_ext = xsb - 1;
-          ysv_ext = ysb + 1;
-          dx_ext = dx0 + 1;
-          dy_ext = dy0 - 1;
+          xsvExt = xsb - 1;
+          ysvExt = ysb + 1;
+          dxExt = dx0 + 1;
+          dyExt = dy0 - 1;
         }
       } else { // (1,0) and (0,1) are the closest two vertices.
-        xsv_ext = xsb + 1;
-        ysv_ext = ysb + 1;
-        dx_ext = dx0 - 1 - 2 * SQUISH_CONSTANT_2D;
-        dy_ext = dy0 - 1 - 2 * SQUISH_CONSTANT_2D;
+        xsvExt = xsb + 1;
+        ysvExt = ysb + 1;
+        dxExt = dx0 - 1 - 2 * SQUISH_CONSTANT_2D;
+        dyExt = dy0 - 1 - 2 * SQUISH_CONSTANT_2D;
       }
     } else { // We're inside the triangle (2-Simplex) at (1,1)
       double zins = 2 - inSum;
       if (zins < xins || zins < yins) { // (0,0) is one of the closest two triangular vertices
         if (xins > yins) {
-          xsv_ext = xsb + 2;
-          ysv_ext = ysb + 0;
-          dx_ext = dx0 - 2 - 2 * SQUISH_CONSTANT_2D;
-          dy_ext = dy0 + 0 - 2 * SQUISH_CONSTANT_2D;
+          xsvExt = xsb + 2;
+          ysvExt = ysb + 0;
+          dxExt = dx0 - 2 - 2 * SQUISH_CONSTANT_2D;
+          dyExt = dy0 + 0 - 2 * SQUISH_CONSTANT_2D;
         } else {
-          xsv_ext = xsb + 0;
-          ysv_ext = ysb + 2;
-          dx_ext = dx0 + 0 - 2 * SQUISH_CONSTANT_2D;
-          dy_ext = dy0 - 2 - 2 * SQUISH_CONSTANT_2D;
+          xsvExt = xsb + 0;
+          ysvExt = ysb + 2;
+          dxExt = dx0 + 0 - 2 * SQUISH_CONSTANT_2D;
+          dyExt = dy0 - 2 - 2 * SQUISH_CONSTANT_2D;
         }
       } else { // (1,0) and (0,1) are the closest two vertices.
-        dx_ext = dx0;
-        dy_ext = dy0;
-        xsv_ext = xsb;
-        ysv_ext = ysb;
+        dxExt = dx0;
+        dyExt = dy0;
+        xsvExt = xsb;
+        ysvExt = ysb;
       }
       xsb += 1;
       ysb += 1;
@@ -199,10 +200,10 @@ public class Noise {
     }
 
     // Extra Vertex
-    double attn_ext = 2 - dx_ext * dx_ext - dy_ext * dy_ext;
-    if (attn_ext > 0) {
-      attn_ext *= attn_ext;
-      value += attn_ext * attn_ext * extrapolate(xsv_ext, ysv_ext, dx_ext, dy_ext);
+    double attnExt = 2 - dxExt * dxExt - dyExt * dyExt;
+    if (attnExt > 0) {
+      attnExt *= attnExt;
+      value += attnExt * attnExt * extrapolate(xsvExt, ysvExt, dxExt, dyExt);
     }
 
     return value / NORM_CONSTANT_2D;

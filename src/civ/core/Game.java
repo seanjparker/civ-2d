@@ -22,7 +22,6 @@ public class Game {
   private Pathfinding pf;
 
   private HexCoordinate hexToPath;
-  private List<HexCoordinate> pathToFollow;
 
   public Game(int players) {
     rnd = new Random();
@@ -30,12 +29,12 @@ public class Game {
 
     hexMap.populateMap(); // Generate initial map
 
-    createCiv();
+    createCiv(players);
   }
 
-  public void update(KeyboardHandler k) {
-    if (k.pressedSet.size() > 0) {
-      ui.updateKeys(k.pressedSet);
+  public void update() {
+    if (!KeyboardHandler.getPressedSet().isEmpty()) {
+      ui.updateKeys(KeyboardHandler.getPressedSet());
     }
 
     ui.setFocusHex();
@@ -55,8 +54,6 @@ public class Game {
   }
 
   public void draw(Graphics2D g) {
-    ui.drawTest(g);
-
     ui.drawHexGrid(g);
     ui.drawCities(g);
     ui.drawUnits(g);
@@ -66,16 +63,16 @@ public class Game {
     ui.drawHexInspect(g);
     ui.drawUI(g);
     ui.drawActionMenus(g);
-
   }
 
-  private void createCiv() {
+  private void createCiv(int players) {
     // Initalize civ
     civs.add(new America());
 
     // Add units to the game map
     // Get settler and warrior co-ordinate
-    HexCoordinate settler, warrior;
+    HexCoordinate settler;
+    HexCoordinate warrior;
     Hex tempH;
 
     do {
@@ -114,9 +111,8 @@ public class Game {
       List<Unit> civUnits = civs.get(0).getUnits();
       Hex currentHex = hexMap.getHex(ui.getFocusHex());
       for (Unit u : civUnits) {
-        if (u.getPosition().isEqual(currentHex.getPosition())) {
+        if (u.getPosition().isEqual(currentHex.getPosition()))
           currentUnit = u;
-        }
       }
     }
   }
@@ -136,7 +132,7 @@ public class Game {
       if (canCreatePath) {
         hexToPath = tempTo;
         endHex = hexMap.getHex(hexToPath);
-        pathToFollow = pf.findPath(hexMap.getMap(), focusHex, endHex);
+        List<HexCoordinate> pathToFollow = pf.findPath(hexMap.getMap(), focusHex, endHex);
         List<PathHex> finalPath = currentUnit.validUnitMove(pathToFollow);
         ui.setFocusedUnitPath(finalPath);
       }

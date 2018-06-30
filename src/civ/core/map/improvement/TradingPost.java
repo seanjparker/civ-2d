@@ -6,8 +6,8 @@ import civ.core.map.terrain.Feature;
 import civ.core.map.terrain.Landscape;
 
 public class TradingPost extends Improvement {
-  private List<Feature> validFeatures = new ArrayList<Feature>();
-  private List<Landscape> validLandscapes = new ArrayList<Landscape>();
+  private List<Feature> validFeatures = new ArrayList<>();
+  private List<Landscape> validLandscapes = new ArrayList<>();
 
   public TradingPost() {
     super(0, 0, 0, 1, "Trading Post");

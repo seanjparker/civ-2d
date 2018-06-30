@@ -1,8 +1,16 @@
 package civ.core.data;
 
 public class Orientation {
-  public double f0, f1, f2, f3;
-  public double b0, b1, b2, b3;
+  public double f0;
+  public double f1;
+  public double f2;
+  public double f3;
+  
+  public double b0;
+  public double b1;
+  public double b2;
+  public double b3;
+  
   public double startAngle;
 
   public Orientation(double f0, double f1, double f2, double f3, double b0, double b1, double b2,

@@ -24,12 +24,10 @@ public class UIButton extends Button {
   }
 
   public void onPress() {
-    if (MouseHandler.pressedMouse) {
-      if (buttonBounds.intersects(MouseHandler.mX, MouseHandler.mY, BUTTON_CLICK_BUFFER,
-          BUTTON_CLICK_BUFFER)) {
-        MouseHandler.pressedMouse = false;
-        performEvent(this.e.getFunctionCall());
-      }
+    if (MouseHandler.pressedMouse && buttonBounds.intersects(MouseHandler.mX, MouseHandler.mY,
+        BUTTON_CLICK_BUFFER, BUTTON_CLICK_BUFFER)) {
+      MouseHandler.pressedMouse = false;
+      performEvent(this.e.getFunctionCall());
     }
   }
 

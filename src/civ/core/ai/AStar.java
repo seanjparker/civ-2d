@@ -16,12 +16,12 @@ public class AStar {
 
   public List<HexCoordinate> aStar(Map<Integer, Hex> map, Hex start, Hex end) {
     int size = map.size();
-    final List<Hex> openSet = new ArrayList<Hex>(size);
-    final Set<Hex> closedSet = new HashSet<Hex>(size);
-    final Map<Hex, Hex> cameFrom = new HashMap<Hex, Hex>(size);
+    final List<Hex> openSet = new ArrayList<>(size);
+    final Set<Hex> closedSet = new HashSet<>(size);
+    final Map<Hex, Hex> cameFrom = new HashMap<>(size);
 
-    final Map<Hex, Integer> gScore = new HashMap<Hex, Integer>();
-    final Map<Hex, Integer> fScore = new HashMap<Hex, Integer>();
+    final Map<Hex, Integer> gScore = new HashMap<>();
+    final Map<Hex, Integer> fScore = new HashMap<>();
 
     start = map.get(HexMap.hash(start));
     end = map.get(HexMap.hash(end));
@@ -29,49 +29,49 @@ public class AStar {
     openSet.add(start);
     gScore.put(start, 0);
 
-    for (Hex h : map.values()) {
+    //For each nodes in the map, we set the current score to infinite
+    for (Hex h : map.values())
       fScore.put(h, Integer.MAX_VALUE);
-    }
+    
     fScore.put(start, heuristicCost(start, end));
 
-    final Comparator<Hex> comparator = new Comparator<Hex>() { // Create a new hex comparator
-      public int compare(Hex v1, Hex v2) {
-        return fScore.get(v1) < fScore.get(v2) ? -1 : fScore.get(v1) > fScore.get(v2) ? 1 : 0;
-      }
+    final Comparator<Hex> comparator = (v1, v2) -> {
+      boolean isLess = fScore.get(v1) < fScore.get(v2);
+      boolean isGreater = fScore.get(v1) > fScore.get(v2);
+      
+      return isLess ? -1 : 
+          isGreater ? 1 : 0;
     };
 
     while (!openSet.isEmpty()) { // Iterate through the open set of hexes
       final Hex current = map.get(HexMap.hash(openSet.get(0)));
 
-      if (current.equals(end)) {
-        return rebuildPath(cameFrom, start, end); // The end of the path is reached, rebuild final
-                                                  // path
-      }
+      if (current.equals(end))
+        return rebuildPath(cameFrom, start, end); // The end of the path is reached, rebuild final path
 
       openSet.remove(0);
       closedSet.add(current);
-      for (int i = 0; i < HexCoordinate.NEIGHBOURS; i++) { // Iterate through all the neighbours of
-                                                           // the current hex
+      for (int i = 0; i < HexCoordinate.NEIGHBOURS; i++) { // Iterate through all the neighbours of the current hex
         final Hex neighbour = map.get(HexMap.hash(current.neighbor(i)));
+        
         if (map.containsValue(neighbour)
-            && neighbour.getFeatures().stream().allMatch(x -> x.getPassable())) { // Does the list
-                                                                                  // contain the
-                                                                                  // neighbour
+            && neighbour.getFeatures().stream().allMatch(x -> x.getPassable())) { // Does the list contain the neighbour
 
-          if (closedSet.contains(neighbour)) {
+          if (closedSet.contains(neighbour))
             continue;
-          }
-          final int t_GScore = gScore.get(current) + dist(current, neighbour); // Calculate the
-                                                                               // tentitive cost to
-                                                                               // move to the next
-                                                                               // cell
-
-          if (!openSet.contains(neighbour)) { // New node is found
+            
+          // Calculate the tentitive cost to move to the next cell
+          final int t_GScore = gScore.get(current) + dist(current, neighbour);
+          
+          // New node is found
+          if (!openSet.contains(neighbour))
             openSet.add(neighbour);
-          } else if (t_GScore >= gScore.get(neighbour)) { // This route is worse + not working --
-                                                          // null exception
+          else if (t_GScore >= gScore.get(neighbour)) // This route is worse
             continue;
-          }
+         
+          // New node is found
+          if (!openSet.contains(neighbour))
+            openSet.add(neighbour);
 
           // New route is better
           cameFrom.put(neighbour, current);
@@ -85,7 +85,7 @@ public class AStar {
         }
       }
     }
-    return null;
+    return Collections.emptyList();
   }
 
   private int dist(Hex start, Hex end) {
@@ -101,13 +101,12 @@ public class AStar {
   }
 
   private List<HexCoordinate> rebuildPath(Map<Hex, Hex> cameFrom, Hex start, Hex current) {
-    final List<HexCoordinate> totalPath = new ArrayList<HexCoordinate>();
+    final List<HexCoordinate> totalPath = new ArrayList<>();
     totalPath.add(current.getPosition());
-    while (current != null && cameFrom.containsKey(current)) {
+    while (cameFrom.containsKey(current)) {
       current = cameFrom.get(current);
-      if (!start.equals(current)) {
+      if (!start.equals(current))
         totalPath.add(current.getPosition());
-      }
     }
     return totalPath;
   }

@@ -9,17 +9,21 @@ import civ.core.data.hex.HexCoordinate;
 import static civ.core.instance.IData.*;
 
 public class City {
-  private final int FOOD_INITIAL = 1;
-  private final int GOLD_INITIAL = 3;
-  private final int PROD_INITIAL = 1;
-  private final int SCIE_INITIAL = 4;
-  private final int CULT_INITIAL = 1;
+  private static final int FOOD_INITIAL = 1;
+  private static final int GOLD_INITIAL = 3;
+  private static final int PROD_INITIAL = 1;
+  private static final int SCIE_INITIAL = 4;
+  private static final int CULT_INITIAL = 1;
 
 
   private String cityName;
   private HexCoordinate cityPos;
   private int cityPopulation;
-  private int cityFood, cityGold, cityProduction, cityScience, cityCulture;
+  private int cityFood;
+  private int cityGold;
+  private int cityProduction;
+  private int cityScience;
+  private int cityCulture;
 
   public City(String cityName, HexCoordinate cityPos) {
     this.cityName = cityName;

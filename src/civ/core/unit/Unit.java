@@ -183,7 +183,7 @@ public abstract class Unit extends IUnit {
   }
 
   public boolean isInZOC(HexCoordinate h) {
-    return curPos != null ? HexMap.rangesIntersect(h, curPos, 1) : false;
+    return curPos != null && HexMap.rangesIntersect(h, curPos, 1);
   }
 
   public void nextTurn() {
@@ -216,16 +216,12 @@ public abstract class Unit extends IUnit {
 
       // Civ units and military units cannot occupy the same hex (for now)
       if (cu != null && ctu == null && mu == null && mtu != null) { // swapping units -- civ to mil
-        if (sameOwner(cu, mtu)) {
+        if (sameOwner(cu, mtu))
           swapUnitOnMap(fromHex, toHex, cu, mtu, pathTotal);
-        }
-      } else if (cu == null && ctu != null && mu != null && mtu == null) { // swapping units -- mil
-                                                                           // to civ
-        if (sameOwner(mu, ctu)) {
+      } else if (cu == null && ctu != null && mu != null && mtu == null) { // swapping units -- mil to civ
+        if (sameOwner(mu, ctu))
           swapUnitOnMap(fromHex, toHex, mu, ctu, pathTotal);
-        }
-      } else if ((cu != null || mu != null) && ctu == null && mtu == null) { // Move civ or mil
-                                                                             // units to empty hex
+      } else if ((cu != null || mu != null) && ctu == null && mtu == null) {// Move civ or mil units to empty hex
         moveUnitOnMap(fromHex, toHex, cu != null ? cu : mu, pathTotal);
       }
       ui.setFocusedUnitPath(null);
@@ -287,7 +283,7 @@ public abstract class Unit extends IUnit {
   }
 
   public List<PathHex> validUnitMove(List<HexCoordinate> path) {
-    List<PathHex> finalPath = new ArrayList<PathHex>();
+    List<PathHex> finalPath = new ArrayList<>();
     Hex currentHex = hexMap.getHex(ui.getFocusHex());
 
     boolean unitBlocking = false;

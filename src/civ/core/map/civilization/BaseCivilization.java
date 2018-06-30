@@ -8,10 +8,10 @@ import civ.core.map.cities.City;
 import civ.core.unit.Unit;
 
 public class BaseCivilization {
-  private final String NAME_SINGULAR;
-  private final String NAME_PLURAL;
+  private final String nameSingular;
+  private final String namePlural;
 
-  private final int ID;
+  private final int id;
   private int numberOfCities = 0;
 
   private int sciencePT = 0;
@@ -33,17 +33,17 @@ public class BaseCivilization {
 
   public BaseCivilization(String nameSingular, String namePlural, Color civColour,
       String[] cityNames) {
-    this.ID = nameSingular.hashCode() ^ namePlural.hashCode();
-    this.units = new ArrayList<Unit>();
+    this.id = nameSingular.hashCode() ^ namePlural.hashCode();
+    this.units = new ArrayList<>();
     this.civColour = civColour;
     this.cityNames = cityNames;
-    this.NAME_SINGULAR = nameSingular;
-    this.NAME_PLURAL = namePlural;
-    this.cities = new ArrayList<City>();
+    this.nameSingular = nameSingular;
+    this.namePlural = namePlural;
+    this.cities = new ArrayList<>();
   }
 
   public boolean sameCivilization(int id) {
-    return ID == id;
+    return this.id == id;
   }
 
   private String getNextCityName() {
@@ -93,7 +93,7 @@ public class BaseCivilization {
   }
 
   public int getID() {
-    return this.ID;
+    return this.id;
   }
 
   public Color getColour() {
@@ -101,11 +101,11 @@ public class BaseCivilization {
   }
 
   public String getSingularName() {
-    return this.NAME_SINGULAR;
+    return this.nameSingular;
   }
 
   public String getPluralName() {
-    return this.NAME_PLURAL;
+    return this.namePlural;
   }
 
   public int getSciencePT() {

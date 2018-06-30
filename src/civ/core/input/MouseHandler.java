@@ -7,12 +7,23 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
 public class MouseHandler implements MouseListener, MouseMotionListener, MouseWheelListener {
-  public static int mX, mY, rMX, rMY, dMX, dMY, movedMX, movedMY;
+  public static int mX;
+  public static int mY;
+  public static int rMX;
+  public static int rMY;
+  public static int dMX;
+  public static int dMY;
+  public static int movedMX;
+  public static int movedMY;
   public static int button;
-  public static boolean pressedMouse = false, releasedMouse = false, draggedMouse = false,
-      lostFocus = false;
-
+  
   public static int zoom = 0;
+  
+  public static boolean pressedMouse = false;
+  public static boolean releasedMouse = false;
+  public static boolean draggedMouse = false;
+  public static boolean lostFocus = false;
+
 
   public void mousePressed(MouseEvent e) {
     mX = e.getX();
@@ -29,9 +40,7 @@ public class MouseHandler implements MouseListener, MouseMotionListener, MouseWh
   }
 
   public void mouseWheelMoved(MouseWheelEvent e) {
-    // zoom = e.getWheelRotation();
-    // 1 -> towards user (Zoom out)
-    // -1 -> away from user (Zoom in)
+  
   }
 
   @Override

@@ -9,12 +9,14 @@ import civ.core.map.terrain.Feature;
 import civ.core.map.terrain.Landscape;
 
 public class TerrainGeneration {
-  private final int OCTAVES = 2;
-  private final double FEATURE_SIZE = 15.0;
+  private final int octaves = 2;
+  private final double featureSize = 15.0D;
   private final Random rnd;
 
-  private int width, height;
-  private int hexWidth, hexHeight;
+  private int width;
+  private int height;
+  private int hexWidth;
+  private int hexHeight;
 
   private Noise elevation;
   private Noise temperature;
@@ -32,7 +34,7 @@ public class TerrainGeneration {
   }
 
   public Map<Integer, Hex> generateMap() {
-    Map<Integer, Hex> map = new HashMap<Integer, Hex>();
+    Map<Integer, Hex> map = new HashMap<>();
     double[][] eHMap = new double[hexWidth][hexHeight];
     double[][] eTMap = new double[hexWidth][hexHeight];
     double[] e = generateElevation();
@@ -62,7 +64,6 @@ public class TerrainGeneration {
   }
 
   private Hex generateHexTerrain(double e, double t, int q, int r, int s) {
-    // System.out.println("Elevation:" + e + ", Temperature:" + t);
     Hex h = null;
     if (e < 0.0005) { // Water
       if (t < 0.05) { // Ice
@@ -115,10 +116,10 @@ public class TerrainGeneration {
     double[] e = new double[width * height];
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
-        double nx = x / FEATURE_SIZE;
-        double ny = y / FEATURE_SIZE;
+        double nx = x / featureSize;
+        double ny = y / featureSize;
         double e1 =
-            elevation.noise1(nx, ny, width / FEATURE_SIZE, height / FEATURE_SIZE, OCTAVES, true);
+            elevation.noise1(nx, ny, width / featureSize, height / featureSize, octaves, true);
         int i = (x + y * width);
         e[i] = e1;
       }
@@ -130,9 +131,9 @@ public class TerrainGeneration {
     double[] t = new double[width * height];
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
-        double nx = x / FEATURE_SIZE;
-        double ny = y / FEATURE_SIZE;
-        double t1 = temperature.noise2(nx, ny, OCTAVES);
+        double nx = x / featureSize;
+        double ny = y / featureSize;
+        double t1 = temperature.noise2(nx, ny, octaves);
         int i = (x + y * width);
         t[i] = t1;
       }

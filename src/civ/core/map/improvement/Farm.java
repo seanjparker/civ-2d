@@ -5,7 +5,7 @@ import java.util.List;
 import civ.core.map.terrain.Landscape;
 
 public class Farm extends Improvement {
-  private List<Landscape> validLandscapes = new ArrayList<Landscape>();
+  private List<Landscape> validLandscapes = new ArrayList<>();
 
   public Farm() { // Must super with yield amounts
     super(1, 0, 0, 0, "Farm"); // Default yields for a farm

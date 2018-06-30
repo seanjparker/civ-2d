@@ -1,13 +1,21 @@
 package civ.core.display;
 
-import static civ.core.instance.IData.*;
+import static civ.core.instance.IData.HEX_RADIUS;
+import static civ.core.instance.IData.H_HEXES;
+import static civ.core.instance.IData.TEXT_SIZE;
+import static civ.core.instance.IData.WINDOW_HEIGHT;
+import static civ.core.instance.IData.WINDOW_WIDTH;
+import static civ.core.instance.IData.W_HEXES;
+import static civ.core.instance.IData.civs;
+import static civ.core.instance.IData.currentUnit;
+import static civ.core.instance.IData.hexMap;
+import static civ.core.instance.IData.layout;
+import static civ.core.instance.IData.turnCounter;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
-import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +24,7 @@ import civ.core.data.Point;
 import civ.core.data.hex.Hex;
 import civ.core.data.hex.HexCoordinate;
 import civ.core.data.hex.PathHex;
+import civ.core.data.utils.Pair;
 import civ.core.display.menu.button.Button;
 import civ.core.display.menu.button.UIButton;
 import civ.core.event.Events;
@@ -23,25 +32,22 @@ import civ.core.input.KeyboardHandler;
 import civ.core.input.MouseHandler;
 import civ.core.map.cities.City;
 import civ.core.map.civilization.BaseCivilization;
-import civ.core.map.terrain.Feature;
 import civ.core.map.terrain.YieldType;
 import civ.core.unit.Unit;
 
 public class GUI {
-  private int focusX = 0, focusY = 0;
-  private int scrollX, scrollY, scroll;
+  private int scrollX;
+  private int scrollY;
+  private int scroll;
 
   private List<PathHex> pathToFollow;
 
   private Polygon poly;
-  private Hex focusHex = null;
-  private List<Button> UIButtons;
+  private List<Button> uiButtons;
   
-  private final Color HEX_OUTLINE_COLOUR = new Color(80, 80, 80, 75);
-  private final RenderingHints RH_AA_ON =
-      new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-  private final RenderingHints RH_AA_OFF =
-      new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+  private Hex focusHex = null;
+  
+  private static final Color HEX_OUTLINE_COLOUR = new Color(80, 80, 80, 75);
 
   public GUI() {
     this.scroll = HEX_RADIUS >> 1;
@@ -53,40 +59,15 @@ public class GUI {
       poly.addPoint((int) pts[k].x, (int) pts[k].y);
     }
 
-    UIButtons = new ArrayList<Button>();
-    UIButtons.add(new UIButton(Events.NEXT_TURN, "Next Turn", HEX_RADIUS * 4, HEX_RADIUS,
+    uiButtons = new ArrayList<>();
+    uiButtons.add(new UIButton(Events.NEXT_TURN, "Next Turn", HEX_RADIUS * 4, HEX_RADIUS,
         WINDOW_WIDTH - (HEX_RADIUS * 4), WINDOW_HEIGHT - HEX_RADIUS));
   }
-
-  
-    public void drawTest(Graphics2D g) {
-      Polygon poly1 = new Polygon();
-      HexCoordinate h = layout.pixelToHex(new Point(100, 100));
-      Point[] p = layout.polygonCorners(h);
-      
-      for (int k = 0; k < p.length; k++) {
-        poly1.addPoint((int) p[k].x, (int) p[k].y); 
-      }
-      Polygon poly2 = new Polygon(poly1.xpoints, poly1.ypoints, poly1.npoints);
-      
-      int lastTranslateX = -(int)(HEX_RADIUS * Math.sqrt(3));
-      int lastTranslateY = (int)HEX_RADIUS;
-      poly2.translate(lastTranslateX, lastTranslateY);
-      g.setColor(Color.RED);
-      g.drawPolygon(poly1);
-      g.setColor(Color.BLUE);
-      g.drawPolygon(poly2);
-      
-      poly2.translate(-lastTranslateX, -lastTranslateY);
-      g.setColor(Color.GREEN);
-      g.setStroke(new BasicStroke(4.0f));
-      g.drawPolygon(poly2);
-    }
    
 
   public void drawHexGrid(Graphics2D g) {
     g.setStroke(new BasicStroke(3.0f));
-    int bnd = 8;
+    final int bnd = 8;
 
     int centreX = (-scrollX) + WINDOW_WIDTH / 2;
     int centreY = (-scrollY) + WINDOW_HEIGHT / 2;
@@ -95,7 +76,7 @@ public class GUI {
     Point p1 = null;
     Point[] p2 = null;
     
-    Hex h = null;
+    Hex h = null; 
     
     for (int dx = -bnd; dx <= bnd; dx++) {
       for (int dy = Math.max(-bnd, -dx - bnd); dy <= Math.min(bnd, -dx + bnd); dy++) {
@@ -160,68 +141,33 @@ public class GUI {
   }
 
   public void drawHexInspect(Graphics2D g) {
-    if (KeyboardHandler.ShiftPressed) {
+    if (KeyboardHandler.isShiftPressed()) {
       int mouseX = MouseHandler.movedMX;
       int mouseY = MouseHandler.movedMY;
 
       HexCoordinate h = layout.pixelToHex(new Point(mouseX - scrollX, mouseY - scrollY));
-      Hex h1 = hexMap.getHex(h);
+      Hex currentFocusHex = hexMap.getHex(h);
 
-      if (h1 != null) {
+      if (currentFocusHex != null) {
+        
+        //Set the font
         g.setColor(Color.WHITE);
         g.setFont(new Font("SansSerif", Font.BOLD, TEXT_SIZE));
-
-        FontMetrics m = g.getFontMetrics();
-        List<Feature> features = h1.getFeatures();
-
-        StringBuilder hexBox = new StringBuilder();
-
-        String landscape = null;
-        String improvement = null;
-        StringBuilder sbUnits = new StringBuilder();
-        StringBuilder sbFeatures = new StringBuilder();
-
-        Unit[] units = h1.getUnits();
-
+        
+        //Set the position of the box
         int xOff = g.getFont().getSize();
-        int padding = 3;
-        int rectArcRatio = 20;
+        final int padding = 3;
+        final int rectArcRatio = 20;
         int yOff = g.getFontMetrics().getHeight();
-
         int rectW = 200;
         int rectH = yOff * 2 + padding;
 
-        landscape = "Landscape: " + h1.getLandscape().getName() + "\n";
-
-        if (h1.getImprovement() != null) {
-          improvement = "Improvement: " + h1.getImprovement().getName() + "\n";
-          rectH += yOff;
-        }
-
-        if (features.size() > 0) {
-          sbFeatures.append("Features: \n");
-          features.forEach(i -> sbFeatures.append("- " + i.getName() + "\n"));
-          rectH += ((features.size() + 1) * yOff);
-        }
-
-        for (Unit u : units) {
-          if (u != null && u.getPosition().isEqual(new HexCoordinate(h1.q, h1.r, h1.s))) {
-            sbUnits.append("(" + u.getOwner().getPluralName() + ") " + u.getName() + " :\n"
-                + u.getStrength() + " Strength\n" + u.getMovementPotential() + "/"
-                + u.getTotalMovement() + " Movement\n");
-            rectH += yOff * 3;
-          }
-        }
-
-        if (landscape != null)
-          hexBox.append(landscape);
-        if (features.size() > 0)
-          hexBox.append(sbFeatures.toString());
-        if (improvement != null)
-          hexBox.append(improvement);
-        if (units != null)
-          hexBox.append(sbUnits.toString());
-
+        //Using the current hex, create string of stats
+        Pair<String, Integer> hexBoxPair = currentFocusHex.createFormattedString(rectH, yOff);
+        
+        rectH = hexBoxPair.getSecond();
+        
+        //Determine the start drawing position of the inspect box
         boolean flipX = mouseX - rectW < 0;
         boolean flipY = mouseY - rectH < 0;
         int startX = flipX ? mouseX + padding : mouseX - rectW + padding;
@@ -233,34 +179,36 @@ public class GUI {
 
         // Write text in the box about hex yeild
         drawYieldAmount(g, YieldType.FOOD, 
-            Color.GREEN, h1, m, startX, startY, 0);
+            Color.GREEN, currentFocusHex, startX, startY, 0);
         
         drawYieldAmount(g, YieldType.PRODUCTION, 
-            new Color(150, 75, 5), h1, m, startX, startY, xOff);
+            new Color(150, 75, 5), currentFocusHex, startX, startY, xOff);
         
         drawYieldAmount(g, YieldType.SCIENCE, 
-            Color.BLUE, h1, m, startX, startY, xOff * 2);
+            Color.BLUE, currentFocusHex, startX, startY, xOff * 2);
         
         drawYieldAmount(g, YieldType.GOLD, 
-            new Color(244, 244, 34), h1, m, startX, startY, xOff * 3);
-
-        drawStringBuilderData(g, hexBox, startX, startY + yOff, yOff);
+            new Color(244, 244, 34), currentFocusHex, startX, startY, xOff * 3);
+        
+        //Finally, draw the hex data
+        drawStringBuilderData(g, hexBoxPair.getFirst(), startX, startY + yOff, yOff);
       }
     }
   }
 
-  private void drawYieldAmount(Graphics2D g, YieldType yield, Color c, Hex h, FontMetrics m, int x,
-      int y, int xOff) {
+  private void drawYieldAmount(Graphics2D g, YieldType yield, Color c, Hex h, int x, int y,
+      int xOff) {
     String amount = Integer.toString(h.getYieldTotal(yield));
-    int widthX = m.stringWidth(amount);
+    int widthX = g.getFontMetrics().stringWidth(amount);
     g.setColor(c);
-    g.drawString(amount, x + widthX + xOff, y + m.getHeight());
+    g.drawString(amount, x + widthX + xOff, y + g.getFontMetrics().getHeight());
   }
 
-  private void drawStringBuilderData(Graphics2D g, StringBuilder s, int x, int y, int yOff) {
+  private void drawStringBuilderData(Graphics2D g, String s, int x, int y, int yOff) {
     g.setColor(Color.BLACK);
-    for (String l : s.toString().split("\n")) {
-      g.drawString(l, x, y += yOff);
+    for (String l : s.split("\n")) {
+      y += yOff;
+      g.drawString(l, x, y);
     }
   }
 
@@ -316,9 +264,7 @@ public class GUI {
     String name = null;
     
     for (BaseCivilization c : civs) {
-      List<Unit> units = c.getUnits();
-      if (units.size() > 0) enableAntiAliasing(g);
-      for (Unit u : units) {
+      for (Unit u : c.getUnits()) {
         h = hexMap.getHex(u.getPosition());
         p = layout.hexToPixel(h);
         name = u.getName().substring(0, 1);
@@ -326,18 +272,17 @@ public class GUI {
         int textY = g.getFontMetrics().getHeight();
         int x = (int) (p.x + scrollX - (HEX_RADIUS >> 2));
         int y = (int) (p.y + scrollY - (HEX_RADIUS >> 2));
-        drawUnit(g, u, x, y, HEX_RADIUS >> 1, textX, textY, name);
+        drawUnit(g, u, x, y, textX, textY, name);
       }
     }
-    disableAntiAliasing(g);
   }
 
-  private void drawUnit(Graphics2D g, Unit u, int x, int y, 
-      int radius, int textX, int textY, String name) {
+  private void drawUnit(Graphics2D g, Unit u, int x, int y, int textX, int textY, String name) {
     Color baseCol = u.getOwner().getColour();
     Color cB = baseCol.brighter();
     Color cD = baseCol.darker();
-
+    int radius = HEX_RADIUS >> 1;
+    
     g.setColor(baseCol);
     g.fillOval(x, y, radius, radius);
 
@@ -380,37 +325,33 @@ public class GUI {
       int civHappiness = civs.get(0).getHappiness();
 
       // Draw the yields
-      g.setColor(new Color(91, 154, 255)); //Blue for science
+      g.setColor(new Color(91, 154, 255)); // Blue for science
       g.drawString("+" + Integer.toString(civSciencePT), textX, yieldHeight); // Science
 
-      g.setColor(new Color(244, 244, 34)); //Dark Yellow for Gold
-      g.drawString(Integer.toString(civGoldTotal) + "(+" + Integer.toString(civGoldPT) + ")",
-          textX += offsetX, yieldHeight); // Gold
+      textX += offsetX;
+      g.setColor(new Color(244, 244, 34)); // Dark Yellow for Gold
+      g.drawString(Integer.toString(civGoldTotal) + "(+" + Integer.toString(civGoldPT) + ")", textX,
+          yieldHeight); // Gold
 
-      g.setColor(Color.YELLOW); //Brighter yellow for happiness
-      g.drawString("\u263B", textX += offsetX, yieldHeight);
-      
-      g.setColor(civHappiness >= 0 ? Color.GREEN : Color.RED); //Happiness colour setting depending on civ happiness
+      textX += offsetX;
+      g.setColor(Color.YELLOW); // Brighter yellow for happiness
+      g.drawString("\u263B", textX, yieldHeight);
+
+      g.setColor(civHappiness >= 0 ? Color.GREEN : Color.RED); // Happiness colour setting depending on civ happiness
       g.drawString("" + Math.abs(civHappiness), textX + fontWidth, yieldHeight);
 
-      g.setColor(new Color(186, 16, 160)); //Purple for culture
-      g.drawString(Integer.toString(civCultureTotal) + "/" + Integer.toString(civCultureReq) +
-          "(+"+ Integer.toString(civCulturePT) + ")", textX += offsetX, yieldHeight);
+      textX += offsetX;
+      g.setColor(new Color(186, 16, 160)); // Purple for culture
+      g.drawString(Integer.toString(civCultureTotal) + "/" + Integer.toString(civCultureReq) + "(+"
+          + Integer.toString(civCulturePT) + ")", textX, yieldHeight);
     }
     // Draw all buttons in all open menus
-    UIButtons.stream().forEach(i -> i.drawButton(g));
+    uiButtons.stream().forEach(i -> i.drawButton(g));
   }
 
   public void drawActionMenus(Graphics2D g) {
     if (currentUnit != null)
       currentUnit.getMenu().draw(g);
-  }
-
-  private void enableAntiAliasing(Graphics2D g) {
-    g.setRenderingHints(RH_AA_ON);
-  }
-  private void disableAntiAliasing(Graphics2D g) {
-    g.setRenderingHints(RH_AA_OFF);
   }
 
   public void setInitialScroll(HexCoordinate h) {
@@ -436,41 +377,36 @@ public class GUI {
   }
 
   public void updateKeys(Set<Integer> keys) {
-    if (keys.size() > 0) {
-      for (Integer k : keys) {
+    if (!keys.isEmpty()) {
+      keys.stream().forEach(k -> {
         switch (k) {
           case KeyEvent.VK_UP:
             scrollY += scrollY < 0 ? scroll : 0;
             break;
           case KeyEvent.VK_DOWN:
-            scrollY -= scrollY > -(getAdjustedHeight()) ? scroll : 0;
+            scrollY -= scrollY > -getAdjustedHeight() ? scroll : 0;
             break;
           case KeyEvent.VK_LEFT:
             scrollX += scrollX < HEX_RADIUS ? scroll : 0;
             break;
           case KeyEvent.VK_RIGHT:
-            scrollX -= scrollX > -(getAdjustedWidth()) ? scroll : 0;
+            scrollX -= scrollX > -getAdjustedWidth() ? scroll : 0;
             break;
           case KeyEvent.VK_SHIFT:
-            KeyboardHandler.ShiftPressed = true;
+            KeyboardHandler.setShiftPressed(true);
             break;
           case KeyEvent.VK_ESCAPE:
-            KeyboardHandler.EscPressed = true;
+            KeyboardHandler.setEscPressed(true);
             setFocusedUnitPath(null);
             break;
-          // case KeyEvent.VK_P:
-          // civs.get(0).decreaseHappinessByAmount(1);
-          // break;
-          // case KeyEvent.VK_F:
-          // farmToAdd = true;
-          // break;
+          default:
+            break;
         }
-      }
-      // System.out.println("ScrollX:" + scrollX + ", ScrollY:" + scrollY);
+      });
     }
   }
 
-  public void nextTurn() { // Temp code
+  public static void nextTurn() { // Temp code
     for (BaseCivilization c : civs)
       for (Unit u : c.getUnits())
         u.nextTurn();
@@ -490,23 +426,14 @@ public class GUI {
   }
 
   private int getAdjustedHeight() {
-    return (int) ((H_HEXES * HEX_RADIUS * 3 / 2) - WINDOW_HEIGHT + HEX_RADIUS);
+    return (H_HEXES * HEX_RADIUS * 3 / 2) - WINDOW_HEIGHT + HEX_RADIUS;
   }
-
-  /*
-   * public void registerFonts(String name) { Font font = null; String fName =
-   * Params.get().getFontPath() + name; File fontFile = new File(fName); font =
-   * Font.createFont(Font.TRUETYPE_FONT, fontFile); GraphicsEnvironment ge =
-   * GraphicsEnvironment.getLocalGraphicsEnvironment();
-   *
-   * ge.registerFont(font); }
-   */
 
   public Point getHexPosFromMouse() {
     return new Point(MouseHandler.mX - scrollX, MouseHandler.mY - scrollY);
   }
 
-  public int getScrollX() {
+  public int getScrollX() { 
     return scrollX;
   }
 
@@ -515,9 +442,9 @@ public class GUI {
   }
 
   public void setFocusHex() {
-    if (MouseHandler.pressedMouse && (focusHex == null)) {
-      focusX = MouseHandler.mX;
-      focusY = MouseHandler.mY;
+    if (MouseHandler.pressedMouse && focusHex == null) {
+      int focusX = MouseHandler.mX;
+      int focusY = MouseHandler.mY;
       HexCoordinate tempFocusHex = layout.pixelToHex(new Point(focusX - scrollX, focusY - scrollY));
       Hex mapHex = hexMap.getHex(tempFocusHex);
       boolean shouldSetFocusHex =
@@ -529,15 +456,15 @@ public class GUI {
   }
 
   public void resetFocusData() {
-    this.focusHex = null;
-    if (currentUnit != null) {
+    focusHex = null;
+    if (currentUnit != null)
       currentUnit.getMenu().close();
-    }
+    
     currentUnit = null;
   }
 
   public Hex getFocusHex() {
-    return this.focusHex;
+    return focusHex;
   }
 
   public void setFocusedUnitPath(List<PathHex> pathToFollow) {
@@ -551,6 +478,6 @@ public class GUI {
   }
 
   public List<Button> getMenuButtons() {
-    return UIButtons;
+    return uiButtons;
   }
 }

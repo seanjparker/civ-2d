@@ -7,8 +7,8 @@ import civ.core.map.terrain.Landscape;
 import civ.core.map.terrain.Yield;
 
 public class Improvement extends Yield {
-  private List<Landscape> validLandscapes = new ArrayList<Landscape>();
-  private List<Feature> validFeatures = new ArrayList<Feature>();
+  private List<Landscape> validLandscapes = new ArrayList<>();
+  private List<Feature> validFeatures = new ArrayList<>();
   private String name;
 
   public Improvement(int food, int production, int science, int gold, String name) {

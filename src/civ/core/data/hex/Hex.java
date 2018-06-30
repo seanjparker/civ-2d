@@ -1,7 +1,9 @@
 package civ.core.data.hex;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import civ.core.data.utils.Pair;
 import civ.core.map.improvement.Improvement;
 import civ.core.map.terrain.Feature;
 import civ.core.map.terrain.Landscape;
@@ -12,36 +14,38 @@ public class Hex extends HexCoordinate {
   public static final int CIV_UNIT = 0;
   public static final int MIL_UNIT = 1;
 
-  public static final HexCoordinate[] DIRECTIONS = new HexCoordinate[] {new HexCoordinate(1, 0, -1),
+  protected static final HexCoordinate[] DIRECTIONS = new HexCoordinate[] {new HexCoordinate(1, 0, -1),
       new HexCoordinate(1, -1, 0), new HexCoordinate(0, -1, 1), new HexCoordinate(-1, 0, 1),
       new HexCoordinate(-1, 1, 0), new HexCoordinate(0, 1, -1),};
 
-  public static final HexCoordinate[] DIAGONALS = new HexCoordinate[] {new HexCoordinate(2, -1, -1),
+  protected static final HexCoordinate[] DIAGONALS = new HexCoordinate[] {new HexCoordinate(2, -1, -1),
       new HexCoordinate(1, -2, 1), new HexCoordinate(-1, -1, 2), new HexCoordinate(-2, 1, 1),
       new HexCoordinate(-1, 2, -1), new HexCoordinate(1, 1, -2),};
 
-  private Improvement TileImprovement = null;
-  private Landscape Type = null;
-  private List<Feature> Features = new ArrayList<Feature>();
+  private Improvement tileImprovement = null;
+  private Landscape type = null;
+  private List<Feature> features = new ArrayList<>();
   private Unit[] hexUnits = new Unit[1 + CIV_UNIT + MIL_UNIT];
 
   public Hex(int q, int r, int s) {
     super(q, r, s);
   }
 
-  public Hex(Landscape Type, int q, int r, int s) {
+  public Hex(Landscape type, int q, int r, int s) {
     super(q, r, s);
-    this.Type = Type;
+    this.type = type;
   }
-
+  
+  @Override
   public HexCoordinate getPosition() {
     return new HexCoordinate(q, r, s);
   }
-
-  public boolean equals(Hex b) {
-    return (b != null) && (this.q == b.q) && (this.r == b.r) && (this.s == b.s);
+  
+  public boolean isHexEqual(Hex b) {
+    return b != null && this.q == b.q && this.r == b.q && this.s == b.q;
   }
-
+  
+  @Override
   public Hex add(HexCoordinate b) {
     return new Hex(q + b.q, r + b.r, s + b.s);
   }
@@ -55,7 +59,7 @@ public class Hex extends HexCoordinate {
   }
 
   public int length(Hex hex) {
-    return (int) ((Math.abs(hex.q) + Math.abs(hex.r) + Math.abs(hex.s)) / 2);
+    return (Math.abs(hex.q) + Math.abs(hex.r) + Math.abs(hex.s)) / 2;
   }
 
   public int distance(Hex b) {
@@ -85,72 +89,75 @@ public class Hex extends HexCoordinate {
   }
 
   public List<Landscape> getValidFeatures() {
-    return null;
+    return Collections.emptyList();
   }
 
   public Landscape getLandscape() {
-    return Type;
+    return type;
   }
-
+  
   public List<Feature> getFeatures() {
-    return Features;
+    return features;
   }
 
-  public void setLandscape(Landscape Type) {
-    this.Type = Type;
+  public void setLandscape(Landscape type) {
+    this.type = type;
   }
 
   public Improvement getImprovement() {
-    return this.TileImprovement;
+    return this.tileImprovement;
   }
 
   // public Hex setAndGetLandscape(Landscape Type) {
   // this.Type = Type;
   // return this;
   // }
-  public void setAllFeatures(List<Feature> Feature) {
-    this.Features.addAll(Feature);
+  public void setAllFeatures(List<Feature> feature) {
+    this.features.addAll(feature);
   }
 
-  public void addFeature(Feature Feature) {
-    this.Features.add(Feature);
+  public void addFeature(Feature feature) {
+    this.features.add(feature);
   }
 
-  public void removeFeature(Feature Feature) {
-    if (this.Features.contains(Feature))
-      this.Features.remove(Feature);
+  public void removeFeature(Feature feature) {
+    if (this.features.contains(feature))
+      this.features.remove(feature);
     else
       System.out.println("Cannot remove feature, does not exist");
   }
 
   public Hex setImprovement(Improvement i) {
-    TileImprovement = i;
-    // System.out.println(TileImprovement.toString());
+    tileImprovement = i;
     return this;
   }
 
   public int getYieldTotal(YieldType yt) {
     switch (yt) {
       case FOOD:
-        return this.Type.getFoodYield()
-            + this.Features.stream().mapToInt(x -> x.getFoodMod()).sum();
+        return this.type.getFoodYield()
+            + this.features.stream().mapToInt(x -> x.getFoodMod()).sum();
       case PRODUCTION:
-        return this.Type.getProductionYield()
-            + this.Features.stream().mapToInt(x -> x.getProductionMod()).sum();
+        return this.type.getProductionYield()
+            + this.features.stream().mapToInt(x -> x.getProductionMod()).sum();
       case SCIENCE:
-        return this.Type.getScienceYield()
-            + this.Features.stream().mapToInt(x -> x.getScienceMod()).sum();
+        return this.type.getScienceYield()
+            + this.features.stream().mapToInt(x -> x.getScienceMod()).sum();
       case GOLD:
-        return this.Type.getGoldYield()
-            + this.Features.stream().mapToInt(x -> x.getGoldMod()).sum();
+        return this.type.getGoldYield()
+            + this.features.stream().mapToInt(x -> x.getGoldMod()).sum();
       default:
         return 0;
     }
   }
+  
+  <T> T getObject() {
+    return null;
+  }
 
   public double getMovementTotal() {
     double t = 1.0D;
-    if (this.getFeatures().size() > 0)
+    if (this.getFeatures().isEmpty())
       t = this.getFeatures().stream().mapToDouble(x -> x.getMovement()).sum();
     return t;
   }
@@ -203,5 +210,48 @@ public class Hex extends HexCoordinate {
       this.hexUnits[MIL_UNIT] = u;
     else
       this.hexUnits[CIV_UNIT] = u;
+  }
+  
+  public Pair<String, Integer> createFormattedString(int rectH, int yOff) {
+    //Create a string builder
+    StringBuilder sb = new StringBuilder();
+    StringBuilder sbUnits = new StringBuilder();
+    StringBuilder sbFeatures = new StringBuilder();
+    String landscape = null;
+    String improvement = null;
+    
+    landscape = "Landscape: " + getLandscape().getName() + "\n";
+
+    if (getImprovement() != null) {
+      improvement = "Improvement: " + getImprovement().getName() + "\n";
+      rectH += yOff;
+    }
+
+    if (features.isEmpty()) {
+      sbFeatures.append("Features: \n");
+      features.stream().forEach(i -> sbFeatures.append("- " + i.getName() + "\n"));
+      rectH += ((features.size() + 1) * yOff);
+    }
+
+    for (Unit u : hexUnits) {
+      if (u != null && u.getPosition().isEqual(
+          new HexCoordinate(this.q, this.r, this.s))) {
+        
+        sbUnits.append("(" + u.getOwner().getPluralName() + ") " + u.getName() + " :\n"
+            + u.getStrength() + " Strength\n" + u.getMovementPotential() + "/"
+            + u.getTotalMovement() + " Movement\n");
+        rectH += yOff * 3;
+      }
+    }
+
+    sb.append(landscape);
+    
+    if (features.isEmpty())
+      sb.append(sbFeatures.toString());
+    if (improvement != null)
+      sb.append(improvement);
+    if (hexUnits != null)
+      sb.append(sbUnits.toString());
+    return new Pair<String, Integer>(sb.toString(), rectH);
   }
 }
