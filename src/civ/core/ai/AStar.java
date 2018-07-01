@@ -15,6 +15,9 @@ import civ.core.data.map.HexMap;
 public class AStar {
 
   public List<HexCoordinate> aStar(Map<Integer, Hex> map, Hex start, Hex end) {
+    if (start == null || end == null)
+      return Collections.emptyList();
+    
     int size = map.size();
     final List<Hex> openSet = new ArrayList<>(size);
     final Set<Hex> closedSet = new HashSet<>(size);
