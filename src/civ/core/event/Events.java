@@ -1,10 +1,11 @@
 package civ.core.event;
 
+import static civ.core.instance.IData.currentUnit;
 import java.awt.Image;
 import javax.swing.ImageIcon;
+import civ.core.display.GUI;
 import civ.core.event.callback.EventCallbackI;
 import civ.core.unit.Settler;
-import static civ.core.instance.IData.*;
 
 public enum Events {
 
@@ -39,7 +40,9 @@ public enum Events {
   }),
 
   // Other button events
-  NEXT_TURN(null, null),
+  NEXT_TURN(null, () -> {
+    GUI.nextTurn();
+  }),
   CIVILOPEDIA_OPEN(null, null),
   RESEARCH_TREE_OPEN(null,null),
   CITY_OVERVIEW_OPEN(null, null),
