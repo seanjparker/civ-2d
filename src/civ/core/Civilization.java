@@ -87,7 +87,6 @@ public class Civilization extends JPanel implements Runnable {
 
   class MapPanel extends JPanel {
     private static final long serialVersionUID = -5681252766728523060L;
-
     public MapPanel() {
       setBorder(BorderFactory.createEmptyBorder());
       setBackground(Color.BLACK);
@@ -104,13 +103,8 @@ public class Civilization extends JPanel implements Runnable {
     @Override
     public void paintComponent(Graphics g) {
       super.paintComponent(g);
-      
-      BufferedImage bufferedImage = new BufferedImage(WINDOW_WIDTH, WINDOW_HEIGHT, BufferedImage.TYPE_INT_ARGB);
-      Graphics2D g2d = bufferedImage.createGraphics();
-      g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+      Graphics2D g2d = (Graphics2D) g;
       game.draw(g2d);
-      Graphics2D g2dComponent = (Graphics2D) g;
-      g2dComponent.drawImage(bufferedImage, null, 0, 0);  
     }
   }
 

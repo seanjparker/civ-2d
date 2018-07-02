@@ -16,6 +16,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
+import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -262,7 +263,6 @@ public class GUI {
     Hex h = null;
     Point p = null;
     String name = null;
-    
     for (BaseCivilization c : civs) {
       for (Unit u : c.getUnits()) {
         h = hexMap.getHex(u.getPosition());
@@ -347,6 +347,11 @@ public class GUI {
     }
     // Draw all buttons in all open menus
     uiButtons.stream().forEach(i -> i.drawButton(g));
+  }
+  
+  public void setRenderHints(Graphics2D g) {
+    g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+    g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
   }
 
   public void drawActionMenus(Graphics2D g) {
@@ -442,16 +447,15 @@ public class GUI {
   }
 
   public void setFocusHex() {
-    if (MouseHandler.pressedMouse && focusHex == null) {
+    if (MouseHandler.pressedMouse) {
       int focusX = MouseHandler.mX;
       int focusY = MouseHandler.mY;
       HexCoordinate tempFocusHex = layout.pixelToHex(new Point(focusX - scrollX, focusY - scrollY));
       Hex mapHex = hexMap.getHex(tempFocusHex);
       boolean shouldSetFocusHex =
           mapHex != null && (!mapHex.canSetMilitary() || !mapHex.canSetCivilian());
-      if (shouldSetFocusHex) {
+      if (shouldSetFocusHex)
         focusHex = new Hex(tempFocusHex.q, tempFocusHex.r, tempFocusHex.s);
-      }
     }
   }
 

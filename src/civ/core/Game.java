@@ -54,6 +54,8 @@ public class Game {
   }
 
   public void draw(Graphics2D g) {
+    ui.setRenderHints(g);
+    
     ui.drawHexGrid(g);
     ui.drawCities(g);
     ui.drawUnits(g);
@@ -107,7 +109,7 @@ public class Game {
   }
 
   private void setCurrentUnit() {
-    if (ui.getFocusHex() != null && currentUnit == null) {
+    if (ui.getFocusHex() != null) {
       List<Unit> civUnits = civs.get(0).getUnits();
       Hex currentHex = hexMap.getHex(ui.getFocusHex());
       for (Unit u : civUnits) {
