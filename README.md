@@ -1,9 +1,9 @@
-# Civ
+# Civilization
 
-A 2D version of Civilisation coded in Java using only the standard libraries.
+A 2D version of Civilization coded in Java using only the standard libraries.
 
 ## Prerequisites
-Building the Civilisation source requires Java (JDK v1.8 or later).
+Building the Civilization source requires Java (JDK v1.8 or later).
 
 Once installed, you can then build and run the program using the commands from the following section.
 
@@ -23,7 +23,7 @@ $ java -jar civ-2d.jar
 ```
 or, to launch the program using the compiled source
 ```
-$ java -cp bin core.civ.Civilisation
+$ java -cp bin civ.core.Civilization
 ```
 or double-click on the file `civ-2d.jar` to launch the program
 

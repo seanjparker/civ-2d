@@ -1,1 +1,1 @@
-Main-Class: civ.core.Civilisation
+Main-Class: civ.core.Civilization
