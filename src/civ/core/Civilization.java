@@ -1,14 +1,11 @@
 package civ.core;
 
-import static civ.core.instance.IData.WINDOW_HEIGHT;
-import static civ.core.instance.IData.WINDOW_WIDTH;
+import static civ.core.instance.IData.*;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;

@@ -251,8 +251,7 @@ public class GUI {
   public void drawCities(Graphics2D g) {
     for (BaseCivilization civ : civs) {
       for (City city : civ.getCities()) {
-        g.setColor(civ.getColour());
-        city.draw(g, scrollX, scrollY);
+        city.draw(g, civ.getColour(), scrollX, scrollY);
       }
     }
   }
@@ -293,7 +292,7 @@ public class GUI {
     g.setColor(cB);
     g.drawArc(x, y, radius, radius, 50, -160);
 
-    g.setColor(Color.WHITE);
+    g.setColor(getColourForReadableText(baseCol));
     g.drawString(name.substring(0, 1), (x + radius / 2) - textX, (y + radius / 2) + textY / 4);
   }
 
@@ -352,6 +351,14 @@ public class GUI {
   public void setRenderHints(Graphics2D g) {
     g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
     g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+  }
+  
+  public Color getColourForReadableText(Color bgColour) {
+    double weightedR = bgColour.getRed() * 0.299;
+    double weightedG = bgColour.getGreen() * 0.587;
+    double weightedB = bgColour.getBlue() * 0.114;
+    
+    return weightedR + weightedG + weightedB > 187D ? Color.BLACK : Color.WHITE;
   }
 
   public void drawActionMenus(Graphics2D g) {

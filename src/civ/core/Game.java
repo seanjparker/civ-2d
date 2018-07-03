@@ -11,6 +11,7 @@ import civ.core.data.hex.PathHex;
 import civ.core.input.KeyboardHandler;
 import civ.core.input.MouseHandler;
 import civ.core.map.civilization.America;
+import civ.core.map.civilization.England;
 import civ.core.unit.Settler;
 import civ.core.unit.Unit;
 import civ.core.unit.Warrior;
