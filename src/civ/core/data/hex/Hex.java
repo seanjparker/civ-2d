@@ -227,7 +227,7 @@ public class Hex extends HexCoordinate {
       rectH += yOff;
     }
 
-    if (features.isEmpty()) {
+    if (!features.isEmpty()) {
       sbFeatures.append("Features: \n");
       features.stream().forEach(i -> sbFeatures.append("- " + i.getName() + "\n"));
       rectH += ((features.size() + 1) * yOff);
@@ -246,12 +246,12 @@ public class Hex extends HexCoordinate {
 
     sb.append(landscape);
     
-    if (features.isEmpty())
+    if (!features.isEmpty())
       sb.append(sbFeatures.toString());
     if (improvement != null)
       sb.append(improvement);
     if (hexUnits != null)
       sb.append(sbUnits.toString());
-    return new Pair<String, Integer>(sb.toString(), rectH);
+    return new Pair<>(sb.toString(), rectH);
   }
 }
