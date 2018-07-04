@@ -158,7 +158,7 @@ public class GUI {
         //Set the position of the box
         int xOff = g.getFont().getSize();
         final int padding = 3;
-        final int rectArcRatio = 20;
+        final int rectArc = 10;
         int yOff = g.getFontMetrics().getHeight();
         int rectW = 200;
         int rectH = yOff * 2 + padding;
@@ -175,8 +175,8 @@ public class GUI {
         int startY = flipY ? mouseY : mouseY - rectH;
 
         // Draw rectangle at the mouse
-        g.fillRoundRect(startX - padding, startY, rectW, rectH, rectW / rectArcRatio,
-            rectH / rectArcRatio);
+        g.fillRoundRect(startX - padding, startY, rectW, rectH, rectArc,
+            rectArc);
 
         // Write text in the box about hex yeild
         drawYieldAmount(g, YieldType.FOOD, 
@@ -189,7 +189,7 @@ public class GUI {
             Color.BLUE, currentFocusHex, startX, startY, xOff * 2);
         
         drawYieldAmount(g, YieldType.GOLD, 
-            new Color(244, 244, 34), currentFocusHex, startX, startY, xOff * 3);
+            new Color(204, 150, 0), currentFocusHex, startX, startY, xOff * 3);
         
         //Finally, draw the hex data
         drawStringBuilderData(g, hexBoxPair.getFirst(), startX, startY + yOff, yOff);
