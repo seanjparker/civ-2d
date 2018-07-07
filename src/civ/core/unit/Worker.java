@@ -7,12 +7,11 @@ import civ.core.display.menu.button.UnitMenuButton;
 import civ.core.event.Events;
 import civ.core.map.civilization.BaseCivilization;
 
-public class Warrior extends Unit {
-
-  public Warrior(BaseCivilization civOwner, HexCoordinate curPos, boolean isSpawned) {
-    super("Warrior", civOwner, curPos,
+public class Worker extends Unit {
+  public Worker(BaseCivilization civOwner, HexCoordinate curPos, boolean isSpawned) {
+    super("Worker", civOwner, curPos,
         GFXUtils.loadImage(
-            "./gfx/units/WARRIOR_" + GFXUtils.getViewableColour(civOwner.getColour()) + ".png"),
+            "./gfx/units/WORKER_" + GFXUtils.getViewableColour(civOwner.getColour()) + ".png"),
         2.0D, 8.0D, 40, true, isSpawned);
   }
 
@@ -20,8 +19,7 @@ public class Warrior extends Unit {
     int b = 0;
     actionMenu = new UnitMenu(false);
     actionMenu.addButton(new UnitMenuButton(Events.MOVE, b++));
-    actionMenu.addButton(new UnitMenuButton(Events.ATTACK, b++));
     actionMenu.addButton(new UnitMenuButton(Events.DO_NOTHING, b++));
-    actionMenu.addButton(new UnitMenuButton(Events.DELETE, b++));
+    actionMenu.addButton(new UnitMenuButton(Events.DELETE, b));
   }
 }

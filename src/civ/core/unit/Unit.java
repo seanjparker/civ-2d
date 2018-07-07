@@ -1,7 +1,15 @@
 package civ.core.unit;
 
+import static civ.core.instance.IData.civs;
+import static civ.core.instance.IData.currentUnit;
+import static civ.core.instance.IData.hexMap;
+import static civ.core.instance.IData.layout;
+import static civ.core.instance.IData.ui;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.ImageIcon;
 import civ.core.data.Point;
 import civ.core.data.hex.Hex;
 import civ.core.data.hex.HexCoordinate;
@@ -12,28 +20,28 @@ import civ.core.input.MouseHandler;
 import civ.core.instance.IUnit;
 import civ.core.map.civilization.BaseCivilization;
 
-import static civ.core.instance.IData.*;
-
 public abstract class Unit extends IUnit {
   protected Menu actionMenu;
+  protected BufferedImage unitImage;
 
   protected abstract void init();
 
-  public Unit(String name, BaseCivilization civOwner, HexCoordinate curPos,
+  public Unit(String name, BaseCivilization civOwner, HexCoordinate curPos, BufferedImage unitImage,
       double movementPotential, int productionCost) {
     this.name = name;
     this.civOwner = civOwner;
     this.curPos = curPos;
+    this.unitImage = unitImage;
     this.movement = movementPotential;
     this.movementPotential = movementPotential;
     this.movementTemp = movementPotential;
     this.productionCost = productionCost;
   }
 
-  public Unit(String name, BaseCivilization civOwner, HexCoordinate curPos,
+  public Unit(String name, BaseCivilization civOwner, HexCoordinate curPos, BufferedImage unitImage,
       double movementPotential, double strength, int productionCost, boolean isMilitary,
       boolean isSpawned) {
-    this(name, civOwner, curPos, movementPotential, productionCost);
+    this(name, civOwner, curPos, unitImage, movementPotential, productionCost);
     this.strength = strength;
     this.isMilitary = isMilitary;
     this.isSpawned = isSpawned;
@@ -97,6 +105,10 @@ public abstract class Unit extends IUnit {
     return name;
   }
 
+  public BufferedImage getImage() {
+    return this.unitImage;
+  }
+  
   public double getTotalMovement() {
     return movement;
   }

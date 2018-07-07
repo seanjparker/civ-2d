@@ -156,10 +156,10 @@ public class Hex extends HexCoordinate {
   }
 
   public double getMovementTotal() {
-    double t = 1.0D;
     if (this.getFeatures().isEmpty())
-      t = this.getFeatures().stream().mapToDouble(x -> x.getMovement()).sum();
-    return t;
+      return this.getFeatures().stream().mapToDouble(x -> x.getMovement()).sum();
+    else
+      return 1D;
   }
 
   public boolean canSetMilitary() {

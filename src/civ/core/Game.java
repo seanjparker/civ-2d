@@ -70,7 +70,7 @@ public class Game {
 
   private void createCiv(int players) {
     // Initalize civ
-    civs.add(new America());
+    civs.add(new England());
 
     // Add units to the game map
     // Get settler and warrior co-ordinate

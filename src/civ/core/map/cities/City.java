@@ -1,6 +1,8 @@
 package civ.core.map.cities;
 
-import static civ.core.instance.IData.*;
+import static civ.core.instance.IData.HEX_RADIUS;
+import static civ.core.instance.IData.TEXT_SIZE;
+import static civ.core.instance.IData.layout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -8,6 +10,7 @@ import java.awt.Image;
 import javax.swing.ImageIcon;
 import civ.core.data.Point;
 import civ.core.data.hex.HexCoordinate;
+import civ.core.data.utils.GFXUtils;
 
 public class City {
   private static final int FOOD_INITIAL = 1;
@@ -70,7 +73,7 @@ public class City {
     g.drawRoundRect(xCentre - (nameWidth / 2), yCentre, nameWidth + 1, textHeightOffset + 1, 5, 5);
     
     //Write the city name in the box
-    g.setColor(ui.getColourForReadableText(cityColour));
+    g.setColor(GFXUtils.getColourForReadableText(cityColour));
     g.drawString(cityName, xCentre - cityNameCentreOffset, yCentre + nameHeight);
     
     //Draw the shield icon

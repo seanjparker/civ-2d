@@ -25,6 +25,7 @@ import civ.core.data.Point;
 import civ.core.data.hex.Hex;
 import civ.core.data.hex.HexCoordinate;
 import civ.core.data.hex.PathHex;
+import civ.core.data.utils.GFXUtils;
 import civ.core.data.utils.Pair;
 import civ.core.display.menu.button.Button;
 import civ.core.display.menu.button.UIButton;
@@ -266,34 +267,32 @@ public class GUI {
       for (Unit u : c.getUnits()) {
         h = hexMap.getHex(u.getPosition());
         p = layout.hexToPixel(h);
-        name = u.getName().substring(0, 1);
-        int textX = (name.length() * g.getFontMetrics().charWidth(name.charAt(0))) >> 1;
-        int textY = g.getFontMetrics().getHeight();
         int x = (int) (p.x + scrollX - (HEX_RADIUS >> 2));
         int y = (int) (p.y + scrollY - (HEX_RADIUS >> 2));
-        drawUnit(g, u, x, y, textX, textY, name);
+        drawUnit(g, u, x, y);
       }
     }
   }
 
-  private void drawUnit(Graphics2D g, Unit u, int x, int y, int textX, int textY, String name) {
+  private void drawUnit(Graphics2D g, Unit u, int x, int y) {
     Color baseCol = u.getOwner().getColour();
     Color cB = baseCol.brighter();
     Color cD = baseCol.darker();
     int radius = HEX_RADIUS >> 1;
+    int stroke = 2;
     
     g.setColor(baseCol);
     g.fillOval(x, y, radius, radius);
 
-    g.setStroke(new BasicStroke(1.75f));
+    g.setStroke(new BasicStroke(stroke));
     g.setColor(cD);
     g.drawArc(x, y, radius, radius, 50, 200);
 
     g.setColor(cB);
     g.drawArc(x, y, radius, radius, 50, -160);
-
-    g.setColor(getColourForReadableText(baseCol));
-    g.drawString(name.substring(0, 1), (x + radius / 2) - textX, (y + radius / 2) + textY / 4);
+    
+    int size = HEX_RADIUS / 3;
+    g.drawImage(u.getImage(), x + size / 4 , y + size / 4, size, size, null);
   }
 
   public void drawUI(Graphics2D g) {
@@ -353,13 +352,6 @@ public class GUI {
     g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
   }
   
-  public Color getColourForReadableText(Color bgColour) {
-    double weightedR = bgColour.getRed() * 0.299;
-    double weightedG = bgColour.getGreen() * 0.587;
-    double weightedB = bgColour.getBlue() * 0.114;
-    
-    return weightedR + weightedG + weightedB > 187D ? Color.BLACK : Color.WHITE;
-  }
 
   public void drawActionMenus(Graphics2D g) {
     if (currentUnit != null)

@@ -2,6 +2,7 @@ package civ.core.unit;
 
 import static civ.core.instance.IData.*;
 import civ.core.data.hex.HexCoordinate;
+import civ.core.data.utils.GFXUtils;
 import civ.core.display.menu.UnitMenu;
 import civ.core.display.menu.button.UnitMenuButton;
 import civ.core.event.Events;
@@ -10,7 +11,10 @@ import civ.core.map.civilization.BaseCivilization;
 public class Settler extends Unit {
 
   public Settler(BaseCivilization civOwner, HexCoordinate curPos, boolean isSpawned) {
-    super("Settler", civOwner, curPos, 2.0D, 0.0D, 106, false, isSpawned);
+    super("Settler", civOwner, curPos,
+        GFXUtils.loadImage(
+            "./gfx/units/SETTLER_" + GFXUtils.getViewableColour(civOwner.getColour()) + ".png"),
+        2.0D, 0.0D, 106, false, isSpawned);
   }
 
   public void init() {

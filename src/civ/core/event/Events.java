@@ -1,41 +1,41 @@
 package civ.core.event;
 
 import static civ.core.instance.IData.currentUnit;
-import java.awt.Image;
-import javax.swing.ImageIcon;
+import java.awt.image.BufferedImage;
 import civ.core.display.GUI;
 import civ.core.event.callback.EventCallbackI;
 import civ.core.unit.Settler;
+import civ.core.data.utils.GFXUtils;
 
 public enum Events {
 
   // Unit events
-  FOUND_CITY(new ImageIcon("./gfx/buttons/FOUND_CITY.png").getImage(), () -> {
+  FOUND_CITY(GFXUtils.loadImage("./gfx/buttons/FOUND_CITY.png"), () -> {
     if (currentUnit instanceof Settler)
       ((Settler) currentUnit).foundCity();
   }),
 
-  MOVE(new ImageIcon("./gfx/buttons/MOVE.png").getImage(), () -> {
+  MOVE(GFXUtils.loadImage("./gfx/buttons/MOVE.png"), () -> {
     currentUnit.toggleBeingMoved();
   }),
 
-  ATTACK(new ImageIcon("./gfx/buttons/ATTACK.png").getImage(), () -> {
+  ATTACK(GFXUtils.loadImage("./gfx/buttons/ATTACK.png"), () -> {
     currentUnit.toggleBeingAttacked();
   }),
 
-  AUTO_EXPLORE(new ImageIcon("./gfx/buttons/AUTO_EXPLORE.png").getImage(), () -> {
+  AUTO_EXPLORE(GFXUtils.loadImage("./gfx/buttons/AUTO_EXPLORE.png"), () -> {
     System.out.println("Auto Explore");
   }),
 
-  DO_NOTHING(new ImageIcon("./gfx/buttons/DO_NOTHING.png").getImage(), () -> {
+  DO_NOTHING(GFXUtils.loadImage("./gfx/buttons/DO_NOTHING.png"), () -> {
     System.out.println("Do Nothing");
   }),
 
-  SLEEP(new ImageIcon("./gfx/buttons/SLEEP.png").getImage(), () -> {
+  SLEEP(GFXUtils.loadImage("./gfx/buttons/SLEEP.png"), () -> {
     System.out.println("Sleep");
   }),
 
-  DELETE(new ImageIcon("./gfx/buttons/DELETE.png").getImage(), () -> {
+  DELETE(GFXUtils.loadImage("./gfx/buttons/DELETE.png"), () -> {
     currentUnit.deleteBySelling();
   }),
 
@@ -49,15 +49,15 @@ public enum Events {
   CITY_PRODUCTION_OPEN(null, null),
   CULTURE_TREE_OPEN(null, null);
 
-  private final Image img;
+  private final BufferedImage img;
   private final EventCallbackI funCall;
 
-  Events(Image img, EventCallbackI funCall) {
+  Events(BufferedImage img, EventCallbackI funCall) {
     this.img = img;
     this.funCall = funCall;
   }
 
-  public Image getImage() {
+  public BufferedImage getImage() {
     return this.img;
   }
 
