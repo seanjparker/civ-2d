@@ -66,7 +66,6 @@ public class GUI {
         WINDOW_WIDTH - (HEX_RADIUS * 4), WINDOW_HEIGHT - HEX_RADIUS));
   }
    
-
   public void drawHexGrid(Graphics2D g) {
     g.setStroke(new BasicStroke(3.0f));
     final int bnd = 8;
@@ -125,21 +124,6 @@ public class GUI {
       g.drawPolygon(poly);
       poly.reset();
     }
-    /*
-     * int mouseX = MouseHandler.movedMX; int mouseY = MouseHandler.movedMY;
-     *
-     * g.setStroke(new BasicStroke(3.5f));
-     *
-     * HexCoordinate s = layout.pixelToHex(new Point(mouseX, mouseY)); if (hexMap.getHex(s) != null)
-     * { //Point[] p = layout.polygonCorners(s); Point pnt = layout.hexToPixel(s); Polygon
-     * translatedPoly = new Polygon(poly.xpoints, poly.ypoints, poly.npoints);
-     * translatedPoly.translate((int) pnt.x, (int) pnt.y);
-     *
-     * //System.out.println("Drawing @ (" + poly.xpoints[0] + ", " + poly.ypoints[0] +
-     * ") -- offset poly @ (" + translatedPoly.xpoints[0] + ", " + translatedPoly.ypoints[0] + ")");
-     *
-     * g.setColor(Color.WHITE); g.drawPolygon(translatedPoly); }
-     */
   }
 
   public void drawHexInspect(Graphics2D g) {
@@ -253,16 +237,35 @@ public class GUI {
     for (BaseCivilization civ : civs) {
       for (City city : civ.getCities()) {
         city.draw(g, civ.getColour(), scrollX, scrollY);
+        drawCityAOO(g, city, civ);
       }
     }
   }
-
+  
+  public void drawCityAOO(Graphics2D g, City city, BaseCivilization civ) {
+    Point[] p = null;
+    Color civColour = civ.getColour();
+    Color hexColour = new Color(civColour.getRed(), civColour.getGreen(), civColour.getBlue(), 100);
+   
+    for (HexCoordinate h : city.getCityHexes()) {
+      if (hexMap.getHex(h) != null) {
+        g.setStroke(new BasicStroke(3.5f));
+        p = layout.polygonCorners(h);
+        for (int k = 0; k < p.length; k++) {
+          poly.addPoint((int) (p[k].x) + scrollX, (int) (p[k].y) + scrollY);
+        }
+        g.setColor(hexColour);
+        g.fillPolygon(poly);
+        poly.reset();
+      }
+    }
+  }
+  
   public void drawUnits(Graphics2D g) {
     g.setColor(Color.BLACK);
     g.setFont(new Font("SansSerif", Font.BOLD, TEXT_SIZE));
     Hex h = null;
     Point p = null;
-    String name = null;
     for (BaseCivilization c : civs) {
       for (Unit u : c.getUnits()) {
         h = hexMap.getHex(u.getPosition());
@@ -352,7 +355,6 @@ public class GUI {
     g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
   }
   
-
   public void drawActionMenus(Graphics2D g) {
     if (currentUnit != null)
       currentUnit.getMenu().draw(g);

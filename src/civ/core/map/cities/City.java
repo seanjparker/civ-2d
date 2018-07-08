@@ -6,10 +6,11 @@ import static civ.core.instance.IData.layout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Image;
-import javax.swing.ImageIcon;
+import java.awt.image.BufferedImage;
+import java.util.List;
 import civ.core.data.Point;
 import civ.core.data.hex.HexCoordinate;
+import civ.core.data.map.HexMap;
 import civ.core.data.utils.GFXUtils;
 
 public class City {
@@ -20,6 +21,8 @@ public class City {
   private static final int CULT_INITIAL = 1;
   private static final int STRG_INITIAL = 8;
   private static final int POPU_INITIAL = 1;
+  
+  private static final int INITIAL_CITY_AREA = 1;
 
 
   private String cityName;
@@ -32,12 +35,14 @@ public class City {
   private int cityCulture;
   private int cityStrength;
   
-  private static final Image SHIELD;
-  private static final Image POPULATION;
+  private List<HexCoordinate> cityHexes;
+  
+  private static final BufferedImage SHIELD;
+  private static final BufferedImage POPULATION;
   
   static {
-    SHIELD = new ImageIcon("./gfx/icons/SHIELD.png").getImage();
-    POPULATION = new ImageIcon("./gfx/icons/POPULATION.png").getImage();
+    SHIELD = GFXUtils.loadImage("./gfx/icons/SHIELD.png");
+    POPULATION = GFXUtils.loadImage("./gfx/icons/POPULATION.png");
   }
 
   public City(String cityName, HexCoordinate cityPos) {
@@ -51,6 +56,11 @@ public class City {
     this.cityScience = SCIE_INITIAL;
     this.cityCulture = CULT_INITIAL;
     this.cityStrength = STRG_INITIAL;
+    
+    //Get all the hexes with the range of this hex
+    this.cityHexes = HexMap.getAllInRange(cityPos, INITIAL_CITY_AREA);
+    //Remove the city hex from the List
+    this.cityHexes.remove(cityPos);
   }
 
   public void draw(Graphics2D g, Color cityColour, int scrollX, int scrollY) {
@@ -121,6 +131,10 @@ public class City {
   
   public int getStrength() {
     return cityStrength;
+  }
+
+  public List<HexCoordinate> getCityHexes() {
+    return this.cityHexes;
   }
 
 }

@@ -41,15 +41,11 @@ public class Hex extends HexCoordinate {
     return new HexCoordinate(q, r, s);
   }
   
-  public boolean isHexEqual(Hex b) {
-    return b != null && this.q == b.q && this.r == b.q && this.s == b.q;
-  }
-  
   @Override
   public Hex add(HexCoordinate b) {
     return new Hex(q + b.q, r + b.r, s + b.s);
   }
-
+  
   private Hex subtract(HexCoordinate b) {
     return new Hex(q - b.q, r - b.r, s - b.s);
   }
@@ -234,7 +230,7 @@ public class Hex extends HexCoordinate {
     }
 
     for (Unit u : hexUnits) {
-      if (u != null && u.getPosition().isEqual(
+      if (u != null && u.getPosition().equals(
           new HexCoordinate(this.q, this.r, this.s))) {
         
         sbUnits.append("(" + u.getOwner().getPluralName() + ") " + u.getName() + " :\n"

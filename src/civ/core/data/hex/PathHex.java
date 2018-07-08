@@ -26,10 +26,6 @@ public class PathHex extends HexCoordinate {
     return canMoveOver;
   }
 
-  public boolean equals(Hex h) {
-    return (super.q == h.q && super.r == h.r);
-  }
-
   public boolean getCanSwitch() {
     return this.canSwitch;
   }

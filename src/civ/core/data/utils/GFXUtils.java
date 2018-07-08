@@ -63,8 +63,7 @@ public class GFXUtils {
     double weightedG = bgColour.getGreen() * 0.587;
     double weightedB = bgColour.getBlue() * 0.114;
     
-    String c = weightedR + weightedG + weightedB > 187D ? "BLACK" : "WHITE";
-    return c;
+    return weightedR + weightedG + weightedB > 187D ? "BLACK" : "WHITE";
   }
   
 }

@@ -1,6 +1,7 @@
 package civ.core.data.hex;
 
 import java.util.Random;
+import civ.core.data.map.HexMap;
 
 public class HexCoordinate {
   public static final int NEIGHBOURS = 6;
@@ -22,9 +23,19 @@ public class HexCoordinate {
   public HexCoordinate(int q, int r) {
     this(q, r, -q - r);
   }
-
-  public boolean isEqual(HexCoordinate b) {
-    return (b != null) && (this.q == b.q) && (this.r == b.r) && (this.s == b.s);
+  
+  @Override
+  public boolean equals(Object b) {
+    if (b == null)
+      return false;
+    
+    HexCoordinate h = (HexCoordinate) b;
+    return this.q == h.q && this.r == h.r;
+  }
+  
+  @Override
+  public int hashCode() {
+    return HexMap.hash(this);
   }
 
   public HexCoordinate add(HexCoordinate b) {

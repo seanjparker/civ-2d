@@ -70,7 +70,7 @@ public class Game {
 
   private void createCiv(int players) {
     // Initalize civ
-    civs.add(new England());
+    civs.add(new America());
 
     // Add units to the game map
     // Get settler and warrior co-ordinate
@@ -114,7 +114,7 @@ public class Game {
       List<Unit> civUnits = civs.get(0).getUnits();
       Hex currentHex = hexMap.getHex(ui.getFocusHex());
       for (Unit u : civUnits) {
-        if (u.getPosition().isEqual(currentHex.getPosition()))
+        if (u.getPosition().equals(currentHex.getPosition()))
           currentUnit = u;
       }
     }
@@ -130,8 +130,8 @@ public class Game {
       Hex endHex;
       HexCoordinate tempTo = layout.pixelToHex(new Point(toX - scrollX, toY - scrollY));
       boolean canCreatePath =
-          (!focusHex.isEqual(tempTo) && hexMap.getHex(tempTo) != null) && (hexToPath == null)
-              || (!hexToPath.isEqual(tempTo));
+          (!focusHex.equals(tempTo) && hexMap.getHex(tempTo) != null) && (hexToPath == null)
+              || (!hexToPath.equals(tempTo));
       if (canCreatePath) {
         hexToPath = tempTo;
         endHex = hexMap.getHex(hexToPath);
@@ -146,11 +146,11 @@ public class Game {
     HexCoordinate fromHex = ui.getFocusHex();
     if (fromHex != null && MouseHandler.pressedMouse) {
       HexCoordinate toHexPlace = layout.pixelToHex(ui.getHexPosFromMouse());
-      if (toHexPlace != null && !fromHex.isEqual(toHexPlace)) {
+      if (toHexPlace != null && !fromHex.equals(toHexPlace)) {
         List<PathHex> path = ui.getUnitPath();
         if (path != null) {
-          return (path.stream().anyMatch(i -> i.getPassable() && i.isEqual(toHexPlace)))
-              || (path.stream().filter(j -> j.isEqual(toHexPlace)).anyMatch(k -> k.getCanSwitch()));
+          return path.stream().anyMatch(i -> i.getPassable() && i.equals(toHexPlace))
+              || path.stream().filter(j -> j.equals(toHexPlace)).anyMatch(k -> k.getCanSwitch());
         }
       }
     }
