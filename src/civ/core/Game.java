@@ -55,8 +55,8 @@ public class Game {
   }
 
   public void draw(Graphics2D g) {
-    ui.setRenderHints(g);
-    
+    ui.setRenderOptions(g);
+
     ui.drawHexGrid(g);
     ui.drawCities(g);
     ui.drawUnits(g);
@@ -65,6 +65,7 @@ public class Game {
     ui.drawFocusHex(g);
     ui.drawHexInspect(g);
     ui.drawUI(g);
+    ui.drawCityManagementUI(g);
     ui.drawActionMenus(g);
   }
 

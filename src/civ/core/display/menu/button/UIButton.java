@@ -34,12 +34,16 @@ public class UIButton extends Button {
   public void drawButton(Graphics2D g) {
     g.setColor(new Color(48, 119, 186));
     g.fill3DRect(xPos, yPos, buttonSizeX, buttonSizeY, true);
-
+    
+    //Double the font size for this button
     g.setFont(new Font("SansSerif", Font.BOLD, TEXT_SIZE * 2));
     g.setColor(Color.WHITE);
     int textWidth = g.getFontMetrics().stringWidth(text);
 
     g.drawString(text, xPos + (buttonSizeX / 2) - (textWidth / 2), yPos + (buttonSizeY / 2));
+    
+    //Reset the font size
+    g.setFont(new Font("SansSerif", Font.BOLD, TEXT_SIZE));
   }
 
 }

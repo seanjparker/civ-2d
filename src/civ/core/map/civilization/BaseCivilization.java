@@ -3,6 +3,7 @@ package civ.core.map.civilization;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import civ.core.data.hex.HexCoordinate;
 import civ.core.map.cities.City;
 import civ.core.unit.Unit;
@@ -143,5 +144,10 @@ public class BaseCivilization {
 
   public void deleteUnit(Unit u) {
     units.remove(u);
+  }
+  
+  public City getCityAt(HexCoordinate hex) {
+    Optional<City> currentCity = this.cities.stream().filter(c -> c.getCityPosition().equals(hex)).findFirst();
+    return currentCity.isPresent() ? currentCity.get() : null;
   }
 }

@@ -33,6 +33,7 @@ public class IData {
   public static Unit currentUnit = null;
 
   public static int turnCounter = 0;
+  public static int uiYOffset = 0;
   public static boolean nextTurnInProgress = false;
 
 }

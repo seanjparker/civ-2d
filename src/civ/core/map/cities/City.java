@@ -70,7 +70,6 @@ public class City {
     int yCentre = (int) (pos.y + scrollY) - (HEX_RADIUS / 2);
     
     //Set up the font for text and calculate width of city name box
-    g.setFont(new Font("Arial", Font.BOLD, TEXT_SIZE));
     int nameWidth = g.getFontMetrics().stringWidth(cityName);
     int nameHeight = g.getFontMetrics().getHeight();
     int cityNameCentreOffset = nameWidth >> 1;
@@ -92,7 +91,7 @@ public class City {
     g.drawImage(SHIELD, xCentre - (3 * width / 2), yCentre + height, width, height, null);
     
     //Next draw the city strength value 
-    g.setFont(new Font("Arial", Font.BOLD, HEX_RADIUS / 3));
+    g.setFont(new Font("SansSerif", Font.BOLD, HEX_RADIUS / 3));
     g.drawString(Integer.toString(this.cityStrength), xCentre - (HEX_RADIUS / 3) - (width / 2), yCentre + height + textHeightOffset);
     
     //Draw the city population icon
@@ -103,6 +102,9 @@ public class City {
     //g.setColor(ui.getColourForReadableText(hexMap.getHex(cityPos).getLandscape().getColour()));
     g.setColor(Color.WHITE);
     g.drawString(Integer.toString(this.cityPopulation), xCentre + width - (populationWidth / 2), yCentre + height + textHeightOffset);
+    
+    
+    g.setFont(new Font("SansSerif", Font.BOLD, TEXT_SIZE));
   }
 
   public int getPopulation() {
@@ -135,6 +137,14 @@ public class City {
 
   public List<HexCoordinate> getCityHexes() {
     return this.cityHexes;
+  }
+  
+  public HexCoordinate getCityPosition() {
+    return this.cityPos;
+  }
+  
+  public BufferedImage getPopulationImage() {
+    return POPULATION;
   }
 
 }

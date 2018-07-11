@@ -1,23 +1,16 @@
 package civ.core.display;
 
-import static civ.core.instance.IData.HEX_RADIUS;
-import static civ.core.instance.IData.H_HEXES;
-import static civ.core.instance.IData.TEXT_SIZE;
-import static civ.core.instance.IData.WINDOW_HEIGHT;
-import static civ.core.instance.IData.WINDOW_WIDTH;
-import static civ.core.instance.IData.W_HEXES;
-import static civ.core.instance.IData.civs;
-import static civ.core.instance.IData.currentUnit;
-import static civ.core.instance.IData.hexMap;
-import static civ.core.instance.IData.layout;
-import static civ.core.instance.IData.turnCounter;
+import static civ.core.instance.IData.*;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.GradientPaint;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +18,6 @@ import civ.core.data.Point;
 import civ.core.data.hex.Hex;
 import civ.core.data.hex.HexCoordinate;
 import civ.core.data.hex.PathHex;
-import civ.core.data.utils.GFXUtils;
 import civ.core.data.utils.Pair;
 import civ.core.display.menu.button.Button;
 import civ.core.display.menu.button.UIButton;
@@ -138,7 +130,6 @@ public class GUI {
         
         //Set the font
         g.setColor(Color.WHITE);
-        g.setFont(new Font("SansSerif", Font.BOLD, TEXT_SIZE));
         
         //Set the position of the box
         int xOff = g.getFont().getSize();
@@ -245,8 +236,7 @@ public class GUI {
   public void drawCityAOO(Graphics2D g, City city, BaseCivilization civ) {
     Point[] p = null;
     Color civColour = civ.getColour();
-    Color hexColour = new Color(civColour.getRed(), civColour.getGreen(), civColour.getBlue(), 100);
-   
+    Color hexColour = new Color(civColour.getRed(), civColour.getGreen(), civColour.getBlue(), 200);
     for (HexCoordinate h : city.getCityHexes()) {
       if (hexMap.getHex(h) != null) {
         g.setStroke(new BasicStroke(3.5f));
@@ -263,7 +253,6 @@ public class GUI {
   
   public void drawUnits(Graphics2D g) {
     g.setColor(Color.BLACK);
-    g.setFont(new Font("SansSerif", Font.BOLD, TEXT_SIZE));
     Hex h = null;
     Point p = null;
     for (BaseCivilization c : civs) {
@@ -300,16 +289,14 @@ public class GUI {
 
   public void drawUI(Graphics2D g) {
     g.setColor(Color.BLACK);
-    g.setFont(new Font("Lucida Sans", Font.BOLD, TEXT_SIZE));
 
-    int fontHeight = g.getFontMetrics().getHeight();
     int fontWidth = g.getFont().getSize();
     int textX = 0;
     int offsetX = 100;
-    int yieldHeight = (int) (0.75 * fontHeight);
+    int yieldHeight = (int) (0.8 * uiYOffset);
 
     // Draw the top bar of the ui
-    g.fillRect(0, 0, WINDOW_WIDTH, fontHeight);
+    g.fillRect(0, 0, WINDOW_WIDTH, uiYOffset);
 
     // Draw the turn counter
     g.setColor(Color.WHITE);
@@ -350,9 +337,97 @@ public class GUI {
     uiButtons.stream().forEach(i -> i.drawButton(g));
   }
   
-  public void setRenderHints(Graphics2D g) {
+  public void drawCityManagementUI(Graphics2D g) {
+    if (focusHex != null) {
+      // We have clicked on a players city, show this cities UI
+      City currentCity = civs.get(0).getCityAt(focusHex);
+      if (currentCity != null) {
+        
+        final int sections = 5;
+        int borderWidth = 4;
+        int sepHeight = (WINDOW_HEIGHT / 2) / sections;
+        int totalBorder = uiYOffset + borderWidth;
+        int currentLineHeight = sepHeight + totalBorder;
+
+        // Draw the black background for the window
+        g.setColor(Color.BLACK);
+        g.fillRect(0, uiYOffset, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2);
+
+        // Draw the city data in the box
+        g.setStroke(new BasicStroke(1.0f));
+
+        // Draw population line seperator
+        g.setColor(new Color(255, 255, 255, 150)); // Nearly transparent white
+        g.drawLine(0, currentLineHeight, WINDOW_WIDTH / 4, currentLineHeight);
+        currentLineHeight += sepHeight;
+
+        // Draw the population image
+        BufferedImage cityPopulationImage = currentCity.getPopulationImage();
+        int imageResizedW = HEX_RADIUS;
+        int imageResizedH = HEX_RADIUS;
+        g.drawImage(cityPopulationImage, 0, totalBorder, imageResizedW, imageResizedH, null);
+
+        // Draw the city population
+        g.setColor(Color.WHITE);
+        setTextFont(g, 4);
+        g.drawString(Integer.toString(currentCity.getPopulation()), imageResizedW,
+            totalBorder + g.getFontMetrics().getHeight() * 3 / 4);
+
+        setTextFont(g, 2);
+        
+        // Draw food
+        int cityFood = currentCity.getFood();
+        String foodString = (cityFood >= 0 ? "+" : "") + Integer.toString(cityFood);
+        drawCityResourceUI(g, new Color(165, 190, 125), currentLineHeight, "Food:", foodString);
+        currentLineHeight += sepHeight;
+        
+        // Draw production
+        int cityProduction = currentCity.getProduction();
+        String productionString = "+" + Integer.toString(cityProduction);
+        drawCityResourceUI(g, new Color(150, 130, 100), currentLineHeight, "Production:", productionString);
+        currentLineHeight += sepHeight;
+        
+        // Draw gold
+        int cityGold = currentCity.getGold();
+        String goldString = (cityGold >= 0 ? "+" : "") + Integer.toString(cityGold);
+        drawCityResourceUI(g, new Color(244, 244, 34), currentLineHeight, "Gold:", goldString);
+        currentLineHeight += sepHeight;
+        
+        // Draw science
+        int cityScience = currentCity.getScience();
+        String scienceString = "+" + Integer.toString(cityScience);
+        drawCityResourceUI(g, new Color(91, 154, 255), currentLineHeight, "Science:", scienceString);
+        
+        // Draw the box border
+        g.setStroke(new BasicStroke(borderWidth));
+        g.setColor(Color.LIGHT_GRAY);
+        g.drawRoundRect(0, uiYOffset, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2, 10, 10);
+      }
+    }
+  }
+  
+  private void drawCityResourceUI(Graphics2D g, Color colour, int currentLineHeight, String quantityName, String quantity) {
+    g.setColor(new Color(255, 255, 255, 150)); // Nearly transparent white
+    g.drawLine(0, currentLineHeight, WINDOW_WIDTH / 4, currentLineHeight);
+
+    int textHeight = currentLineHeight - g.getFontMetrics().getHeight() * 3 / 4;
+    g.setColor(colour);
+    g.drawString(quantityName, 0, textHeight);
+
+    g.setColor(Integer.parseInt(quantity) >= 0 ? colour : Color.RED);
+    g.drawString(quantity, WINDOW_WIDTH / 4 - g.getFontMetrics().stringWidth(quantity), textHeight);
+  }
+  
+  public void setRenderOptions(Graphics2D g) {
+    setTextFont(g, 1);
+    uiYOffset = g.getFontMetrics().getHeight();
+
     g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
     g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+  }
+  
+  private void setTextFont(Graphics2D g, int fontMultiplier) {
+    g.setFont(new Font("SansSerif", Font.BOLD, TEXT_SIZE * fontMultiplier));
   }
   
   public void drawActionMenus(Graphics2D g) {
@@ -454,9 +529,9 @@ public class GUI {
       HexCoordinate tempFocusHex = layout.pixelToHex(new Point(focusX - scrollX, focusY - scrollY));
       Hex mapHex = hexMap.getHex(tempFocusHex);
       boolean shouldSetFocusHex =
-          mapHex != null && (!mapHex.canSetMilitary() || !mapHex.canSetCivilian());
+          mapHex != null && (!mapHex.canSetMilitary() || !mapHex.canSetCivilian() || civs.get(0).getCityAt(tempFocusHex) != null);
       if (shouldSetFocusHex)
-        focusHex = new Hex(tempFocusHex.q, tempFocusHex.r, tempFocusHex.s);
+        focusHex = mapHex;
     }
   }
 
