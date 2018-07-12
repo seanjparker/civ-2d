@@ -39,7 +39,7 @@ public class GUI {
   private Polygon poly;
   private List<Button> uiButtons;
   
-  private Hex focusHex = null;
+  private HexCoordinate focusHex = null;
   
   private static final Color HEX_OUTLINE_COLOUR = new Color(80, 80, 80, 75);
 
@@ -198,7 +198,7 @@ public class GUI {
     if (unitAndHexValid) {
       Point hexCentre = null;
       for (PathHex h : pathToFollow) {
-        if (!h.equals(focusHex)) {
+        if (!focusHex.equals(h)) {
           boolean unitMoveable = h.getPassable() || h.getCanSwitch();
           g.setColor(unitMoveable ? Color.WHITE : Color.RED);
           hexCentre = layout.hexToPixel(h);
@@ -313,11 +313,11 @@ public class GUI {
       int civHappiness = civs.get(0).getHappiness();
 
       // Draw the yields
-      g.setColor(new Color(91, 154, 255)); // Blue for science
+      g.setColor(SCIE_COLOUR); // Blue for science
       g.drawString("+" + Integer.toString(civSciencePT), textX, yieldHeight); // Science
 
       textX += offsetX;
-      g.setColor(new Color(244, 244, 34)); // Dark Yellow for Gold
+      g.setColor(GOLD_COLOUR); // Dark Yellow for Gold
       g.drawString(Integer.toString(civGoldTotal) + "(+" + Integer.toString(civGoldPT) + ")", textX,
           yieldHeight); // Gold
 
@@ -329,7 +329,7 @@ public class GUI {
       g.drawString("" + Math.abs(civHappiness), textX + fontWidth, yieldHeight);
 
       textX += offsetX;
-      g.setColor(new Color(186, 16, 160)); // Purple for culture
+      g.setColor(CULT_COLOUR); // Purple for culture
       g.drawString(Integer.toString(civCultureTotal) + "/" + Integer.toString(civCultureReq) + "(+"
           + Integer.toString(civCulturePT) + ")", textX, yieldHeight);
     }
@@ -341,81 +341,9 @@ public class GUI {
     if (focusHex != null) {
       // We have clicked on a players city, show this cities UI
       City currentCity = civs.get(0).getCityAt(focusHex);
-      if (currentCity != null) {
-        
-        final int sections = 5;
-        int borderWidth = 4;
-        int sepHeight = (WINDOW_HEIGHT / 2) / sections;
-        int totalBorder = uiYOffset + borderWidth;
-        int currentLineHeight = sepHeight + totalBorder;
-
-        // Draw the black background for the window
-        g.setColor(Color.BLACK);
-        g.fillRect(0, uiYOffset, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2);
-
-        // Draw the city data in the box
-        g.setStroke(new BasicStroke(1.0f));
-
-        // Draw population line seperator
-        g.setColor(new Color(255, 255, 255, 150)); // Nearly transparent white
-        g.drawLine(0, currentLineHeight, WINDOW_WIDTH / 4, currentLineHeight);
-        currentLineHeight += sepHeight;
-
-        // Draw the population image
-        BufferedImage cityPopulationImage = currentCity.getPopulationImage();
-        int imageResizedW = HEX_RADIUS;
-        int imageResizedH = HEX_RADIUS;
-        g.drawImage(cityPopulationImage, 0, totalBorder, imageResizedW, imageResizedH, null);
-
-        // Draw the city population
-        g.setColor(Color.WHITE);
-        setTextFont(g, 4);
-        g.drawString(Integer.toString(currentCity.getPopulation()), imageResizedW,
-            totalBorder + g.getFontMetrics().getHeight() * 3 / 4);
-
-        setTextFont(g, 2);
-        
-        // Draw food
-        int cityFood = currentCity.getFood();
-        String foodString = (cityFood >= 0 ? "+" : "") + Integer.toString(cityFood);
-        drawCityResourceUI(g, new Color(165, 190, 125), currentLineHeight, "Food:", foodString);
-        currentLineHeight += sepHeight;
-        
-        // Draw production
-        int cityProduction = currentCity.getProduction();
-        String productionString = "+" + Integer.toString(cityProduction);
-        drawCityResourceUI(g, new Color(150, 130, 100), currentLineHeight, "Production:", productionString);
-        currentLineHeight += sepHeight;
-        
-        // Draw gold
-        int cityGold = currentCity.getGold();
-        String goldString = (cityGold >= 0 ? "+" : "") + Integer.toString(cityGold);
-        drawCityResourceUI(g, new Color(244, 244, 34), currentLineHeight, "Gold:", goldString);
-        currentLineHeight += sepHeight;
-        
-        // Draw science
-        int cityScience = currentCity.getScience();
-        String scienceString = "+" + Integer.toString(cityScience);
-        drawCityResourceUI(g, new Color(91, 154, 255), currentLineHeight, "Science:", scienceString);
-        
-        // Draw the box border
-        g.setStroke(new BasicStroke(borderWidth));
-        g.setColor(Color.LIGHT_GRAY);
-        g.drawRoundRect(0, uiYOffset, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2, 10, 10);
-      }
+      if (currentCity != null)
+        currentCity.drawUI(g);
     }
-  }
-  
-  private void drawCityResourceUI(Graphics2D g, Color colour, int currentLineHeight, String quantityName, String quantity) {
-    g.setColor(new Color(255, 255, 255, 150)); // Nearly transparent white
-    g.drawLine(0, currentLineHeight, WINDOW_WIDTH / 4, currentLineHeight);
-
-    int textHeight = currentLineHeight - g.getFontMetrics().getHeight() * 3 / 4;
-    g.setColor(colour);
-    g.drawString(quantityName, 0, textHeight);
-
-    g.setColor(Integer.parseInt(quantity) >= 0 ? colour : Color.RED);
-    g.drawString(quantity, WINDOW_WIDTH / 4 - g.getFontMetrics().stringWidth(quantity), textHeight);
   }
   
   public void setRenderOptions(Graphics2D g) {
@@ -426,8 +354,11 @@ public class GUI {
     g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
   }
   
-  private void setTextFont(Graphics2D g, int fontMultiplier) {
-    g.setFont(new Font("SansSerif", Font.BOLD, TEXT_SIZE * fontMultiplier));
+  public void setTextFont(Graphics2D g, int fontMultiplier) {
+    g.setFont(getBaseFont(fontMultiplier));
+  }
+  public Font getBaseFont(int mul) {
+    return new Font("SansSerif", Font.BOLD, TEXT_SIZE * mul);
   }
   
   public void drawActionMenus(Graphics2D g) {
@@ -543,7 +474,7 @@ public class GUI {
     currentUnit = null;
   }
 
-  public Hex getFocusHex() {
+  public HexCoordinate getFocusHex() {
     return focusHex;
   }
 

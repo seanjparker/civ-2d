@@ -12,7 +12,7 @@ public class Pathfinding {
     ap = new AStar();
   }
 
-  public List<HexCoordinate> findPath(Map<Integer, Hex> map, Hex from, Hex to) {
+  public List<HexCoordinate> findPath(Map<Integer, Hex> map, HexCoordinate from, HexCoordinate to) {
     return ap.aStar(map, from, to);
   }
 }

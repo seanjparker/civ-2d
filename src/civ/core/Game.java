@@ -1,5 +1,13 @@
 package civ.core;
 
+import static civ.core.instance.IData.HEX_RADIUS;
+import static civ.core.instance.IData.H_HEXES;
+import static civ.core.instance.IData.W_HEXES;
+import static civ.core.instance.IData.civs;
+import static civ.core.instance.IData.currentUnit;
+import static civ.core.instance.IData.hexMap;
+import static civ.core.instance.IData.layout;
+import static civ.core.instance.IData.ui;
 import java.awt.Graphics2D;
 import java.util.List;
 import java.util.Random;
@@ -10,13 +18,11 @@ import civ.core.data.hex.HexCoordinate;
 import civ.core.data.hex.PathHex;
 import civ.core.input.KeyboardHandler;
 import civ.core.input.MouseHandler;
+import civ.core.map.cities.City;
 import civ.core.map.civilization.America;
-import civ.core.map.civilization.England;
 import civ.core.unit.Settler;
 import civ.core.unit.Unit;
 import civ.core.unit.Warrior;
-
-import static civ.core.instance.IData.*;
 
 public class Game {
   private Random rnd;
@@ -48,6 +54,14 @@ public class Game {
       if (shouldMoveUnit()) {
         currentUnit.moveUnit(ui.getFocusHex(), ui.getScrollX(), ui.getScrollY());
         MouseHandler.pressedMouse = false;
+      }
+    }
+    
+    if (ui.getFocusHex() != null) {
+      City currentCity = civs.get(0).getCityAt(ui.getFocusHex());
+      if (currentCity != null) {
+        currentCity.getCityProductionButtons().forEach(b -> b.onPress());
+        currentCity.getCityUnitProductionButtons().forEach(b -> b.onPress());
       }
     }
 
@@ -122,21 +136,19 @@ public class Game {
   }
 
   public void createUnitPath() {
-    Hex focusHex = ui.getFocusHex();
+    HexCoordinate focusHex = ui.getFocusHex();
     if (focusHex != null && currentUnit != null && currentUnit.isBeingMoved()) {
       int toX = MouseHandler.movedMX;
       int toY = MouseHandler.movedMY;
       int scrollX = ui.getScrollX();
       int scrollY = ui.getScrollY();
-      Hex endHex;
       HexCoordinate tempTo = layout.pixelToHex(new Point(toX - scrollX, toY - scrollY));
       boolean canCreatePath =
           (!focusHex.equals(tempTo) && hexMap.getHex(tempTo) != null) && (hexToPath == null)
               || (!hexToPath.equals(tempTo));
       if (canCreatePath) {
         hexToPath = tempTo;
-        endHex = hexMap.getHex(hexToPath);
-        List<HexCoordinate> pathToFollow = pf.findPath(hexMap.getMap(), focusHex, endHex);
+        List<HexCoordinate> pathToFollow = pf.findPath(hexMap.getMap(), focusHex, hexToPath);
         List<PathHex> finalPath = currentUnit.validUnitMove(pathToFollow);
         ui.setFocusedUnitPath(finalPath);
       }

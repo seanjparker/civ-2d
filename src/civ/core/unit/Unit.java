@@ -5,11 +5,9 @@ import static civ.core.instance.IData.currentUnit;
 import static civ.core.instance.IData.hexMap;
 import static civ.core.instance.IData.layout;
 import static civ.core.instance.IData.ui;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.ImageIcon;
 import civ.core.data.Point;
 import civ.core.data.hex.Hex;
 import civ.core.data.hex.HexCoordinate;
@@ -18,13 +16,12 @@ import civ.core.data.map.HexMap;
 import civ.core.display.menu.Menu;
 import civ.core.input.MouseHandler;
 import civ.core.instance.IUnit;
+import civ.core.map.cities.City;
 import civ.core.map.civilization.BaseCivilization;
 
-public abstract class Unit extends IUnit {
+public class Unit extends IUnit {
   protected Menu actionMenu;
   protected BufferedImage unitImage;
-
-  protected abstract void init();
 
   public Unit(String name, BaseCivilization civOwner, HexCoordinate curPos, BufferedImage unitImage,
       double movementPotential, int productionCost) {
@@ -61,8 +58,6 @@ public abstract class Unit extends IUnit {
     BaseCivilization c1 = civs.get(0);
     c1.addUnit(this);
     civs.set(0, c1);
-
-    init();
   }
 
   public void deleteFromMapAndCiv() {
@@ -128,7 +123,7 @@ public abstract class Unit extends IUnit {
   public int getProductionCost() {
     return productionCost;
   }
-
+  
   public boolean isBeingMoved() {
     return isMoving;
   }
@@ -203,7 +198,7 @@ public abstract class Unit extends IUnit {
     resetMovementPotential();
   }
 
-  public void moveUnit(Hex focusHex, int scrollX, int scrollY) {
+  public void moveUnit(HexCoordinate focusHex, int scrollX, int scrollY) {
     Hex fromHex = hexMap.getHex(focusHex);
     if (!fromHex.canSetCivilian() || !fromHex.canSetMilitary()) {
       int mouseX = MouseHandler.movedMX;
@@ -221,8 +216,7 @@ public abstract class Unit extends IUnit {
       double pathTotal = 0.0D;
       for (PathHex ph : ui.getUnitPath()) {
         if (ph.getPassable() || ph.getCanSwitch()) {
-          Hex mapHex = hexMap.getHex(ph);
-          pathTotal += mapHex.getMovementTotal();
+          pathTotal += hexMap.getHex(ph).getMovementTotal();
         }
       }
 
@@ -335,5 +329,9 @@ public abstract class Unit extends IUnit {
     }
     currentUnit.setMovementTempForMultiMove();
     return finalPath;
+  }
+
+  public void addToProductionQueue(City currentCity) {
+    System.out.println("Added " + this.name + " to city [" + currentCity.getCityName() + "] production queue");
   }
 }

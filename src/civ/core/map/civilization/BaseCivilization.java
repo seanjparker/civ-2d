@@ -2,11 +2,15 @@ package civ.core.map.civilization;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import civ.core.data.hex.HexCoordinate;
 import civ.core.map.cities.City;
+import civ.core.unit.Settler;
 import civ.core.unit.Unit;
+import civ.core.unit.Warrior;
+import civ.core.unit.Worker;
 
 public class BaseCivilization {
   private final String nameSingular;
@@ -62,7 +66,7 @@ public class BaseCivilization {
   public boolean createCity(HexCoordinate hexPos) {
     if (canCreateCity()) {
       String cityName = getNextCityName();
-      City cityToAdd = new City(cityName, hexPos);
+      City cityToAdd = new City(cityName, hexPos, this);
       cities.add(cityToAdd);
       updateResourceYields(cityToAdd);
       numberOfCities++;
@@ -149,5 +153,18 @@ public class BaseCivilization {
   public City getCityAt(HexCoordinate hex) {
     Optional<City> currentCity = this.cities.stream().filter(c -> c.getCityPosition().equals(hex)).findFirst();
     return currentCity.isPresent() ? currentCity.get() : null;
+  }
+
+  /*
+   * For now, we just return all the units we have added to the game
+   * But in the future, when the research tree is added, we need a way to find, based on the civ research
+   * what units the civ can produce in a city
+   */
+  public List<Unit> getAvailableUnits() {
+    return Arrays.asList(
+        new Settler(),
+        new Worker(),
+        new Warrior()
+        );
   }
 }

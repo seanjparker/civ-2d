@@ -14,7 +14,7 @@ import civ.core.data.map.HexMap;
 
 public class AStar {
 
-  public List<HexCoordinate> aStar(Map<Integer, Hex> map, Hex start, Hex end) {
+  public List<HexCoordinate> aStar(Map<Integer, Hex> map, HexCoordinate start, HexCoordinate end) {
     if (start == null || end == null)
       return Collections.emptyList();
     
@@ -26,31 +26,32 @@ public class AStar {
     final Map<Hex, Integer> gScore = new HashMap<>();
     final Map<Hex, Integer> fScore = new HashMap<>();
 
-    start = map.get(HexMap.hash(start));
-    end = map.get(HexMap.hash(end));
+    Hex startHex = map.get(HexMap.hash(start));
+    Hex endHex = map.get(HexMap.hash(end));
 
-    openSet.add(start);
-    gScore.put(start, 0);
+    openSet.add(startHex);
+    gScore.put(startHex, 0);
 
     //For each nodes in the map, we set the current score to infinite
     for (Hex h : map.values())
       fScore.put(h, Integer.MAX_VALUE);
     
-    fScore.put(start, heuristicCost(start, end));
+    fScore.put(startHex, heuristicCost(startHex, endHex));
 
     final Comparator<Hex> comparator = (v1, v2) -> {
-      boolean isLess = fScore.get(v1) < fScore.get(v2);
-      boolean isGreater = fScore.get(v1) > fScore.get(v2);
-      
-      return isLess ? -1 : 
-          isGreater ? 1 : 0;
+      if (fScore.get(v1) < fScore.get(v2))
+        return -1;
+      else if (fScore.get(v1) > fScore.get(v2))
+        return 1;
+      else
+        return 0;
     };
 
     while (!openSet.isEmpty()) { // Iterate through the open set of hexes
       final Hex current = map.get(HexMap.hash(openSet.get(0)));
 
-      if (current.equals(end))
-        return rebuildPath(cameFrom, start, end); // The end of the path is reached, rebuild final path
+      if (current.equals(endHex))
+        return rebuildPath(cameFrom, startHex, endHex); // The end of the path is reached, rebuild final path
 
       openSet.remove(0);
       closedSet.add(current);
@@ -80,7 +81,7 @@ public class AStar {
           cameFrom.put(neighbour, current);
           gScore.put(neighbour, t_GScore);
 
-          final int estimatedFScore = gScore.get(neighbour) + heuristicCost(neighbour, end);
+          final int estimatedFScore = gScore.get(neighbour) + heuristicCost(neighbour, endHex);
           fScore.put(neighbour, estimatedFScore);
 
           // Sort the set, based on the defined hex comparator
