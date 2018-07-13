@@ -1,13 +1,10 @@
 package civ.core.unit;
 
-import static civ.core.instance.IData.civs;
-import static civ.core.instance.IData.currentUnit;
-import static civ.core.instance.IData.hexMap;
-import static civ.core.instance.IData.layout;
-import static civ.core.instance.IData.ui;
+import static civ.core.instance.IData.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import civ.core.data.Cost;
 import civ.core.data.Point;
 import civ.core.data.hex.Hex;
 import civ.core.data.hex.HexCoordinate;
@@ -19,7 +16,7 @@ import civ.core.instance.IUnit;
 import civ.core.map.cities.City;
 import civ.core.map.civilization.BaseCivilization;
 
-public class Unit extends IUnit {
+public class Unit extends IUnit implements Cost {
   protected Menu actionMenu;
   protected BufferedImage unitImage;
 
@@ -332,6 +329,7 @@ public class Unit extends IUnit {
   }
 
   public void addToProductionQueue(City currentCity) {
-    System.out.println("Added " + this.name + " to city [" + currentCity.getCityName() + "] production queue");
+    if (currentCity.addToProductionQueue(this))
+      System.out.println("Added " + this.name + " to city [" + currentCity.getCityName() + "] production queue");
   }
 }

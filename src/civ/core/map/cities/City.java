@@ -1,31 +1,22 @@
 package civ.core.map.cities;
 
-import static civ.core.instance.IData.CULT_COLOUR;
-import static civ.core.instance.IData.FOOD_COLOUR;
-import static civ.core.instance.IData.GOLD_COLOUR;
-import static civ.core.instance.IData.HEX_RADIUS;
-import static civ.core.instance.IData.PROD_COLOUR;
-import static civ.core.instance.IData.SCIE_COLOUR;
-import static civ.core.instance.IData.TEXT_SIZE;
-import static civ.core.instance.IData.WINDOW_HEIGHT;
-import static civ.core.instance.IData.WINDOW_WIDTH;
-import static civ.core.instance.IData.layout;
-import static civ.core.instance.IData.ui;
-import static civ.core.instance.IData.uiYOffset;
-import static civ.core.map.cities.CityProductionOptions.BUILDINGS;
-import static civ.core.map.cities.CityProductionOptions.UNITS;
-import static civ.core.map.cities.CityProductionOptions.WONDERS;
+import static civ.core.instance.IData.*;
+import static civ.core.map.cities.CityProductionOptions.*;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import civ.core.data.Cost;
 import civ.core.data.Point;
 import civ.core.data.hex.HexCoordinate;
 import civ.core.data.map.HexMap;
 import civ.core.data.utils.GFXUtils;
+import civ.core.display.menu.button.Button;
 import civ.core.display.menu.button.CityProductionButton;
 import civ.core.display.menu.button.CityUnitProductionButton;
 import civ.core.map.civilization.BaseCivilization;
@@ -67,6 +58,8 @@ public class City {
   private List<HexCoordinate> cityHexes;
   private List<CityProductionButton> cityProductionButtons;
   private List<CityUnitProductionButton> unitProductionButtons;
+  
+  private Queue<Cost> cityProductionQueue;
  
   
   static {
@@ -93,6 +86,7 @@ public class City {
     this.cityHexes.remove(cityPos);
     
     cityProductionButtons = new ArrayList<>();
+    cityProductionQueue = new LinkedList<>();
     
     int buttonCount = 0;
     int buttonX = WINDOW_WIDTH - BOX_WIDTH / 2 - (MAIN_BUTTON_SIZE / 2);
@@ -108,15 +102,16 @@ public class City {
     int buttonSize = HEX_RADIUS / 2;
     int buttonY = MAIN_BUTTON_SIZE * cityProductionButtons.size() + TOTAL_BORDER * 2;
     buttonX = WINDOW_WIDTH - (BOX_WIDTH * 3 / 4) - (buttonSize / 2);
+    int buttonsInRow = 3;
     
     int count = -1;
     unitProductionButtons = new ArrayList<>();
     for (Unit unit : owner.getAvailableUnits()) {
       unitProductionButtons.add(new CityUnitProductionButton(this, unit, buttonSize, buttonSize, buttonX, buttonY));
       buttonX += buttonSize + TOTAL_BORDER;
-      if (++count % 3 == 2) {
+      if (++count % buttonsInRow == buttonsInRow - 1) {
         buttonY += buttonSize + TOTAL_BORDER;
-        buttonX -= (buttonSize + TOTAL_BORDER) * 3;
+        buttonX -= (buttonSize + TOTAL_BORDER) * buttonsInRow;
       }
     }
   }
@@ -171,10 +166,11 @@ public class City {
   
   private void drawCityProductionUI(Graphics2D g) {
     int currentHeight = MAIN_BUTTON_SIZE * cityProductionButtons.size() + TOTAL_BORDER;
-    
+    int toHeight = WINDOW_HEIGHT - HEX_RADIUS * 2;
+        
     // Draw the black background for the window
     g.setColor(Color.BLACK);
-    g.fillRect(BOX_XPOS, uiYOffset, BOX_WIDTH, WINDOW_HEIGHT);
+    g.fillRect(BOX_XPOS, uiYOffset, BOX_WIDTH, toHeight);
 
     // Draw the city production options in the box
     g.setStroke(new BasicStroke(1.0f));
@@ -194,10 +190,37 @@ public class City {
     } else if (CityProductionButton.pressed == CityProductionOptions.WONDERS) {
     }
     
+    if (!cityProductionQueue.isEmpty() && cityProductionQueue.peek() != null) {
+      // Draw the production queue
+      int productionQueueY = toHeight - HEX_RADIUS;
+      g.setColor(PROD_COLOUR);
+      g.fillOval(BOX_XPOS + TOTAL_BORDER, productionQueueY, HEX_RADIUS, HEX_RADIUS);
+      
+      g.setStroke(new BasicStroke(3.0f));
+      g.setColor(PROD_COLOUR.darker());
+      g.drawOval(BOX_XPOS + TOTAL_BORDER, productionQueueY, HEX_RADIUS + 1, HEX_RADIUS + 1);
+      
+      int turnsLeft = cityProductionQueue.peek().getProductionCost() / cityProduction;
+      String turnsLeftAsString = Integer.toString(turnsLeft);
+      
+      g.setColor(Color.WHITE);
+      ui.setTextFont(g, 2);
+      g.drawString(turnsLeftAsString, BOX_XPOS + TOTAL_BORDER + (g.getFontMetrics().stringWidth(turnsLeftAsString) / 2), productionQueueY + (g.getFontMetrics().getHeight()));
+      
+      ui.setTextFont(g, 1);
+      int count = 0;
+      for (Cost next : cityProductionQueue) {
+        g.drawString(Integer.toString(count + 1) + ": " + next.getName(),
+            BOX_XPOS + (TOTAL_BORDER * 2) + HEX_RADIUS,
+            productionQueueY + g.getFontMetrics().getHeight() * count);
+        count++;
+      }
+    }
+    
     // Draw the box border
     g.setStroke(new BasicStroke(BORDER_WIDTH));
     g.setColor(Color.LIGHT_GRAY);
-    g.drawRoundRect(BOX_XPOS, uiYOffset, BOX_WIDTH, WINDOW_HEIGHT, 10, 10);
+    g.drawRoundRect(BOX_XPOS, uiYOffset, BOX_WIDTH, toHeight, 10, 10);
   }
   
   private void drawCityResourceUI(Graphics2D g ) {
@@ -308,6 +331,15 @@ public class City {
   
   public HexCoordinate getCityPosition() {
     return this.cityPos;
+  }
+
+  
+  public boolean addToProductionQueue(Cost next) {
+    if (this.cityProductionQueue.size() < 3) {
+      this.cityProductionQueue.add(next);
+      return true;
+    }
+    return false;
   }
   
 }
