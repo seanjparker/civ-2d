@@ -2,6 +2,8 @@
 
 A 2D version of Civilization coded in Java using only the standard libraries.
 
+![An example of the civilization game running](https://seanjparker.me/images/repos/gh_main_civ.png)
+
 ## Prerequisites
 Building the Civilization source requires Java (JDK v1.8 or later).
 
