@@ -4,8 +4,8 @@ import static civ.core.instance.IData.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import civ.core.data.Cost;
 import civ.core.data.Point;
+import civ.core.data.Producable;
 import civ.core.data.hex.Hex;
 import civ.core.data.hex.HexCoordinate;
 import civ.core.data.hex.PathHex;
@@ -16,7 +16,7 @@ import civ.core.instance.IUnit;
 import civ.core.map.cities.City;
 import civ.core.map.civilization.BaseCivilization;
 
-public class Unit extends IUnit implements Cost {
+public class Unit extends IUnit implements Producable {
   protected Menu actionMenu;
   protected BufferedImage unitImage;
 

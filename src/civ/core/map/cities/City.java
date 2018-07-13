@@ -11,12 +11,11 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import civ.core.data.Cost;
 import civ.core.data.Point;
+import civ.core.data.Producable;
 import civ.core.data.hex.HexCoordinate;
 import civ.core.data.map.HexMap;
 import civ.core.data.utils.GFXUtils;
-import civ.core.display.menu.button.Button;
 import civ.core.display.menu.button.CityProductionButton;
 import civ.core.display.menu.button.CityUnitProductionButton;
 import civ.core.map.civilization.BaseCivilization;
@@ -59,7 +58,7 @@ public class City {
   private List<CityProductionButton> cityProductionButtons;
   private List<CityUnitProductionButton> unitProductionButtons;
   
-  private Queue<Cost> cityProductionQueue;
+  private Queue<Producable> cityProductionQueue;
  
   
   static {
@@ -209,7 +208,7 @@ public class City {
       
       ui.setTextFont(g, 1);
       int count = 0;
-      for (Cost next : cityProductionQueue) {
+      for (Producable next : cityProductionQueue) {
         g.drawString(Integer.toString(count + 1) + ": " + next.getName(),
             BOX_XPOS + (TOTAL_BORDER * 2) + HEX_RADIUS,
             productionQueueY + g.getFontMetrics().getHeight() * count);
@@ -334,7 +333,7 @@ public class City {
   }
 
   
-  public boolean addToProductionQueue(Cost next) {
+  public boolean addToProductionQueue(Producable next) {
     if (this.cityProductionQueue.size() < 3) {
       this.cityProductionQueue.add(next);
       return true;
