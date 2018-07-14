@@ -162,12 +162,10 @@ public class City {
     
     g.setFont(new Font("SansSerif", Font.BOLD, TEXT_SIZE));
   }
-
   public void drawUI(Graphics2D g) {
     drawCityResourceUI(g);
     drawCityProductionUI(g);
   }
-  
   private void drawCityProductionUI(Graphics2D g) {
     int currentHeight = MAIN_BUTTON_SIZE * cityProductionButtons.size() + TOTAL_BORDER;
     int toHeight = WINDOW_HEIGHT - HEX_RADIUS * 2;
@@ -226,7 +224,6 @@ public class City {
     g.setColor(Color.LIGHT_GRAY);
     g.drawRoundRect(BOX_XPOS, uiYOffset, BOX_WIDTH, toHeight, 10, 10);
   }
-  
   private void drawCityResourceUI(Graphics2D g ) {
     int sepHeight = (WINDOW_HEIGHT / 2) / UI_SECTIONS;
     int currentLineHeight = sepHeight + TOTAL_BORDER;
@@ -284,7 +281,6 @@ public class City {
     g.setColor(Color.LIGHT_GRAY);
     g.drawRoundRect(0, uiYOffset, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2, 10, 10);
   }
-
   private void drawResource(Graphics2D g, Color colour, int currentLineHeight, String quantityName, String quantity, boolean drawSeperator) {
     g.setColor(new Color(255, 255, 255, 150)); // Nearly transparent white
     
@@ -350,7 +346,6 @@ public class City {
       addUnitToCity((Unit) build);
     }
   }
-  
   private void addUnitToCity(Unit unit) {
     Unit unitToAdd = null;
     switch (unit.getName()) {
@@ -388,4 +383,14 @@ public class City {
     }
   }
   
+  @Override
+  public String toString() {
+    return "City: " + cityName + " (" + owner.getSingularName() + ")\n"
+        + "Resources per turn:\n"
+        + " - Food: " + cityFood + "\n"
+        + " - Production: " + cityProduction + "\n"
+        + " - Gold: " + cityGold + "\n"
+        + " - Science: " + cityScience + "\n"
+        + " - Culture: " + cityCulture + "\n";
+  }
 }

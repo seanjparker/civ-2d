@@ -1,9 +1,12 @@
 package civ.core.data.hex;
 
+import static civ.core.instance.IData.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import civ.core.data.utils.Pair;
+import civ.core.map.cities.City;
+import civ.core.map.civilization.BaseCivilization;
 import civ.core.map.improvement.Improvement;
 import civ.core.map.terrain.Feature;
 import civ.core.map.terrain.Landscape;
@@ -225,7 +228,7 @@ public class Hex extends HexCoordinate {
 
     if (!features.isEmpty()) {
       sbFeatures.append("Features: \n");
-      features.stream().forEach(i -> sbFeatures.append("- " + i.getName() + "\n"));
+      features.stream().forEach(i -> sbFeatures.append(" - " + i.getName() + "\n"));
       rectH += ((features.size() + 1) * yOff);
     }
 
@@ -248,6 +251,17 @@ public class Hex extends HexCoordinate {
       sb.append(improvement);
     if (hexUnits != null)
       sb.append(sbUnits.toString());
+    
+    //Add city stats if a city is on the current Hex
+    for (BaseCivilization civ : civs) {
+      for (City city : civ.getCities()) {
+        if (city.getCityPosition().equals(this)) {
+          //We have found the city at the current Hex, get the stats
+          sb.append(city.toString());
+          rectH += yOff * 7;
+        }
+      }
+    }
     return new Pair<>(sb.toString(), rectH);
   }
 }
