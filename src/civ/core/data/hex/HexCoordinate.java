@@ -49,7 +49,7 @@ public class HexCoordinate {
     do {
       newHex = add(Hex.DIRECTIONS[rnd.nextInt(NEIGHBOURS - 1)]);
     } while (hexMap.getHex(newHex) == null
-        && ((isMilitary && !hexMap.getHex(newHex).canSetMilitary())
+        || ((isMilitary && !hexMap.getHex(newHex).canSetMilitary())
             || (!isMilitary && !hexMap.getHex(newHex).canSetCivilian())));
     return newHex;
   }
