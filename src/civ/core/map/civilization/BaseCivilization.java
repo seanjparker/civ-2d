@@ -6,12 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import civ.core.data.hex.HexCoordinate;
+import civ.core.instance.IUnit.UnitEnum;
 import civ.core.map.cities.City;
-import civ.core.unit.Scout;
-import civ.core.unit.Settler;
 import civ.core.unit.Unit;
-import civ.core.unit.Warrior;
-import civ.core.unit.Worker;
 
 public class BaseCivilization {
   private final String nameSingular;
@@ -161,12 +158,20 @@ public class BaseCivilization {
    * But in the future, when the research tree is added, we need a way to find, based on the civ research
    * what units the civ can produce in a city
    */
-  public List<Unit> getAvailableUnits() {
+  public List<UnitEnum> getAvailableUnits() {
     return Arrays.asList(
-        new Settler(),
-        new Worker(),
-        new Warrior(),
-        new Scout()
+        UnitEnum.SETTLER,
+        UnitEnum.WORKER,
+        UnitEnum.WARRIOR,
+        UnitEnum.SCOUT
         );
+  }
+
+  public void nextTurn() {
+    for (City city : cities)
+      city.nextTurn();
+    
+    for (Unit unit : units)
+      unit.nextTurn();
   }
 }

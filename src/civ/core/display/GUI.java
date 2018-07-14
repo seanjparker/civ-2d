@@ -418,13 +418,6 @@ public class GUI {
     }
   }
 
-  public static void nextTurn() { // Temp code
-    for (BaseCivilization c : civs)
-      for (Unit u : c.getUnits())
-        u.nextTurn();
-    turnCounter++;
-  }
-
   /*
    * public void addFarm() { if (farmToAdd) { farmToAdd = false; int mX = MouseHandler.movedMX; int
    * mY = MouseHandler.movedMY; FractionalHex fh = Layout.pixelToHex(layout, new Point(mX - scrollX,

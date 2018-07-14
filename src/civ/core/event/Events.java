@@ -1,10 +1,14 @@
 package civ.core.event;
 
+import static civ.core.instance.IData.civs;
 import static civ.core.instance.IData.currentUnit;
+import static civ.core.instance.IData.turnCounter;
 import java.awt.image.BufferedImage;
 import civ.core.display.GUI;
 import civ.core.event.callback.EventCallbackI;
+import civ.core.map.civilization.BaseCivilization;
 import civ.core.unit.Settler;
+import civ.core.unit.Unit;
 import civ.core.data.utils.GFXUtils;
 
 public enum Events {
@@ -41,7 +45,9 @@ public enum Events {
 
   // Other button events
   NEXT_TURN(null, () -> {
-    GUI.nextTurn();
+    for (BaseCivilization c : civs)
+      c.nextTurn();
+    turnCounter++;
   }),
   CIVILOPEDIA_OPEN(null, null),
   RESEARCH_TREE_OPEN(null,null),

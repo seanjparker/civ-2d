@@ -18,8 +18,13 @@ import civ.core.data.map.HexMap;
 import civ.core.data.utils.GFXUtils;
 import civ.core.display.menu.button.CityProductionButton;
 import civ.core.display.menu.button.CityUnitProductionButton;
+import civ.core.instance.IUnit.UnitEnum;
 import civ.core.map.civilization.BaseCivilization;
+import civ.core.unit.Scout;
+import civ.core.unit.Settler;
 import civ.core.unit.Unit;
+import civ.core.unit.Warrior;
+import civ.core.unit.Worker;
 
 public class City {
   private static final int FOOD_INITIAL = 1;
@@ -105,7 +110,7 @@ public class City {
     
     int count = -1;
     unitProductionButtons = new ArrayList<>();
-    for (Unit unit : owner.getAvailableUnits()) {
+    for (UnitEnum unit : owner.getAvailableUnits()) {
       unitProductionButtons.add(new CityUnitProductionButton(this, unit, buttonSize, buttonSize, buttonX, buttonY));
       buttonX += buttonSize + TOTAL_BORDER;
       if (++count % buttonsInRow == buttonsInRow - 1) {
@@ -199,7 +204,7 @@ public class City {
       g.setColor(PROD_COLOUR.darker());
       g.drawOval(BOX_XPOS + TOTAL_BORDER, productionQueueY, HEX_RADIUS + 1, HEX_RADIUS + 1);
       
-      int turnsLeft = cityProductionQueue.peek().getProductionCost() / cityProduction;
+      int turnsLeft = (cityProductionQueue.peek().getProductionCost() - cityProductionQueue.peek().getCurrentProduction()) / cityProduction;
       String turnsLeftAsString = Integer.toString(turnsLeft);
       
       g.setColor(Color.WHITE);
@@ -331,7 +336,6 @@ public class City {
   public HexCoordinate getCityPosition() {
     return this.cityPos;
   }
-
   
   public boolean addToProductionQueue(Producable next) {
     if (this.cityProductionQueue.size() < 3) {
@@ -339,6 +343,49 @@ public class City {
       return true;
     }
     return false;
+  }
+  
+  private void addBuildToCity(Producable build) {
+    if (build instanceof Unit) {
+      addUnitToCity((Unit) build);
+    }
+  }
+  
+  private void addUnitToCity(Unit unit) {
+    Unit unitToAdd = null;
+    switch (unit.getName()) {
+      case "Settler":
+        unitToAdd = new Settler(owner, cityPos.getValidRandomNeighbour(false), true);
+        break;
+      case "Worker":
+        unitToAdd = new Worker(owner, cityPos.getValidRandomNeighbour(false), true);
+        break;
+      case "Warrior":
+        unitToAdd = new Warrior(owner, cityPos.getValidRandomNeighbour(true), true);
+        break;
+      case "Scout":
+        unitToAdd = new Scout(owner, cityPos.getValidRandomNeighbour(true), true);
+        break;
+      default:
+        unitToAdd = new Scout(owner, cityPos.getValidRandomNeighbour(true), true);
+          
+    }
+    owner.addUnit(unitToAdd);
+    unitToAdd.addToMapAndCiv();
+  }
+  
+  public void nextTurn() {
+    if (!cityProductionQueue.isEmpty()) {
+      Producable nextToBuild = cityProductionQueue.peek();
+      nextToBuild.addProductionToBuild(cityProduction);
+
+      // If we have contributed enough production to complete the build, remove from queue and add
+      // build to map
+      if (nextToBuild.getCurrentProduction() >= nextToBuild.getProductionCost()) {
+        addBuildToCity(nextToBuild); //Add the build to the city
+        cityProductionQueue.poll(); //Remove from the queue
+      }
+    }
   }
   
 }

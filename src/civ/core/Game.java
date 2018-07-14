@@ -99,9 +99,7 @@ public class Game {
     } while ((tempH == null));
 
     // Ensure the neighbour is in the map, the following loop will not get stuck on infinite loop
-    do {
-      warrior = settler.getRandomNeighbour();
-    } while (hexMap.getHex(warrior) == null);
+    warrior = settler.getValidRandomNeighbour(true);
 
     // Set the units in the hexes
     Unit s = new Settler(civs.get(0), settler, true);

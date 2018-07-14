@@ -1,5 +1,6 @@
 package civ.core.data.hex;
 
+import static civ.core.instance.IData.hexMap;
 import java.util.Random;
 import civ.core.data.map.HexMap;
 
@@ -42,8 +43,15 @@ public class HexCoordinate {
     return new HexCoordinate(q + b.q, r + b.r, s + b.s);
   }
 
-  public HexCoordinate getRandomNeighbour() {
-    return add(Hex.DIRECTIONS[rnd.nextInt(NEIGHBOURS - 1)]);
+  //This can get stuck in an infinte loop but we can deal with it later
+  public HexCoordinate getValidRandomNeighbour(boolean isMilitary) {
+    HexCoordinate newHex;
+    do {
+      newHex = add(Hex.DIRECTIONS[rnd.nextInt(NEIGHBOURS - 1)]);
+    } while (hexMap.getHex(newHex) == null
+        && ((isMilitary && !hexMap.getHex(newHex).canSetMilitary())
+            || (!isMilitary && !hexMap.getHex(newHex).canSetCivilian())));
+    return newHex;
   }
 
   public HexCoordinate getPosition() {

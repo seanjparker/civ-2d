@@ -127,8 +127,18 @@ public class Unit extends IUnit implements Producable {
     return health;
   }
 
+  @Override
   public int getProductionCost() {
     return productionCost;
+  }
+  
+  @Override
+  public int getCurrentProduction() {
+    return currentProduction;
+  }
+  @Override  
+  public void addProductionToBuild(int productionToAdd) {
+    currentProduction += productionToAdd;
   }
   
   public boolean isBeingMoved() {
@@ -201,6 +211,7 @@ public class Unit extends IUnit implements Producable {
   }
 
   public void nextTurn() {
+    //Refresh all the units movement
     resetMovementTemp();
     resetMovementPotential();
   }
