@@ -23,4 +23,5 @@ public class IUnit {
 
   protected boolean isMoving = false;
   protected boolean isAttacking = false;
+  protected boolean hasTerrainCost = true;
 }

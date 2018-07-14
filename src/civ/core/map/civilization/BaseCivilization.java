@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import civ.core.data.hex.HexCoordinate;
 import civ.core.map.cities.City;
+import civ.core.unit.Scout;
 import civ.core.unit.Settler;
 import civ.core.unit.Unit;
 import civ.core.unit.Warrior;
@@ -164,7 +165,8 @@ public class BaseCivilization {
     return Arrays.asList(
         new Settler(),
         new Worker(),
-        new Warrior()
+        new Warrior(),
+        new Scout()
         );
   }
 }

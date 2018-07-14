@@ -40,6 +40,16 @@ public class Unit extends IUnit implements Producable {
     this.isMilitary = isMilitary;
     this.isSpawned = isSpawned;
   }
+  
+  public Unit(String name, BaseCivilization civOwner, HexCoordinate curPos, BufferedImage unitImage,
+      double movementPotential, double strength, int productionCost, boolean isMilitary,
+      boolean isSpawned, boolean hasTerrainCost) {
+    this(name, civOwner, curPos, unitImage, movementPotential, productionCost);
+    this.strength = strength;
+    this.isMilitary = isMilitary;
+    this.isSpawned = isSpawned;
+    this.hasTerrainCost = hasTerrainCost;
+  }
 
   public void addToMapAndCiv() {
     // Get the map hex for units
