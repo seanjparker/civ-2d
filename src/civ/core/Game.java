@@ -124,11 +124,10 @@ public class Game {
 
   private void setCurrentUnit() {
     if (ui.getFocusHex() != null) {
-      List<Unit> civUnits = civs.get(0).getUnits();
       Hex currentHex = hexMap.getHex(ui.getFocusHex());
-      for (Unit u : civUnits) {
-        if (u.getPosition().equals(currentHex.getPosition()))
-          currentUnit = u;
+      for (Unit unit : currentHex.getUnits()) {
+        if (unit != null && unit.getPosition().equals(currentHex))
+          currentUnit = unit;
       }
     }
   }
@@ -146,8 +145,8 @@ public class Game {
               || (!hexToPath.equals(tempTo));
       if (canCreatePath) {
         hexToPath = tempTo;
-        List<HexCoordinate> pathToFollow = pf.findPath(hexMap.getMap(), focusHex, hexToPath);
-        List<PathHex> finalPath = currentUnit.validUnitMove(pathToFollow);
+        List<PathHex> finalPath =
+            currentUnit.validUnitMove(pf.findPath(hexMap.getMap(), focusHex, hexToPath));
         ui.setFocusedUnitPath(finalPath);
       }
     }
