@@ -186,12 +186,15 @@ public class City {
       button.drawButton(g);
     
     //Draw either units, buildings or wonders, depending on selected option
-    if (CityProductionButton.pressed == CityProductionOptions.UNITS) {
-      unitProductionButtons.forEach(i -> i.drawButton(g));
-    } else if (CityProductionButton.pressed == CityProductionOptions.BUILDINGS) {
-    } else if (CityProductionButton.pressed == CityProductionOptions.WONDERS) {
+    switch (CityProductionButton.pressed) {
+      case UNITS:
+        unitProductionButtons.forEach(i -> i.drawButton(g)); break;
+      case BUILDINGS:
+        break;
+      case WONDERS:
+        break;
+        
     }
-    
     if (!cityProductionQueue.isEmpty() && cityProductionQueue.peek() != null) {
       // Draw the production queue
       int productionQueueY = toHeight - HEX_RADIUS;
@@ -207,9 +210,11 @@ public class City {
       
       g.setColor(Color.WHITE);
       ui.setTextFont(g, 2);
-      g.drawString(turnsLeftAsString, BOX_XPOS + TOTAL_BORDER + (g.getFontMetrics().stringWidth(turnsLeftAsString) / 2), productionQueueY + (g.getFontMetrics().getHeight()));
-      
+      g.drawString(turnsLeftAsString,
+          BOX_XPOS + (g.getFontMetrics().stringWidth(turnsLeftAsString) / 2),
+          productionQueueY + (g.getFontMetrics().getHeight()));
       ui.setTextFont(g, 1);
+      
       int count = 0;
       for (Producable next : cityProductionQueue) {
         g.drawString(Integer.toString(count + 1) + ": " + next.getName(),

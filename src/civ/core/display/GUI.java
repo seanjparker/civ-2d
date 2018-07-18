@@ -19,6 +19,7 @@ import civ.core.data.hex.Hex;
 import civ.core.data.hex.HexCoordinate;
 import civ.core.data.hex.PathHex;
 import civ.core.data.utils.Pair;
+import civ.core.data.utils.TurnTimer;
 import civ.core.display.menu.button.Button;
 import civ.core.display.menu.button.UIButton;
 import civ.core.event.Events;
@@ -300,7 +301,12 @@ public class GUI {
 
     // Draw the turn counter
     g.setColor(Color.WHITE);
-    g.drawString("Turn: " + turnCounter, WINDOW_WIDTH - offsetX, yieldHeight);
+    String yearString = TurnTimer.getFormattedYear();
+    int yearStringWidth = g.getFontMetrics().stringWidth(yearString);
+    g.drawString(yearString, WINDOW_WIDTH - yearStringWidth, yieldHeight);
+    
+    String turnCountString = "Turn: " + Integer.toString(turnCounter);
+    g.drawString(turnCountString, WINDOW_WIDTH - (offsetX + yearStringWidth + g.getFontMetrics().stringWidth(turnCountString)), yieldHeight);
 
     if (civs.get(0).getNumberOfCities() > 0) {
       // Get the civ yield per turn

@@ -10,6 +10,7 @@ import civ.core.map.civilization.BaseCivilization;
 import civ.core.unit.Settler;
 import civ.core.unit.Unit;
 import civ.core.data.utils.GFXUtils;
+import civ.core.data.utils.TurnTimer;
 
 public enum Events {
 
@@ -48,6 +49,7 @@ public enum Events {
     for (BaseCivilization c : civs)
       c.nextTurn();
     turnCounter++;
+    TurnTimer.nextTurn();
   }),
   CIVILOPEDIA_OPEN(null, null),
   RESEARCH_TREE_OPEN(null,null),
